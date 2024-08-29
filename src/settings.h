@@ -2,7 +2,6 @@
 #define __SETTINGS__
 
 extern int FPS, CurrTime, OldTime;
-extern int ScreenWidth;
-extern int ScreenHeight;
+extern int ScreenWidth, ScreenHeight;
 
 #endif

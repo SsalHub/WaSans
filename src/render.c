@@ -5,9 +5,8 @@ HANDLE ScreenHandle[2];
 
 void initScreen()
 {
-//	char command[50];
-//	sprintf(command, "mode con:cols=%d lines=%d", ScreenWidth, ScreenHeight);
-//	system(command);
+	char command[50];
+	sprintf(command, "mode con:cols=%d lines=%d", ScreenWidth, ScreenHeight);
 	
 	CONSOLE_CURSOR_INFO cinfo;
 	
@@ -20,7 +19,8 @@ void initScreen()
 	SetConsoleCursorInfo(ScreenHandle[0], &cinfo);
 	SetConsoleCursorInfo(ScreenHandle[1], &cinfo);
 	
-	setWindowInfo(ScreenWidth, ScreenHeight);
+//	setWindowInfo(ScreenWidth, ScreenHeight);
+	system(command);
 }
 
 void setWindowInfo(int w, int h)
@@ -45,7 +45,42 @@ void clearScreen()
 {
 	COORD pos = { 0, 0 };
 	DWORD dw;
-	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
+	char buffer[(ScreenWidth * 2) * ScreenHeight + 1];
+	int i, j;
+	
+	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
+	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], _WHITE_ | (_BLACK_ << 4));
+	buffer[0] = '\0';
+	for (i = 0; i < ScreenHeight; i++)
+	{
+		for (j = 0; j < ScreenWidth; j++)
+		{	
+			strcat(buffer, " ");
+		}
+		strcat(buffer, "\n");
+	}
+	WriteFile(ScreenHandle[ScreenIndex], buffer, strlen(buffer), &dw, NULL);
+}
+
+void fillColorToScreen(ConsoleColor bColor, ConsoleColor tColor)
+{
+	COORD pos = { 0, 0 };
+	DWORD dw;
+	char buffer[(ScreenWidth * 2) * ScreenHeight + 1];
+	int i, j;
+	
+	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
+	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
+	buffer[0] = '\0';
+	for (i = 0; i < ScreenHeight; i++)
+	{
+		for (j = 0; j < ScreenWidth; j++)
+		{	
+			strcat(buffer, " ");
+		}
+		strcat(buffer, "\n");
+	}
+	WriteFile(ScreenHandle[ScreenIndex], buffer, strlen(buffer), &dw, NULL);
 }
 
 void releaseScreen()
@@ -64,17 +99,17 @@ void printScreen(int x, int y, char* str)
 
 void renderScreen()
 {
-	clearScreen();
 	
 	char fps_info[30];
 	if (1000 <= CurrTime - OldTime)
 	{
+		clearScreen();
 		sprintf(fps_info, "FPS : %d", FPS);
 		OldTime = CurrTime;
 		FPS = 0;
 	}
 	
 	FPS++;
-	printScreen(2, 1, fps_info);
+	printScreen(ScreenWidth - 15, ScreenHeight - 1, fps_info);
 	flipScreen();
 }

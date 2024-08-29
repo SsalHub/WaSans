@@ -11,7 +11,7 @@ int main(int argc, char *argv[]) {
 			break;
 		CurrTime = clock();
 		renderScreen();
-		sleep(0.1f);
+//		sleep(0.1f);
 	}
 	
 	releaseScreen();

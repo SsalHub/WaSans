@@ -9,7 +9,7 @@ LINKOBJ  = src/main.o src/render.o src/settings.o src/utils.o
 LIBS     = -L"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib" -L"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/lib" -static-libgcc
 INCS     = -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include"
 CXXINCS  = -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include/c++"
-BIN      = WaSans.exe
+BIN      = build/WaSans.exe
 CXXFLAGS = $(CXXINCS) 
 CFLAGS   = $(INCS) 
 DEL      = C:\Program Files (x86)\Embarcadero\Dev-Cpp\devcpp.exe INTERNAL_DEL
@@ -24,14 +24,14 @@ clean: clean-custom
 $(BIN): $(OBJ)
 	$(CC) $(LINKOBJ) -o $(BIN) $(LIBS)
 
-src/main.o: src/main.c
-	$(CC) -c src/main.c -o src/main.o $(CFLAGS)
+main.o: main.c
+	$(CC) -c main.c -o main.o $(CFLAGS)
 
-src/render.o: src/render.c
-	$(CC) -c src/render.c -o src/render.o $(CFLAGS)
+render.o: render.c
+	$(CC) -c render.c -o render.o $(CFLAGS)
 
-src/settings.o: src/settings.c
-	$(CC) -c src/settings.c -o src/settings.o $(CFLAGS)
+settings.o: settings.c
+	$(CC) -c settings.c -o settings.o $(CFLAGS)
 
-src/utils.o: src/utils.c
-	$(CC) -c src/utils.c -o src/utils.o $(CFLAGS)
+utils.o: utils.c
+	$(CC) -c utils.c -o utils.o $(CFLAGS)

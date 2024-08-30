@@ -10,13 +10,24 @@
 extern int ScreenIndex;
 extern HANDLE ScreenHandle[2];
 
+typedef enum TextAlign
+{
+	_ALIGN_CENTER_ = -100,
+	_ALIGN_LEFT_,
+	_ALIGN_RIGHT_,
+	_ALIGN_TOP_,
+	_ALIGN_BOTTOM_,
+} TextAlign;
+
 void initScreen();
 void setWindowInfo(int w, int h);
 void flipScreen();
 void clearScreen();
 void fillColorToScreen(ConsoleColor bColor, ConsoleColor tColor);
 void releaseScreen();
-void printScreen(int x, int y, char* str);
+void printString(int x, int y, char* str, ConsoleColor tColor);
 void renderScreen();
-void printFPS();
+void renderCustomScreen(void (*customRenderer)(int), int data);
+void printFrameInfo();
+void setFrameSpeed();
 #endif

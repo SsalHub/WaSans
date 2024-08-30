@@ -4,8 +4,8 @@
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = build/obj/main.o build/obj/renderer.o build/obj/settings.o build/obj/utils.o
-LINKOBJ  = build/obj/main.o build/obj/renderer.o build/obj/settings.o build/obj/utils.o
+OBJ      = build/obj/main.o build/obj/renderer.o build/obj/settings.o build/obj/utils.o build/obj/mainmenu.o
+LINKOBJ  = build/obj/main.o build/obj/renderer.o build/obj/settings.o build/obj/utils.o build/obj/mainmenu.o
 LIBS     = -L"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib" -L"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/lib" -static-libgcc
 INCS     = -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include"
 CXXINCS  = -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include/c++"
@@ -35,3 +35,6 @@ build/obj/settings.o: src/settings.c
 
 build/obj/utils.o: src/utils.c
 	$(CC) -c src/utils.c -o build/obj/utils.o $(CFLAGS)
+
+build/obj/mainmenu.o: src/mainmenu.c
+	$(CC) -c src/mainmenu.c -o build/obj/mainmenu.o $(CFLAGS)

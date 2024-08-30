@@ -4,12 +4,12 @@
 CPP      = g++.exe
 CC       = gcc.exe
 WINDRES  = windres.exe
-OBJ      = src/main.o src/render.o src/settings.o src/utils.o
-LINKOBJ  = src/main.o src/render.o src/settings.o src/utils.o
+OBJ      = build/obj/main.o build/obj/renderer.o build/obj/settings.o build/obj/utils.o
+LINKOBJ  = build/obj/main.o build/obj/renderer.o build/obj/settings.o build/obj/utils.o
 LIBS     = -L"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib" -L"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/lib" -static-libgcc
 INCS     = -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include"
 CXXINCS  = -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include/c++"
-BIN      = WaSans.exe
+BIN      = build/bin/WaSans.exe
 CXXFLAGS = $(CXXINCS) 
 CFLAGS   = $(INCS) 
 DEL      = C:\Program Files (x86)\Embarcadero\Dev-Cpp\devcpp.exe INTERNAL_DEL
@@ -24,14 +24,14 @@ clean: clean-custom
 $(BIN): $(OBJ)
 	$(CC) $(LINKOBJ) -o $(BIN) $(LIBS)
 
-src/main.o: src/main.c
-	$(CC) -c src/main.c -o src/main.o $(CFLAGS)
+build/obj/main.o: src/main.c
+	$(CC) -c src/main.c -o build/obj/main.o $(CFLAGS)
 
-src/render.o: src/render.c
-	$(CC) -c src/render.c -o src/render.o $(CFLAGS)
+build/obj/renderer.o: src/renderer.c
+	$(CC) -c src/renderer.c -o build/obj/renderer.o $(CFLAGS)
 
-src/settings.o: src/settings.c
-	$(CC) -c src/settings.c -o src/settings.o $(CFLAGS)
+build/obj/settings.o: src/settings.c
+	$(CC) -c src/settings.c -o build/obj/settings.o $(CFLAGS)
 
-src/utils.o: src/utils.c
-	$(CC) -c src/utils.c -o src/utils.o $(CFLAGS)
+build/obj/utils.o: src/utils.c
+	$(CC) -c src/utils.c -o build/obj/utils.o $(CFLAGS)

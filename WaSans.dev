@@ -14,8 +14,8 @@ CppCompiler=
 Linker=
 IsCpp=0
 Icon=
-ExeOutput=
-ObjectOutput=
+ExeOutput=build\bin
+ObjectOutput=build\obj
 LogOutput=
 LogOutputEnabled=0
 OverrideOutput=0
@@ -51,7 +51,7 @@ AutoIncBuildNr=0
 SyncProduct=1
 
 [Unit2]
-FileName=src\render.c
+FileName=src\renderer.c
 CompileCpp=0
 Folder=src
 Compile=1
@@ -71,7 +71,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit3]
-FileName=src\render.h
+FileName=src\renderer.h
 CompileCpp=0
 Folder=src
 Compile=1

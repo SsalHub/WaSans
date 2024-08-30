@@ -1,12 +1,10 @@
-#include "render.h"
+#include "renderer.h"
 
 int ScreenIndex;
 HANDLE ScreenHandle[2];
 
 void initScreen()
 {
-	char command[50];
-	sprintf(command, "mode con:cols=%d lines=%d", ScreenWidth, ScreenHeight);
 	
 	CONSOLE_CURSOR_INFO cinfo;
 	
@@ -19,19 +17,21 @@ void initScreen()
 	SetConsoleCursorInfo(ScreenHandle[0], &cinfo);
 	SetConsoleCursorInfo(ScreenHandle[1], &cinfo);
 	
-//	setWindowInfo(ScreenWidth, ScreenHeight);
-	system(command);
+	setWindowInfo(ScreenWidth, ScreenHeight);
 }
 
 void setWindowInfo(int w, int h)
 {
+	COORD size = { w, h };
 	SMALL_RECT rect;
 	rect.Left = 0;
 	rect.Top = 0;
-	rect.Right = w;
-	rect.Bottom = h;
-	SetConsoleWindowInfo(ScreenHandle[0], FALSE, &rect);
-	SetConsoleWindowInfo(ScreenHandle[1], FALSE, &rect);
+	rect.Right = w - 1;
+	rect.Bottom = h - 1;
+	SetConsoleScreenBufferSize(ScreenHandle[0], size);
+	SetConsoleScreenBufferSize(ScreenHandle[1], size);
+	SetConsoleWindowInfo(ScreenHandle[0], TRUE, &rect);
+	SetConsoleWindowInfo(ScreenHandle[1], TRUE, &rect);
 	SetConsoleTitle("SANS with Clang");
 }
 

@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;20;0;0;0
-UnitCount=8
+UnitCount=10
 
 [VersionInfo]
 Major=1
@@ -122,6 +122,26 @@ BuildCmd=
 
 [Unit8]
 FileName=src\utils.h
+CompileCpp=0
+Folder=src
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit9]
+FileName=src\mainmenu.c
+CompileCpp=0
+Folder=src
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit10]
+FileName=src\mainmenu.h
 CompileCpp=0
 Folder=src
 Compile=1

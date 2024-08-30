@@ -1,8 +1,9 @@
 #ifndef __RENDER__
 #define __RENDER__
+#include <time.h>
 #include <stdio.h>
-#include <windows.h>
 #include <string.h>
+#include <windows.h>
 #include "settings.h"
 #include "utils.h"
 
@@ -17,4 +18,5 @@ void fillColorToScreen(ConsoleColor bColor, ConsoleColor tColor);
 void releaseScreen();
 void printScreen(int x, int y, char* str);
 void renderScreen();
+void printFPS();
 #endif

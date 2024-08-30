@@ -18,6 +18,7 @@ void initScreen()
 	SetConsoleCursorInfo(ScreenHandle[1], &cinfo);
 	
 	setWindowInfo(ScreenWidth, ScreenHeight);
+	OldTime = clock();
 }
 
 void setWindowInfo(int w, int h)
@@ -99,8 +100,14 @@ void printScreen(int x, int y, char* str)
 
 void renderScreen()
 {
-	
+	printFPS();
+	flipScreen();
+}
+
+void printFPS()
+{
 	char fps_info[30];
+	CurrTime = clock();
 	if (1000 <= CurrTime - OldTime)
 	{
 		clearScreen();
@@ -108,8 +115,6 @@ void renderScreen()
 		OldTime = CurrTime;
 		FPS = 0;
 	}
-	
 	FPS++;
 	printScreen(ScreenWidth - 15, ScreenHeight - 1, fps_info);
-	flipScreen();
 }

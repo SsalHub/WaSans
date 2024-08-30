@@ -3,5 +3,4 @@
 
 extern int FPS, CurrTime, OldTime;
 extern int ScreenWidth, ScreenHeight;
-
 #endif

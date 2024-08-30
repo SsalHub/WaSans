@@ -91,7 +91,7 @@ void releaseScreen()
 	CloseHandle(ScreenHandle[1]);
 }
 
-void printString(int x, int y, char* str, ConsoleColor tColor)
+void printLine(int x, int y, char* str, ConsoleColor tColor)
 {
 	switch (x)
 	{
@@ -124,8 +124,56 @@ void printString(int x, int y, char* str, ConsoleColor tColor)
 	COORD pos = { x, y };
 	DWORD dw;
 	
-	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
 	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (_BLACK_ << 4));
+	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
+	WriteFile(ScreenHandle[ScreenIndex], str, strlen(str), &dw, NULL);
+}
+
+void printLines(int x, int y, char* str, ConsoleColor tColor)
+{
+	switch (x)
+	{
+		case _ALIGN_CENTER_:
+			x = (ScreenWidth - strlen(str)) * 0.5f;
+			break;
+		case _ALIGN_LEFT_:
+			x = 0;
+			break;
+		case _ALIGN_RIGHT_:
+			x = ScreenWidth - strlen(str) - 1;
+			break;
+		default:
+			break;
+	}
+	switch (y)
+	{
+		case _ALIGN_CENTER_:
+			y = (ScreenHeight - 1) * 0.5f;
+			break;
+		case _ALIGN_TOP_:
+			y = 0;
+			break;
+		case _ALIGN_BOTTOM_:
+			y = 15;
+			break;
+		default:
+			break;
+	}
+	COORD pos = { x, y };
+	DWORD dw;
+	char* token;
+	
+	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (_BLACK_ << 4));
+	token = strtok(str, "\n");
+//	for (; 0 <= idx; idx--)
+	while (token)
+	{
+		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
+		WriteFile(ScreenHandle[ScreenIndex], token, strlen(token), &dw, NULL);
+		pos.Y++;
+		token = strtok(NULL, "\n");
+	}
+	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
 	WriteFile(ScreenHandle[ScreenIndex], str, strlen(str), &dw, NULL);
 }
 
@@ -163,7 +211,7 @@ void printFrameInfo()
 	}
 	strcat(fps_info, fps_itoa);
 	FPS++;
-	printString(ScreenWidth - 12, _ALIGN_BOTTOM_, fps_info, _WHITE_);
+	printLine(ScreenWidth - 12, _ALIGN_BOTTOM_, fps_info, _WHITE_);
 }
 
 void setFrameSpeed()

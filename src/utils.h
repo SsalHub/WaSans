@@ -1,6 +1,9 @@
 #ifndef __UTILS__
 #define __UTILS__
+#include <stdio.h>
+#include <string.h>
 #include <windows.h>
+#include "settings.h"
 
 typedef enum ConsoleColor
 {
@@ -36,4 +39,5 @@ typedef enum InputType
 } InputType;
 
 void sleep(float sec);
+char* readFile(char* fname, char* dest);
 #endif

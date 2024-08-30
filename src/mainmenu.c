@@ -35,9 +35,20 @@ void showMainmenu()
 
 void renderMainmenu(int select)
 {
+	// print logo
+	printLogo();
+	
+	// print selections
 	ConsoleColor tSelect[2] = { _WHITE_, _WHITE_ };
 	tSelect[select] = _YELLOW_;
 	
-	printString(_ALIGN_CENTER_, 22, "Begin Game", tSelect[0]);
-	printString(_ALIGN_CENTER_, 24, "Exit Game", tSelect[1]);
+	printLine(_ALIGN_CENTER_, 22, "Begin Game", tSelect[0]);
+	printLine(_ALIGN_CENTER_, 24, "Exit Game", tSelect[1]);
+}
+
+void printLogo()
+{
+	char fname[32] = "data\\UNDERTALE.logo", logo[ScreenWidth * ScreenHeight];
+	readFile(fname, logo);
+	printLines(_ALIGN_CENTER_, 2, logo, _WHITE_);	
 }

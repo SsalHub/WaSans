@@ -82,7 +82,8 @@ void releaseDataFile()
 	int i;
 	for (i = 0; i < 3; i++)
 	{
-		if (&(DataFile[i]) != NULL)
-			free(&(DataFile[i]));
+		if (DataFile[i] == NULL)
+			continue;
+		free(DataFile[i]);
 	}
 }

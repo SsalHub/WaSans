@@ -15,11 +15,33 @@ void initGame()
 
 void runGame()
 {
-	showMainmenu();
+	int mainmenu;
+	while (1)
+	{
+		mainmenu = showMainmenu();
+		if (mainmenu == 0)
+		{
+			// run boss battle
+		}
+		else if(mainmenu == 1)
+		{
+			// exit game
+			break;
+		}
+		else
+		{
+			// error
+			perror("Mainmenu selection error");
+			exit(1);
+		}
+	}
 }
 
 void exitGame()
 {
+	// print game exit screen
+	// printLine(_ALIGN_CENTER_, _ALIGN_TOP_, str, _WHITE_);
+	
 	releaseScreen();
 	releaseDataFile();
 }

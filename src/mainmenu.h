@@ -7,6 +7,6 @@
 #include "utils.h"
 #include "settings.h"
 
-void showMainmenu();
+int showMainmenu();
 void renderMainmenu(int select);
 #endif

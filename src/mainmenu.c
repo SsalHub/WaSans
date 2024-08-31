@@ -1,6 +1,6 @@
 #include "mainmenu.h"
 
-void showMainmenu()
+int showMainmenu()
 {
 	int select = 0;
 	char input;
@@ -25,12 +25,12 @@ void showMainmenu()
 					break;
 				
 				case _CARRIGE_RETURN_:
-					// next action 
-					break;
+					return select;
 			}
 		}
 		renderCustomScreen(renderMainmenu, select);
 	}
+	return -1;
 }
 
 void renderMainmenu(int select)

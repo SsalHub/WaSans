@@ -135,10 +135,13 @@ void printLines(int x, int y, char* str, ConsoleColor tColor)
 {
 	COORD pos;
 	DWORD dw;
-	char* token;
+	char* token, *copy;
+	
+	copy = (char*)malloc(sizeof(char) * (strlen(str) + 1));
+	strcpy(copy, str);
 	
 	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (_BLACK_ << 4));
-	token = strtok(str, "\n");
+	token = strtok(copy, "\n");
 	switch (x)
 	{
 		case _ALIGN_CENTER_:
@@ -177,6 +180,7 @@ void printLines(int x, int y, char* str, ConsoleColor tColor)
 		pos.Y++;
 		token = strtok(NULL, "\n\r");
 	}
+	free(copy);
 }
 
 void renderScreen()

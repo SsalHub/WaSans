@@ -1,9 +1,19 @@
 #ifndef __UTILS__
 #define __UTILS__
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <windows.h>
 #include "settings.h"
+
+extern char* DataFile[3];
+
+typedef enum DataFileType
+{
+	_LOGO_UNDERTALE_ = 0,
+	_TEST1_,
+	_TEST2_,
+} DataFileType;
 
 typedef enum ConsoleColor
 {
@@ -39,5 +49,8 @@ typedef enum InputType
 } InputType;
 
 void sleep(float sec);
+void initDataFile();
 char* readFile(const char* fname, char* dest);
+char* readDataFile(const char* fname);
+void releaseDataFile();
 #endif

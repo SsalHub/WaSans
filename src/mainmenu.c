@@ -36,7 +36,7 @@ void showMainmenu()
 void renderMainmenu(int select)
 {
 	// print logo
-	printLogo();
+	printLines(_ALIGN_CENTER_, 6, DataFile[_LOGO_UNDERTALE_], _WHITE_);	
 	
 	// print selections
 	ConsoleColor tSelect[2] = { _WHITE_, _WHITE_ };
@@ -44,12 +44,4 @@ void renderMainmenu(int select)
 	
 	printLine(_ALIGN_CENTER_, 23, "Begin Game", tSelect[0]);
 	printLine(_ALIGN_CENTER_, 25, "Exit Game", tSelect[1]);
-}
-
-void printLogo()
-{
-	const char fname[128] = "../..//data/UNDERTALE.logo";
-	char logo[ScreenWidth * ScreenHeight], *result;
-	result = readFile(fname, logo);
-	printLines(_ALIGN_CENTER_, 6, logo, _WHITE_);	
 }

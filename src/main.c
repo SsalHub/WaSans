@@ -10,6 +10,7 @@ int main(int argc, char *argv[]) {
 void initGame()
 {
 	initScreen();
+	initDataFile();
 }
 
 void runGame()
@@ -20,4 +21,5 @@ void runGame()
 void exitGame()
 {
 	releaseScreen();
+	releaseDataFile();
 }

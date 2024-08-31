@@ -4,8 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <windows.h>
-#include "settings.h"
-#include "utils.h"
+#include "../settings.h"
+#include "../utils.h"
 
 extern int ScreenIndex;
 extern HANDLE ScreenHandle[2];
@@ -28,7 +28,7 @@ void releaseScreen();
 void printLine(int x, int y, char* str, ConsoleColor tColor);
 void printLines(int x, int y, char* str, ConsoleColor tColor);
 void renderScreen();
-void renderCustomScreen(void (*customRenderer)(int), int data);
+void renderCustomScreen(void (*customRenderer)(void));
 void printFrameInfo();
 void setFrameSpeed();
 #endif

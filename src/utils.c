@@ -12,8 +12,8 @@ void initDataFile()
 	DataFileType t;
 	const char fname[3][64] =  {
 					"../../data/UNDERTALE.logo",
-					"../../data/UNDERTALE.logo",
-					"../../data/UNDERTALE.logo",
+					"../../data/SELECT_BOX.asset",
+					"../../data/BATTLE_BOX.asset",
 	};
 	
 	for (t = 0; t < 3; t++)

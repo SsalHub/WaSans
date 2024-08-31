@@ -11,8 +11,8 @@ extern char* DataFile[3];
 typedef enum DataFileType
 {
 	_LOGO_UNDERTALE_ = 0,
-	_TEST1_,
-	_TEST2_,
+	_ASSET_SELECT_BOX_,
+	_ASSET_BATTLE_BOX_,
 } DataFileType;
 
 typedef enum ConsoleColor

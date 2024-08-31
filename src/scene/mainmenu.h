@@ -3,10 +3,12 @@
 #include <conio.h>
 #include <string.h>
 #include <windows.h>
+#include "sans_battle.h"
 #include "../utils.h"
 #include "../settings.h"
+#include "../ui/uieffect.h"
 #include "../render/renderer.h"
 
 int showMainmenu();
-void renderMainmenu(int select);
+void renderMainmenu();
 #endif

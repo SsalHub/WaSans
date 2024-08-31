@@ -15,23 +15,17 @@ void initGame()
 
 void runGame()
 {
-	int mainmenu;
+	int bExit;
 	while (1)
 	{
-		mainmenu = showMainmenu();
-		if (mainmenu == 0)
+		bExit = showMainmenu();
+		if (0 <= bExit)
 		{
-			// run boss battle
-			runSansBattle();
+			if (bExit == 1) // exit game
+				break;
 		}
-		else if(mainmenu == 1)
+		else // error
 		{
-			// exit game
-			break;
-		}
-		else
-		{
-			// error
 			perror("Mainmenu selection error");
 			exit(1);
 		}

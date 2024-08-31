@@ -45,23 +45,7 @@ void clearScreen()
 {
 	COORD pos = { 0, 0 };
 	DWORD dw;
-	
 	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
-//	char buffer[(ScreenWidth * 2) * ScreenHeight + 1];
-//	int i, j;
-//	
-//	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
-//	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], _WHITE_ | (_BLACK_ << 4));
-//	buffer[0] = '\0';
-//	for (i = 0; i < ScreenHeight; i++)
-//	{
-//		for (j = 0; j < ScreenWidth; j++)
-//		{	
-//			strcat(buffer, " ");
-//		}
-//		strcat(buffer, "\n");
-//	}
-//	WriteFile(ScreenHandle[ScreenIndex], buffer, strlen(buffer), &dw, NULL);
 }
 
 void fillColorToScreen(ConsoleColor bColor, ConsoleColor tColor)
@@ -73,16 +57,17 @@ void fillColorToScreen(ConsoleColor bColor, ConsoleColor tColor)
 	
 	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
 	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
-	buffer[0] = '\0';
-	for (i = 0; i < ScreenHeight; i++)
-	{
-		for (j = 0; j < ScreenWidth; j++)
-		{	
-			strcat(buffer, " ");
-		}
-		strcat(buffer, "\n");
-	}
-	WriteFile(ScreenHandle[ScreenIndex], buffer, strlen(buffer), &dw, NULL);
+	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
+//	buffer[0] = '\0';
+//	for (i = 0; i < ScreenHeight; i++)
+//	{
+//		for (j = 0; j < ScreenWidth; j++)
+//		{	
+//			strcat(buffer, " ");
+//		}
+//		strcat(buffer, "\n");
+//	}
+//	WriteFile(ScreenHandle[ScreenIndex], buffer, strlen(buffer), &dw, NULL);
 }
 
 void releaseScreen()
@@ -178,7 +163,7 @@ void printLines(int x, int y, char* str, ConsoleColor tColor)
 		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
 		WriteFile(ScreenHandle[ScreenIndex], token, strlen(token), &dw, NULL);
 		pos.Y++;
-		token = strtok(NULL, "\n\r");
+		token = strtok(NULL, "\n");
 	}
 	free(copy);
 }
@@ -191,10 +176,10 @@ void renderScreen()
 	setFrameSpeed();
 }
 
-void renderCustomScreen(void (*customRenderer)(int), int data)
+void renderCustomScreen(void (*customRenderer)(void))
 {
 	clearScreen();
-	(*customRenderer)(data);
+	(*customRenderer)();
 	printFrameInfo();
 	flipScreen();
 	setFrameSpeed();

@@ -17,10 +17,10 @@ char* readFile(const char* fname, char* dest)
 		return NULL;
 	}
 	fseek(fp, 0, SEEK_END);
-	fsize = ftell(fp);
+	fsize = ftell(fp) / sizeof(char);
 	fseek(fp, 0, SEEK_SET);
 	result = fread(dest, sizeof(char), fsize, fp);
-	dest[fsize] = '\0';
+	dest[result] = '\0';
 	if (result <= 0) // fread failed
 	{
 		perror("Error reading file data");

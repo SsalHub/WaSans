@@ -213,7 +213,7 @@ void printFrameInfo()
 	}
 	strcat(fps_info, fps_itoa);
 	FPS++;
-	printLine(ScreenWidth - 12, _ALIGN_BOTTOM_, fps_info, _WHITE_);
+	printLine(ScreenWidth - 12, _ALIGN_TOP_, fps_info, _WHITE_);
 }
 
 void setFrameSpeed()

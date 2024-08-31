@@ -2,9 +2,10 @@
 #define __MAIN__
 #include <conio.h>
 #include <windows.h>
-#include "renderer.h"
 #include "utils.h"
-#include "mainmenu.h"
+#include "render/renderer.h"
+#include "scene/mainmenu.h"
+#include "scene/sans_battle.h"
 
 int main(int argc, char *argv[]);
 void initGame();

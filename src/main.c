@@ -22,6 +22,7 @@ void runGame()
 		if (mainmenu == 0)
 		{
 			// run boss battle
+			runSansBattle();
 		}
 		else if(mainmenu == 1)
 		{

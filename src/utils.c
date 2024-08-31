@@ -5,17 +5,27 @@ void sleep(float sec)
 	Sleep(sec * 1000);
 }
 
-char* readFile(char* fname, char* dest)
+char* readFile(const char* fname, char* dest)
 {
-	size_t ret;
+	size_t fsize, result;
 	FILE* fp;
 	
 	fp = fopen(fname, "r");
-	if (fp != NULL)
+	if (fp == NULL)
 	{
-		ret = fread(dest, sizeof(char), ScreenWidth * ScreenHeight + 1, fp);
-//		if (0 < ret) // fread success 
-		fclose(fp);
+		perror("Error opening file");
+		return NULL;
 	}
+	fseek(fp, 0, SEEK_END);
+	fsize = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+	result = fread(dest, sizeof(char), fsize, fp);
+	dest[fsize] = '\0';
+	if (result <= 0) // fread failed
+	{
+		perror("Error reading file data");
+		return NULL;
+	}
+	fclose(fp);
 	return dest;
 }

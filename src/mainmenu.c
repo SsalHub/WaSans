@@ -48,7 +48,10 @@ void renderMainmenu(int select)
 
 void printLogo()
 {
-	char fname[32] = "data\\UNDERTALE.logo", logo[ScreenWidth * ScreenHeight];
-	readFile(fname, logo);
+	const char fname[128] = "D:\\Programming\\C\\WaSans\\data\\UNDERTALE.logo";
+	char logo[ScreenWidth * ScreenHeight], *result;
+	result = readFile(fname, logo);
+	if (strlen(logo) < 10 || result == NULL) 
+		exit(0);
 	printLines(_ALIGN_CENTER_, 2, logo, _WHITE_);	
 }

@@ -39,5 +39,5 @@ typedef enum InputType
 } InputType;
 
 void sleep(float sec);
-char* readFile(char* fname, char* dest);
+char* readFile(const char* fname, char* dest);
 #endif

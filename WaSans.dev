@@ -24,12 +24,12 @@ HostApplication=
 UseCustomMakefile=0
 CustomMakefile=Makefile
 CommandLine=
-Folders=src
+Folders=data,src
 IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
-CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;20;0;0;0
-UnitCount=10
+CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;1;0;0;0;8;0;0;0
+UnitCount=11
 
 [VersionInfo]
 Major=1
@@ -146,6 +146,15 @@ CompileCpp=0
 Folder=src
 Compile=1
 Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit11]
+FileName=data\UNDERTALE.logo
+Folder=data
+Compile=0
+Link=0
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=

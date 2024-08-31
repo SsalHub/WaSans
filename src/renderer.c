@@ -93,37 +93,39 @@ void releaseScreen()
 
 void printLine(int x, int y, char* str, ConsoleColor tColor)
 {
+	COORD pos;
+	DWORD dw;
+	
 	switch (x)
 	{
 		case _ALIGN_CENTER_:
-			x = (ScreenWidth - strlen(str)) * 0.5f;
+			pos.X = (ScreenWidth - strlen(str)) * 0.5f;
 			break;
 		case _ALIGN_LEFT_:
-			x = 0;
+			pos.X = 0;
 			break;
 		case _ALIGN_RIGHT_:
-			x = ScreenWidth - strlen(str) - 1;
+			pos.X = ScreenWidth - strlen(str) - 1;
 			break;
 		default:
+			pos.X = x;
 			break;
 	}
 	switch (y)
 	{
 		case _ALIGN_CENTER_:
-			y = (ScreenHeight - 1) * 0.5f;
+			pos.Y = (ScreenHeight - 1) * 0.5f;
 			break;
 		case _ALIGN_TOP_:
-			y = 0;
+			pos.Y = 0;
 			break;
 		case _ALIGN_BOTTOM_:
-			y = ScreenHeight - 1;
+			pos.Y = ScreenHeight - 1;
 			break;
 		default:
+			pos.Y = y;
 			break;
 	}
-	COORD pos = { x, y };
-	DWORD dw;
-	
 	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (_BLACK_ << 4));
 	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
 	WriteFile(ScreenHandle[ScreenIndex], str, strlen(str), &dw, NULL);
@@ -131,50 +133,50 @@ void printLine(int x, int y, char* str, ConsoleColor tColor)
 
 void printLines(int x, int y, char* str, ConsoleColor tColor)
 {
-	switch (x)
-	{
-		case _ALIGN_CENTER_:
-			x = (ScreenWidth - strlen(str)) * 0.5f;
-			break;
-		case _ALIGN_LEFT_:
-			x = 0;
-			break;
-		case _ALIGN_RIGHT_:
-			x = ScreenWidth - strlen(str) - 1;
-			break;
-		default:
-			break;
-	}
-	switch (y)
-	{
-		case _ALIGN_CENTER_:
-			y = (ScreenHeight - 1) * 0.5f;
-			break;
-		case _ALIGN_TOP_:
-			y = 0;
-			break;
-		case _ALIGN_BOTTOM_:
-			y = 15;
-			break;
-		default:
-			break;
-	}
-	COORD pos = { x, y };
+	COORD pos;
 	DWORD dw;
 	char* token;
 	
 	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (_BLACK_ << 4));
 	token = strtok(str, "\n");
-//	for (; 0 <= idx; idx--)
-	while (token)
+	switch (x)
+	{
+		case _ALIGN_CENTER_:
+			pos.X = (ScreenWidth - strlen(token)) * 0.5f;
+			break;
+		case _ALIGN_LEFT_:
+			pos.X = 0;
+			break;
+		case _ALIGN_RIGHT_:
+			pos.X = ScreenWidth - strlen(token) - 8;
+			break;
+		default:
+			pos.X = x;
+			break;
+	}
+	switch (y)
+	{
+		case _ALIGN_CENTER_:
+			pos.Y = (ScreenHeight - 1) * 0.5f;
+			break;
+		case _ALIGN_TOP_:
+			pos.Y = 0;
+			break;
+		case _ALIGN_BOTTOM_:
+			// should count num of \n in 'str', but bothering
+			pos.Y = 15;
+			break;
+		default:
+			pos.Y = y;
+			break;
+	}
+	while (token != NULL)
 	{
 		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
 		WriteFile(ScreenHandle[ScreenIndex], token, strlen(token), &dw, NULL);
 		pos.Y++;
-		token = strtok(NULL, "\n");
+		token = strtok(NULL, "\n\r");
 	}
-	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
-	WriteFile(ScreenHandle[ScreenIndex], str, strlen(str), &dw, NULL);
 }
 
 void renderScreen()

@@ -55,7 +55,7 @@ void renderMainmenu()
 	// print logo
 	printLines(x, y, AssetFile[_LOGO_UNDERTALE_], _WHITE_);	
 	printLine(x + 55, y + 2, "####", _HOTPINK_);
-	printLine(x + 56, y + 3, "#+", _HOTPINK_);
+	printLine(x + 56, y + 3, "=/", _HOTPINK_);
 	
 	// print selections
 	ConsoleColor tSelect[2] = { _WHITE_, _WHITE_ };

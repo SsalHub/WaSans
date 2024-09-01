@@ -76,18 +76,17 @@ void renderSansBattle()
 	printLine(x + 11, y + 2, "MERCY", tSelect[3]); 
 	
 }
-// 0 1 2 1 0 -1 -2 -1 0
-// 2 3 4 3 2 1 0 1 2 
+
 void printSans()
 {
-	const int MAX_TICK = 8;
+	const int MAX_TICK = 10;
 	static int tick, oldTime;
-	static int face_move[8][2] = { { 1, 0 }, { 1, 0 }, { 2, 0 }, { 1, 0 }, 
-							{ 0, 0 }, { 0, 0 }, { -1, 0 }, { 0, 0 }},
-	    body_move[8][2] = { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 0, 0 }, 
-							{ 0, 0 }, { 0, 0 }, { -1, 0 }, { 0, 0 }},
-	    leg_move[8][2] = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, 
-							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }};
+	int face_move[10][2] = { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 }, { 0, 0 }, 
+							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }},
+	    body_move[10][2] = { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 0, 0 }, { 0, 0 }, 
+							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }},
+	    leg_move[10][2] = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, 
+							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }};
 	int x = 50, y = 1, currTime;
 	
 	// leg
@@ -100,7 +99,7 @@ void printSans()
 	if (oldTime)
 	{
 		currTime = clock();
-		if (120 <= currTime - oldTime)
+		if (100 <= currTime - oldTime)
 		{
 			tick = MAX_TICK <= tick + 1 ? 0 : tick + 1;
 			oldTime = currTime;

@@ -1,7 +1,15 @@
 #include "utils.h"
 
-char* DataFile[3];
-
+char* AssetFile[_ASSETFILE_NUM_];
+static char AssetFileName[_ASSETFILE_NUM_][64] =  {
+					"../../data/UNDERTALE_LOGO.asset",
+					"../../data/SELECT_BOX.asset",
+					"../../data/BATTLE_BOX.asset",
+					"../../data/character/sans/body_normal.asset",
+					"../../data/character/sans/leg_normal.asset",
+					"../../data/character/sans/face_normal_a.asset",
+				};
+				
 void sleep(float sec)
 {
 	Sleep(sec * 1000);
@@ -9,16 +17,11 @@ void sleep(float sec)
 
 void initDataFile()
 {
-	DataFileType t;
-	const char fname[3][64] =  {
-					"../../data/UNDERTALE.logo",
-					"../../data/SELECT_BOX.asset",
-					"../../data/BATTLE_BOX.asset",
-	};
+	AssetFileType t;
 	
-	for (t = 0; t < 3; t++)
+	for (t = 0; t < _ASSETFILE_NUM_; t++)
 	{
-		DataFile[t] = readDataFile(fname[t]);
+		AssetFile[t] = readAssetFile(AssetFileName[t]);
 	}
 }
 
@@ -47,7 +50,7 @@ char* readFile(const char* fname, char* dest)
 	return dest;
 }
 
-char* readDataFile(const char* fname)
+char* readAssetFile(const char* fname)
 {
 	FILE* fp;
 	char* dest;
@@ -69,7 +72,7 @@ char* readDataFile(const char* fname)
 	dest[result] = '\0';
 	if (result <= 0) // fread failed
 	{
-		perror("Error reading file data");
+		perror("Error reading asset file data");
 		exit(1);
 		return NULL;
 	}
@@ -77,13 +80,13 @@ char* readDataFile(const char* fname)
 	return dest;
 }
 
-void releaseDataFile()
+void releaseAssetFile()
 {
 	int i;
-	for (i = 0; i < 3; i++)
+	for (i = 0; i < _ASSETFILE_NUM_; i++)
 	{
-		if (DataFile[i] == NULL)
+		if (AssetFile[i] == NULL)
 			continue;
-		free(DataFile[i]);
+		free(AssetFile[i]);
 	}
 }

@@ -6,14 +6,20 @@
 #include <windows.h>
 #include "settings.h"
 
-extern char* DataFile[3];
+#define _ASSETFILE_NUM_ 6
 
-typedef enum DataFileType
+extern char* AssetFile[_ASSETFILE_NUM_];
+static char AssetFileName[_ASSETFILE_NUM_][64];
+
+typedef enum AssetFileType
 {
 	_LOGO_UNDERTALE_ = 0,
-	_ASSET_SELECT_BOX_,
-	_ASSET_BATTLE_BOX_,
-} DataFileType;
+	_SELECT_BOX_,
+	_BATTLE_BOX_,
+	_SANS_BODY_NORMAL_,
+	_SANS_LEG_NORMAL_,
+	_SANS_FACE_NORMAL_A_,
+} AssetFileType;
 
 typedef enum ConsoleColor
 {
@@ -51,6 +57,6 @@ typedef enum InputType
 void sleep(float sec);
 void initDataFile();
 char* readFile(const char* fname, char* dest);
-char* readDataFile(const char* fname);
-void releaseDataFile();
+char* readAssetFile(const char* fname);
+void releaseAssetFile();
 #endif

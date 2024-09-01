@@ -38,5 +38,5 @@ void exitGame()
 	// printLine(_ALIGN_CENTER_, _ALIGN_TOP_, str, _WHITE_);
 	
 	releaseScreen();
-	releaseDataFile();
+	releaseAssetFile();
 }

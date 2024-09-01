@@ -1,6 +1,6 @@
 #include "mainmenu.h"
 
-int menuSelect;
+static int menuSelect;
 
 int showMainmenu()
 {
@@ -14,7 +14,7 @@ int showMainmenu()
 			switch (input)
 			{
 				case _UP_:
-				case 'W':	
+				case 'W':
 				case 'w':	
 					if (0 < menuSelect)
 						menuSelect--;
@@ -34,13 +34,14 @@ int showMainmenu()
 						// begin game
 						fadeIn(renderMainmenu);
 						runSansBattle();
+						return 0;
 					}
 					else if(menuSelect == 1)
 					{
 						// exit game
 						return 1;
 					}
-					return 0;
+					return -1;
 			}
 		}
 		renderCustomScreen(renderMainmenu);
@@ -50,13 +51,17 @@ int showMainmenu()
 
 void renderMainmenu()
 {
+	int x = 6, y = 5;
 	// print logo
-	printLines(_ALIGN_CENTER_, 6, DataFile[_LOGO_UNDERTALE_], _WHITE_);	
+	printLines(x, y, AssetFile[_LOGO_UNDERTALE_], _WHITE_);	
+	printLine(x + 55, y + 2, "####", _HOTPINK_);
+	printLine(x + 56, y + 3, "#+", _HOTPINK_);
 	
 	// print selections
 	ConsoleColor tSelect[2] = { _WHITE_, _WHITE_ };
-	tSelect[menuSelect] = _LIGHT_YELLOW_;
+	tSelect[menuSelect] = _YELLOW_;
 	
-	printLine(_ALIGN_CENTER_, 23, "Begin Game", tSelect[0]);
-	printLine(_ALIGN_CENTER_, 25, "Exit Game", tSelect[1]);
+	y = 21;
+	printLine(_ALIGN_CENTER_, y, "Begin Game", tSelect[0]);
+	printLine(_ALIGN_CENTER_, y + 2, "Exit Game", tSelect[1]);
 }

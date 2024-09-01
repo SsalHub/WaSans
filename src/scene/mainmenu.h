@@ -9,6 +9,8 @@
 #include "../ui/uieffect.h"
 #include "../render/renderer.h"
 
+static int menuSelect;
+
 int showMainmenu();
 void renderMainmenu();
 #endif

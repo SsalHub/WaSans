@@ -207,6 +207,5 @@ void printFrameInfo()
 
 void setFrameSpeed()
 {
-	int delay_ms = 1000 / BaseFrame;
-	Sleep(10);	
+	Sleep(1000 / BaseFrame);	
 }

@@ -1,11 +1,12 @@
 #include "sans_battle.h"
 
-static int battleSelect;
+static int battleSelect, playerHP;
 
 void runSansBattle()
 {
 	char input;
 	battleSelect = 0;
+	playerHP = MaxHP;
 	
 	sleep(1.0f);
 	fadeOut(renderSansBattle);
@@ -30,12 +31,17 @@ void runSansBattle()
 						battleSelect++;
 					break;
 				
-				case 'T':
-				case 't':	
-//				case _SPACE_:
-//				case _CARRIGE_RETURN_:
-					// action 
-					return;	
+				case _SPACE_:
+				case _CARRIGE_RETURN_:
+					if (battleSelect == 0)
+					{
+						playerHP -= 5;
+					}
+					else if (battleSelect == 3)
+					{
+						return;	
+					}
+					break;
 			}
 		}
 		renderCustomScreen(renderSansBattle);
@@ -44,7 +50,8 @@ void runSansBattle()
 
 void renderSansBattle()
 {
-	int x, y;
+	int x, y, i, damaged;
+	char hpText[11];
 	
 	// print Sans
 	printSans();
@@ -55,8 +62,36 @@ void renderSansBattle()
 	printLines(x, y, AssetFile[_BATTLE_BOX_], _WHITE_);
 	
 	// print player info
+	x = 9;
 	y = 24;
-		// print here
+	printLine(x, y, "HSU", _WHITE_);
+	x += 12;
+	printLine(x, y, "LV 1", _WHITE_);
+	
+	// print HP info
+	// set max HP text
+	for (int i = 0; i < 10; i++)
+		hpText[i] = '@';
+	hpText[10] = '\0';
+	x = 37;
+	printLine(x, y, "HP", _WHITE_);
+	x += 3;
+	printLine(x, y, hpText, _YELLOW_);
+	damaged = (MaxHP - playerHP) / 10;
+	// set player HP info
+	for (i = 0; i < damaged; i++)
+		hpText[i] = '#';
+	hpText[damaged] = '\0';
+	printLine(x + 10 - damaged, y, hpText, _RED_);
+	// print numeric HP info
+	x += 15;
+	itoa(playerHP, hpText, 10);
+	printLine(x, y, hpText, _WHITE_);
+	x += strlen(hpText);
+	printLine(x, y, " / ", _WHITE_);
+	x += 3;
+	itoa(MaxHP, hpText, 10);
+	printLine(x, y, hpText, _WHITE_);
 	
 	// print select boxes
 	ConsoleColor tSelect[4] = { _YELLOW_, _YELLOW_, _YELLOW_, _YELLOW_ };
@@ -79,14 +114,17 @@ void renderSansBattle()
 
 void printSans()
 {
-	const int MAX_TICK = 10;
+	const int MAX_TICK = 12;
 	static int tick, oldTime;
-	int face_move[10][2] = { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 }, { 0, 0 }, 
-							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }},
-	    body_move[10][2] = { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 0, 0 }, { 0, 0 }, 
-							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }},
-	    leg_move[10][2] = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, 
-							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }};
+	int face_move[12][2] = { { 0, 0 }, { 1, 0 }, { 1, 0 }, { 0, 0 },
+							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	    body_move[12][2] = { { 1, 0 }, { 1, 0 }, { 1, 0 }, { 1, 0 }, 
+							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 }, 
+							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } },
+	    leg_move[12][2] = { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
+							{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } };
 	int x = 50, y = 1, currTime;
 	
 	// leg
@@ -96,10 +134,11 @@ void printSans()
 	// face
 	printLines(x + face_move[tick][0], y + face_move[tick][1], AssetFile[_SANS_FACE_NORMAL_A_], _WHITE_);
 	
+	// set ticks based on current/old time
 	if (oldTime)
 	{
 		currTime = clock();
-		if (100 <= currTime - oldTime)
+		if (100 <= currTime - oldTime)	// 100ms == 0.1sec
 		{
 			tick = MAX_TICK <= tick + 1 ? 0 : tick + 1;
 			oldTime = currTime;

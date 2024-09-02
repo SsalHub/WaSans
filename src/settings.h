@@ -3,4 +3,5 @@
 
 extern int BaseFrame, FPS, OldFPS, CurrTime, OldTime;
 extern int ScreenWidth, ScreenHeight;
+extern int MaxHP;
 #endif

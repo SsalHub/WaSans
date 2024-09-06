@@ -10,13 +10,26 @@
 #include "../ui/uieffect.h"
 #include "../render/renderer.h"
 
+#define _SANS_SCRIPT_LEN_ 4
+
 static int battleSelect, playerHP;
+static const char scripts[_SANS_SCRIPT_LEN_][64];
+static int scriptIdx;
 
 void runSansBattle();
+void introPhase();
 void bossPhase();
 void playerPhase();
+
+void renderSansBattle();
+void renderIntroPhase();
+void renderBossPhase();
+void renderPlayerPhase();
+
+void renderSans();
+int renderSpeechBubble(const char* script);
 void renderBossPhaseBox();
 void renderPlayerPhaseBox();
-void renderSansBattle();
-void renderSans();
+void renderPlayerInfo();
+void renderSelectBox();
 #endif

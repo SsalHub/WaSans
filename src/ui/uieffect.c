@@ -1,6 +1,6 @@
 #include "uieffect.h"
 
-void fadeIn(void (*renderer)(void))
+void fadeOut(void (*renderer)(void))
 {
 	int fadeProgress, i;
 	char fadeLine[ScreenWidth + 1];
@@ -14,13 +14,13 @@ void fadeIn(void (*renderer)(void))
 		clearScreen();
 		(*renderer)();
 		for (i = 0; i < fadeProgress; i++)
-			printLine(0, i, fadeLine, _BLACK_);
+			printLine(0, i, fadeLine, _BLACK_, _BLACK_);
 		flipScreen();
 		Sleep(30);
 	}
 }
 
-void fadeOut(void (*renderer)(void))
+void fadeIn(void (*renderer)(void))
 {
 	int fadeProgress, i;
 	char fadeLine[ScreenWidth + 1];
@@ -34,7 +34,7 @@ void fadeOut(void (*renderer)(void))
 		clearScreen();
 		(*renderer)();
 		for (i = 0; i < fadeProgress; i++)
-			printLine(0, i, fadeLine, _BLACK_);
+			printLine(0, i, fadeLine, _BLACK_, _BLACK_);
 		flipScreen();
 		Sleep(30);
 	}

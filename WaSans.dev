@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;1;0;0;0;8;0;0;0
-UnitCount=20
+UnitCount=19
 
 [VersionInfo]
 Major=1
@@ -170,16 +170,6 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit15]
-FileName=data\BATTLE_BOX.asset
-CompileCpp=0
-Folder=data
-Compile=0
-Link=0
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit2]
 FileName=src\main.h
 CompileCpp=0
@@ -191,7 +181,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit16]
-FileName=data\SELECT_BOX.asset
+FileName=data\UNDERTALE_LOGO.asset
 Folder=data
 Compile=0
 Link=0
@@ -200,8 +190,8 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit17]
-FileName=data\UNDERTALE_LOGO.asset
-Folder=data
+FileName=data\character\sans\body_normal.asset
+Folder=data/character/sans
 Compile=0
 Link=0
 Priority=1000
@@ -219,7 +209,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit18]
-FileName=data\character\sans\body_normal.asset
+FileName=data\character\sans\face_normal_a.asset
 Folder=data/character/sans
 Compile=0
 Link=0
@@ -228,7 +218,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit19]
-FileName=data\character\sans\face_normal_a.asset
+FileName=data\character\sans\leg_normal.asset
 Folder=data/character/sans
 Compile=0
 Link=0
@@ -239,6 +229,15 @@ BuildCmd=
 [Unit20]
 FileName=data\character\sans\leg_normal.asset
 Folder=data/character/sans
+Compile=0
+Link=0
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit15]
+FileName=data\SELECT_BOX.asset
+Folder=data
 Compile=0
 Link=0
 Priority=1000

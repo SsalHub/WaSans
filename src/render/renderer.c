@@ -45,29 +45,31 @@ void clearScreen()
 {
 	COORD pos = { 0, 0 };
 	DWORD dw;
-	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
+	char buffer[(ScreenWidth + 1) * ScreenHeight];
+	int x = 0, y = 0, i, j;
+//	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
+	buffer[0] = '\0';
+	for (j = 0; j < ScreenWidth; j++)
+		strcat(buffer, " ");	
+	for (i = 0; i < ScreenHeight; i++)
+		printLine(x, y + i, buffer, _BLACK_, _BLACK_);
 }
 
-void fillColorToScreen(ConsoleColor bColor, ConsoleColor tColor)
+void fillColorToScreen(ConsoleColor tColor, ConsoleColor bColor)
 {
 	COORD pos = { 0, 0 };
 	DWORD dw;
-	char buffer[(ScreenWidth * 2) * ScreenHeight + 1];
-	int i, j;
+	char buffer[(ScreenWidth + 1) * ScreenHeight];
+	int x = 0, y = 0, i, j;
 	
 	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
 	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
-	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
-//	buffer[0] = '\0';
-//	for (i = 0; i < ScreenHeight; i++)
-//	{
-//		for (j = 0; j < ScreenWidth; j++)
-//		{	
-//			strcat(buffer, " ");
-//		}
-//		strcat(buffer, "\n");
-//	}
-//	WriteFile(ScreenHandle[ScreenIndex], buffer, strlen(buffer), &dw, NULL);
+//	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
+	buffer[0] = '\0';
+	for (j = 0; j < ScreenWidth; j++)
+		strcat(buffer, " ");	
+	for (i = 0; i < ScreenHeight; i++)
+		printLine(x, y + i, buffer, _BLACK_, _BLACK_);
 }
 
 void releaseScreen()
@@ -76,11 +78,12 @@ void releaseScreen()
 	CloseHandle(ScreenHandle[1]);
 }
 
-void printLine(int x, int y, char* str, ConsoleColor tColor)
+void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)
 {
 	COORD pos;
 	DWORD dw;
 	
+	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
 	switch (x)
 	{
 		case _ALIGN_CENTER_:
@@ -111,12 +114,11 @@ void printLine(int x, int y, char* str, ConsoleColor tColor)
 			pos.Y = y;
 			break;
 	}
-	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (_BLACK_ << 4));
 	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
 	WriteFile(ScreenHandle[ScreenIndex], str, strlen(str), &dw, NULL);
 }
 
-void printLines(int x, int y, char* str, ConsoleColor tColor)
+void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)
 {
 	COORD pos;
 	DWORD dw;
@@ -125,7 +127,7 @@ void printLines(int x, int y, char* str, ConsoleColor tColor)
 	copy = (char*)malloc(sizeof(char) * (strlen(str) + 1));
 	strcpy(copy, str);
 	
-	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (_BLACK_ << 4));
+	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
 	token = strtok(copy, "\n");
 	switch (x)
 	{
@@ -202,7 +204,7 @@ void printFrameInfo()
 	}
 	strcat(fps_info, fps_itoa);
 	FPS++;
-	printLine(ScreenWidth - 12, _ALIGN_TOP_, fps_info, _WHITE_);
+	printLine(ScreenWidth - 12, _ALIGN_TOP_, fps_info, _WHITE_, _BLACK_);
 }
 
 void setFrameSpeed()

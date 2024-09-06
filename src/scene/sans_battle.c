@@ -1,6 +1,13 @@
 #include "sans_battle.h"
 
 static int battleTurn, battleSelect, playerHP;
+static const char scripts[_SANS_SCRIPT_LEN_][64] = {
+							"it's a beautiful day outside.",
+							"birds are singing. flowers are blooming...",
+							"on days like these, kids like you...",
+							"Should be burning in hell.",
+						};
+static int scriptIdx;
 
 void runSansBattle()
 {
@@ -10,11 +17,11 @@ void runSansBattle()
 	battleSelect = 0;
 	
 	// Enter scene
-	sleep(1.0f);
-	fadeOut(renderSansBattle);
+	introPhase();
 	
-	 bossPhase();
-	 playerPhase();
+	bossPhase();
+	playerPhase();
+	battleTurn++;
 	
 	while (1)
 	{
@@ -54,6 +61,19 @@ void runSansBattle()
 	}
 }
 
+void introPhase()
+{
+	scriptIdx = -1;
+	
+	sleep(1.0f);
+	fadeIn(renderIntroPhase);
+	
+	while (scriptIdx < _SANS_SCRIPT_LEN_)
+	{
+		renderCustom(renderIntroPhase);
+	}
+}
+
 void bossPhase()
 {
 	if (battleTurn == 0)
@@ -69,118 +89,74 @@ void playerPhase()
 	{
 		// action
 		
-		battleTurn++;
 	}
-}
-
-void renderBossPhaseBox()
-{
-	int x, y, w, h, i, j;
-	char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[3];
-	
-	w = 18;
-	h = 9;
-	buffer[0] = '\0';
-	for (i = 0; i < h; i++)
-	{
-		strcat(buffer, ":=");
-		strcpy(ch, " ");
-		if (i == 0 || i == h - 1)
-			strcpy(ch, "="); 
-		for (j = 0; j < w; j++)
-			strcat(buffer, ch);
-		strcat(buffer, "=: \n");
-	}
-	
-	x = 49;
-	y = 15;
-	printLines(x, y, buffer, _WHITE_);
-}
-
-void renderPlayerPhaseBox()
-{
-	int x, y, w, h, i, j;
-	char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[3];
-	
-	w = 102;
-	h = 9;
-	buffer[0] = '\0';
-	for (i = 0; i < h; i++)
-	{
-		strcat(buffer, ":=");
-		strcpy(ch, " ");
-		if (i == 0 || i == h - 1)
-			strcpy(ch, "="); 
-		for (j = 0; j < w; j++)
-			strcat(buffer, ch);
-		strcat(buffer, "=: \n");
-	}
-	
-	x = 6;
-	y = 15;
-	printLines(x, y, buffer, _WHITE_);
 }
 
 void renderSansBattle()
 {
-	int x, y, i, damaged;
-	char hpText[11];
-	
-	// render Sans
 	renderSans();
 	
-	// render battle box
 //	renderBossPhaseBox();
 	renderPlayerPhaseBox();
 	
+	renderPlayerInfo();
+	renderSelectBox();
+}
+
+void renderIntroPhase()
+{
+	static int oldTime = 0;
+	int flag;
+	
+	// render Sans
+	renderSans();
 	// render player info
-	x = 12;
-	y = 24;
-	printLine(x, y, "HSU", _WHITE_);
-	x = 26;
-	printLine(x, y, "LV 1", _WHITE_);
-	// render HP info
-	// set max HP text
-	for (int i = 0; i < 10; i++)
-		hpText[i] = '@';
-	hpText[10] = '\0';
-	x = 43;
-	printLine(x, y, "HP", _WHITE_);
-	x += 3;
-	printLine(x, y, hpText, _YELLOW_);
-	damaged = (MaxHP - playerHP) / 10;
-	// set player HP info
-	for (i = 0; i < damaged; i++)
-		hpText[i] = '#';
-	hpText[damaged] = '\0';
-	printLine(x + 10 - damaged, y, hpText, _RED_);
-	
-	// render numeric HP info
-	x += 12;
-	itoa(playerHP, hpText, 10);
-	printLine(x, y, hpText, _WHITE_);
-	x += strlen(hpText);
-	printLine(x, y, " / ", _WHITE_);
-	x += 3;
-	itoa(MaxHP, hpText, 10);
-	printLine(x, y, hpText, _WHITE_);
-	
-	// render select boxes
-	ConsoleColor tSelect[4] = { _YELLOW_, _YELLOW_, _YELLOW_, _YELLOW_ };
-	tSelect[battleSelect] = _LIGHT_YELLOW_;
-	x = 7;
-	y = 25;
-	printLines(x, y, AssetFile[_SELECT_BOX_], tSelect[0]);
-	printLine(x + 8, y + 2, "FIGHT", tSelect[0]); 
-	x += 27;
-	printLines(35, y, AssetFile[_SELECT_BOX_], tSelect[1]);
-	printLine(x + 11, y + 2, "ACT", tSelect[1]); 
-	x += 27;
-	printLines(63, y, AssetFile[_SELECT_BOX_], tSelect[2]);
-	printLine(x + 11, y + 2, "ITEM", tSelect[2]); 
-	x += 27;
-	printLines(91, y, AssetFile[_SELECT_BOX_], tSelect[3]);
-	printLine(x + 11, y + 2, "MERCY", tSelect[3]); 
+	renderPlayerInfo();
+	// render speech bubble
+	if (scriptIdx < 0)	// waiting script before speech
+	{
+		if (oldTime == 0)
+		{
+			oldTime = clock();
+			return;
+		}
+		if (clock() - oldTime < 2000)
+		{
+			return;
+		}
+		scriptIdx = 0;
+		oldTime = 0;
+	}
+	flag = renderSpeechBubble(scripts[scriptIdx]);
+	if (flag < 0)
+	{
+		if (!oldTime)
+		{
+			oldTime = clock();
+			return;
+		}
+		if (2000 < clock() - oldTime)
+		{	
+			scriptIdx++;
+			oldTime = 0;
+		}
+	}
+}
+
+void renderBossPhase()
+{
+	renderSans();
+	renderBossPhaseBox();
+	renderPlayerInfo();
+	renderSelectBox();
+}
+
+void renderPlayerPhase()
+{
+	renderSans();
+	renderPlayerPhaseBox();
+	renderPlayerInfo();
+	renderSelectBox();
 }
 
 void renderSans()
@@ -200,13 +176,13 @@ void renderSans()
 	
 	// leg
 //	printLines(x + 1 + leg_move[tick][0], y + 11 + leg_move[tick][1], AssetFile[_SANS_LEG_NORMAL_], _WHITE_);
-	printLines(x + 1, y + 11, AssetFile[_SANS_LEG_NORMAL_], _WHITE_);
+	printLines(x + 1, y + 11, AssetFile[_SANS_LEG_NORMAL_], _WHITE_, _BLACK_);
 	// body
 //	printLines(x + body_move[tick][0], y + 7 + body_move[tick][1], AssetFile[_SANS_BODY_NORMAL_], _WHITE_);	
-	printLines(x, y + 7, AssetFile[_SANS_BODY_NORMAL_], _WHITE_);	
+	printLines(x, y + 7, AssetFile[_SANS_BODY_NORMAL_], _WHITE_, _BLACK_);	
 	// face
 //	printLines(x + face_move[tick][0], y + face_move[tick][1], AssetFile[_SANS_FACE_NORMAL_A_], _WHITE_);
-	printLines(x, y, AssetFile[_SANS_FACE_NORMAL_A_], _WHITE_);
+	printLines(x, y, AssetFile[_SANS_FACE_NORMAL_A_], _WHITE_, _BLACK_);
 	
 	// set ticks based on current/old time
 	if (oldTime)
@@ -222,4 +198,167 @@ void renderSans()
 	{
 		oldTime = clock();
 	}
+}
+
+int renderSpeechBubble(const char* script)
+{
+	int x = 74, y = 2, w = 24, h = 6, i, j, currTime;
+	static int currLen, oldTime;
+	static const char* pScript;
+	char buffer[ScreenWidth * 2], ch[3], *copy, tmp;
+	
+	if (pScript != script)
+	{
+		currLen = 0;
+		pScript = script;
+	}
+	
+	if (!oldTime)
+		oldTime = clock();
+	currTime = clock();
+	if (80 < currTime - oldTime)
+	{
+		currLen = strlen(script) < currLen + 1 ? currLen : currLen + 1;
+		oldTime = currTime;
+	}
+	
+	// print bubble box
+	buffer[0] = '\0';
+	for (j = 0; j < w; j++)
+		strcat(buffer, " ");
+	for (i = 0; i < h; i++)
+		printLine(x, y + i, buffer, _WHITE_, _WHITE_);
+	strcat(buffer, " ");
+	printLine(x - 1, y + (h / 2 - 1), buffer, _WHITE_, _WHITE_);
+	
+	// print script until currLen
+	x += 1; y += 1;
+	copy = (char*)malloc(sizeof(char) * strlen(script) + 1);
+	strcpy(copy, script);
+	copy[currLen] = '\0';
+	i = 0;
+	while (strlen(copy) / (w - 2))
+	{
+		tmp = copy[w - 2];
+		copy[w - 2] = '\0';
+		printLine(x, y + i, copy, _BLACK_, _WHITE_);
+		copy[w - 2] = tmp;
+		strcpy(copy, copy + (w - 2));
+		i++;
+	}
+	printLine(x, y + i, copy, _BLACK_, _WHITE_);
+	free(copy);
+	
+	if (strlen(script) <= currLen)
+		return -1;
+	return currLen;
+}
+
+void renderBossPhaseBox()
+{
+	int x, y, w, h, i, j;
+	char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[3];
+	
+	w = 18;
+	h = 9;
+	buffer[0] = '\0';
+	for (i = 0; i < h; i++)
+	{
+		strcat(buffer, ":=");
+		if (i == 0 || i == h - 1)
+			strcpy(ch, "="); 
+		else
+			strcpy(ch, " ");
+		for (j = 0; j < w; j++)
+			strcat(buffer, ch);
+		strcat(buffer, "=: \n");
+	}
+	
+	x = 49;
+	y = 15;
+	printLines(x, y, buffer, _WHITE_, _BLACK_);
+}
+
+void renderPlayerPhaseBox()
+{
+	int x, y, w, h, i, j;
+	char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[3];
+	
+	w = 102;
+	h = 9;
+	buffer[0] = '\0';
+	for (i = 0; i < h; i++)
+	{
+		strcat(buffer, ":=");
+		if (i == 0 || i == h - 1)
+			strcpy(ch, "="); 
+		else
+			strcpy(ch, " ");
+		for (j = 0; j < w; j++)
+			strcat(buffer, ch);
+		strcat(buffer, "=: \n");
+	}
+	
+	x = 6;
+	y = 15;
+	printLines(x, y, buffer, _WHITE_, _BLACK_);
+}
+
+void renderPlayerInfo()
+{
+	int x, y, i, damaged;
+	char hpText[11];
+	
+	// render player info
+	x = 12;
+	y = 24;
+	printLine(x, y, "HSU", _WHITE_, _BLACK_);
+	x = 26;
+	printLine(x, y, "LV 1", _WHITE_, _BLACK_);
+	
+	// render HP info
+	// set max HP text
+	for (int i = 0; i < 10; i++)
+		hpText[i] = '@';
+	hpText[10] = '\0';
+	x = 43;
+	printLine(x, y, "HP", _WHITE_, _BLACK_);
+	x += 3;
+	printLine(x, y, hpText, _YELLOW_, _BLACK_);
+	damaged = (MaxHP - playerHP) / 10;
+	// set player HP info
+	for (i = 0; i < damaged; i++)
+		hpText[i] = '#';
+	hpText[damaged] = '\0';
+	printLine(x + 10 - damaged, y, hpText, _RED_, _BLACK_);
+	
+	// render numeric HP info
+	x += 12;
+	itoa(playerHP, hpText, 10);
+	printLine(x, y, hpText, _WHITE_, _BLACK_);
+	x += strlen(hpText);
+	printLine(x, y, " / ", _WHITE_, _BLACK_);
+	x += 3;
+	itoa(MaxHP, hpText, 10);
+	printLine(x, y, hpText, _WHITE_, _BLACK_);
+}
+
+void renderSelectBox()
+{
+	int x, y;
+	ConsoleColor tSelect[4] = { _YELLOW_, _YELLOW_, _YELLOW_, _YELLOW_ };
+	tSelect[battleSelect] = _LIGHT_YELLOW_;
+	x = 7;
+	y = 25;
+	printLines(x, y, AssetFile[_SELECT_BOX_], tSelect[0], _BLACK_);
+	printLine(x + 8, y + 2, "FIGHT", tSelect[0], _BLACK_); 
+	x += 27;
+	printLines(35, y, AssetFile[_SELECT_BOX_], tSelect[1], _BLACK_);
+	printLine(x + 11, y + 2, "ACT", tSelect[1], _BLACK_); 
+	x += 27;
+	printLines(63, y, AssetFile[_SELECT_BOX_], tSelect[2], _BLACK_);
+	printLine(x + 11, y + 2, "ITEM", tSelect[2], _BLACK_); 
+	x += 27;
+	printLines(91, y, AssetFile[_SELECT_BOX_], tSelect[3], _BLACK_);
+	printLine(x + 11, y + 2, "MERCY", tSelect[3], _BLACK_); 
 }

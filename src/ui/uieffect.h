@@ -4,6 +4,6 @@
 #include <windows.h>
 #include "../render/renderer.h"
 
-void fadeIn(void (*renderer)(void));
 void fadeOut(void (*renderer)(void));
+void fadeIn(void (*renderer)(void));
 #endif

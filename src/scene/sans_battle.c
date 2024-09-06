@@ -1,15 +1,21 @@
 #include "sans_battle.h"
 
-static int battleSelect, playerHP;
+static int battleTurn, battleSelect, playerHP;
 
 void runSansBattle()
 {
 	char input;
-	battleSelect = 0;
 	playerHP = MaxHP;
+	battleTurn = 0;
+	battleSelect = 0;
 	
+	// Enter scene
 	sleep(1.0f);
 	fadeOut(renderSansBattle);
+	
+	 bossPhase();
+	 playerPhase();
+	
 	while (1)
 	{
 		if (kbhit())
@@ -44,8 +50,75 @@ void runSansBattle()
 					break;
 			}
 		}
-		renderCustomScreen(renderSansBattle);
+		renderCustom(renderSansBattle);
 	}
+}
+
+void bossPhase()
+{
+	if (battleTurn == 0)
+	{
+		// action
+		
+	}
+}
+
+void playerPhase()
+{
+	if (battleTurn == 0)
+	{
+		// action
+		
+		battleTurn++;
+	}
+}
+
+void renderBossPhaseBox()
+{
+	int x, y, w, h, i, j;
+	char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[3];
+	
+	w = 18;
+	h = 9;
+	buffer[0] = '\0';
+	for (i = 0; i < h; i++)
+	{
+		strcat(buffer, ":=");
+		strcpy(ch, " ");
+		if (i == 0 || i == h - 1)
+			strcpy(ch, "="); 
+		for (j = 0; j < w; j++)
+			strcat(buffer, ch);
+		strcat(buffer, "=: \n");
+	}
+	
+	x = 49;
+	y = 15;
+	printLines(x, y, buffer, _WHITE_);
+}
+
+void renderPlayerPhaseBox()
+{
+	int x, y, w, h, i, j;
+	char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[3];
+	
+	w = 102;
+	h = 9;
+	buffer[0] = '\0';
+	for (i = 0; i < h; i++)
+	{
+		strcat(buffer, ":=");
+		strcpy(ch, " ");
+		if (i == 0 || i == h - 1)
+			strcpy(ch, "="); 
+		for (j = 0; j < w; j++)
+			strcat(buffer, ch);
+		strcat(buffer, "=: \n");
+	}
+	
+	x = 6;
+	y = 15;
+	printLines(x, y, buffer, _WHITE_);
 }
 
 void renderSansBattle()
@@ -53,21 +126,20 @@ void renderSansBattle()
 	int x, y, i, damaged;
 	char hpText[11];
 	
-	// print Sans
-	printSans();
+	// render Sans
+	renderSans();
 	
-	// print battle box
-	x = 6;
-	y = 16;
-	printLines(x, y, AssetFile[_BATTLE_BOX_], _WHITE_);
+	// render battle box
+//	renderBossPhaseBox();
+	renderPlayerPhaseBox();
 	
-	// print player info
+	// render player info
 	x = 12;
 	y = 24;
 	printLine(x, y, "HSU", _WHITE_);
 	x = 26;
 	printLine(x, y, "LV 1", _WHITE_);
-	// print HP info
+	// render HP info
 	// set max HP text
 	for (int i = 0; i < 10; i++)
 		hpText[i] = '@';
@@ -82,7 +154,8 @@ void renderSansBattle()
 		hpText[i] = '#';
 	hpText[damaged] = '\0';
 	printLine(x + 10 - damaged, y, hpText, _RED_);
-	// print numeric HP info
+	
+	// render numeric HP info
 	x += 12;
 	itoa(playerHP, hpText, 10);
 	printLine(x, y, hpText, _WHITE_);
@@ -92,7 +165,7 @@ void renderSansBattle()
 	itoa(MaxHP, hpText, 10);
 	printLine(x, y, hpText, _WHITE_);
 	
-	// print select boxes
+	// render select boxes
 	ConsoleColor tSelect[4] = { _YELLOW_, _YELLOW_, _YELLOW_, _YELLOW_ };
 	tSelect[battleSelect] = _LIGHT_YELLOW_;
 	x = 7;
@@ -110,7 +183,7 @@ void renderSansBattle()
 	printLine(x + 11, y + 2, "MERCY", tSelect[3]); 
 }
 
-void printSans()
+void renderSans()
 {
 	const int MAX_TICK = 12;
 	static int tick, oldTime;
@@ -123,7 +196,7 @@ void printSans()
 	    leg_move[12][2] 	= { { 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
 								{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 },
 								{ 0, 0 }, { 0, 0 }, { 0, 0 }, { 0, 0 } };
-	int x = 50, y = 1, currTime;
+	int x = 50, y = 0, currTime;
 	
 	// leg
 //	printLines(x + 1 + leg_move[tick][0], y + 11 + leg_move[tick][1], AssetFile[_SANS_LEG_NORMAL_], _WHITE_);

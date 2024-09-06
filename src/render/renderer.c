@@ -168,7 +168,7 @@ void printLines(int x, int y, char* str, ConsoleColor tColor)
 	free(copy);
 }
 
-void renderScreen()
+void render()
 {
 	clearScreen();
 	printFrameInfo();
@@ -176,7 +176,7 @@ void renderScreen()
 	setFrameSpeed();
 }
 
-void renderCustomScreen(void (*customRenderer)(void))
+void renderCustom(void (*customRenderer)(void))
 {
 	clearScreen();
 	(*customRenderer)();

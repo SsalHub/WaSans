@@ -13,6 +13,10 @@
 static int battleSelect, playerHP;
 
 void runSansBattle();
+void bossPhase();
+void playerPhase();
+void renderBossPhaseBox();
+void renderPlayerPhaseBox();
 void renderSansBattle();
-void printSans();
+void renderSans();
 #endif

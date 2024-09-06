@@ -28,8 +28,8 @@ void fillColorToScreen(ConsoleColor bColor, ConsoleColor tColor);
 void releaseScreen();
 void printLine(int x, int y, char* str, ConsoleColor tColor);
 void printLines(int x, int y, char* str, ConsoleColor tColor);
-void renderScreen();
-void renderCustomScreen(void (*customRenderer)(void));
+void render();
+void renderCustom(void (*customRenderer)(void));
 void printFrameInfo();
 void setFrameSpeed();
 #endif

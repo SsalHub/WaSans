@@ -4,7 +4,6 @@ char* AssetFile[_ASSETFILE_NUM_];
 static char AssetFileName[_ASSETFILE_NUM_][64] =  {
 					"../../data/UNDERTALE_LOGO.asset",
 					"../../data/SELECT_BOX.asset",
-					"../../data/BATTLE_BOX.asset",
 					"../../data/character/sans/body_normal.asset",
 					"../../data/character/sans/leg_normal.asset",
 					"../../data/character/sans/face_normal_a.asset",

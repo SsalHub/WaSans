@@ -6,7 +6,7 @@
 #include <windows.h>
 #include "settings.h"
 
-#define _ASSETFILE_NUM_ 6
+#define _ASSETFILE_NUM_ 5
 
 extern char* AssetFile[_ASSETFILE_NUM_];
 static char AssetFileName[_ASSETFILE_NUM_][64];
@@ -15,7 +15,6 @@ typedef enum AssetFileType
 {
 	_LOGO_UNDERTALE_ = 0,
 	_SELECT_BOX_,
-	_BATTLE_BOX_,
 	_SANS_BODY_NORMAL_,
 	_SANS_LEG_NORMAL_,
 	_SANS_FACE_NORMAL_A_,

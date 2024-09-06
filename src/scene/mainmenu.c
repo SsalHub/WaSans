@@ -44,7 +44,7 @@ int showMainmenu()
 					return -1;
 			}
 		}
-		renderCustomScreen(renderMainmenu);
+		renderCustom(renderMainmenu);
 	}
 	return -1;
 }

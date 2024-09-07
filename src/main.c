@@ -10,7 +10,8 @@ int main(int argc, char *argv[]) {
 void initGame()
 {
 	initScreen();
-	initDataFile();
+	initDataAsset();
+	initSoundAsset();
 }
 
 void runGame()
@@ -39,4 +40,5 @@ void exitGame()
 	
 	releaseScreen();
 	releaseAssetFile();
+	releaseSoundAsset();
 }

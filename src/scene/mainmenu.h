@@ -8,6 +8,7 @@
 #include "../settings.h"
 #include "../ui/uieffect.h"
 #include "../render/renderer.h"
+#include "../sound/sounds.h"
 
 static int menuSelect;
 

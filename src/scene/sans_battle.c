@@ -1,15 +1,5 @@
 #include "sans_battle.h"
 
-static int battleTurn, battleSelect, playerHP;
-static COORD playerPos;
-static int scriptIdx;
-static const char scripts[_SANS_SCRIPT_LEN_][64] = {
-    "it's a beautiful day outside.",
-    "birds are singing. flowers are blooming...",
-    "on days like these, kids like you...",
-    "Should be burning in hell.",
-};
-
 /* Main func in sans battle */
 void runSansBattle()
 {
@@ -23,6 +13,7 @@ void runSansBattle()
     blackScreenEffect(1.0f);
     bossPhase();
     battleTurn++;
+    playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
 //    playerPhase();
 
     while (1)
@@ -48,6 +39,7 @@ void runSansBattle()
 
             case _SPACE_:
             case _CARRIAGE_RETURN_:
+    			playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
                 if (battleSelect == 0)
                 {
                     playerHP -= 5;
@@ -259,7 +251,7 @@ void renderSans(AssetFileType face)
 int renderSpeechBubble(const char *script)
 {
     int x = 74, y = 2, w = 24, h = 6, i, j, currTime;
-    static int currLen, oldTime;
+    static int currLen = 0, oldTime = 0;
     static const char *pScript;
     char buffer[ScreenWidth * 2], ch[3], *copy, tmp, input;
 
@@ -317,6 +309,8 @@ int renderSpeechBubble(const char *script)
 
     if (strlen(script) <= currLen)
         return -1;
+    if (0 < currLen && script[currLen - 1] != ' ')
+    	playVoice(_VOICE_SANS_);
     return currLen;
 }
 
@@ -372,7 +366,6 @@ void renderPlayerPhaseBox()
             strcat(buffer, ch);
         strcat(buffer, "=: \n");
     }
-
     printLines(x, y, buffer, _WHITE_, _BLACK_);
 }
 

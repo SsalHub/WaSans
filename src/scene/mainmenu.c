@@ -4,8 +4,10 @@ static int menuSelect;
 
 int showMainmenu()
 {
-	menuSelect = 0;
 	char input;
+	menuSelect = 0;
+	
+	playBGM(_BGM_STARTMENU_, _SOUND_BEGIN_);
 	while (1)
 	{
 		if (kbhit())
@@ -29,6 +31,7 @@ int showMainmenu()
 				
 				case _SPACE_:
 				case _CARRIAGE_RETURN_:
+					playBGM(_BGM_STARTMENU_, _SOUND_PAUSE_);
 					if (menuSelect == 0)
 					{
 						// begin game

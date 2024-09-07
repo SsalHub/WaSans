@@ -90,8 +90,9 @@ void bossPhase()
         // render battle screen
         while (1)
         {
-        	if (GetAsyncKeyState(VK_SPACE))
+        	if (kbhit() && getch() == _SPACE_)
         		break;
+        		
         	// player speed cooltime
         	if (playerSpeed == 0)
         	{

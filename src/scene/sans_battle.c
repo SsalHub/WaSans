@@ -180,7 +180,10 @@ void renderIntroPhase()
         scriptIdx = 0;
         oldTime = 0;
     }
-    flag = renderSpeechBubble(scripts[scriptIdx]);
+    if (scriptIdx == 3)
+    	flag = renderSpeechBubble(scripts[scriptIdx], _RED_);
+    else
+    	flag = renderSpeechBubble(scripts[scriptIdx], _BLACK_);
     if (flag < 0)
     {
         if (!oldTime)
@@ -248,7 +251,7 @@ void renderSans(AssetFileType face)
     }
 }
 
-int renderSpeechBubble(const char *script)
+int renderSpeechBubble(const char* script, ConsoleColor tColor)
 {
     int x = 74, y = 2, w = 24, h = 6, i, j, currTime;
     static int currLen = 0, oldTime = 0;
@@ -299,12 +302,12 @@ int renderSpeechBubble(const char *script)
     {
         tmp = copy[w - 2];
         copy[w - 2] = '\0';
-        printLine(x, y + i, copy, _BLACK_, _WHITE_);
+        printLine(x, y + i, copy, tColor, _WHITE_);
         copy[w - 2] = tmp;
         strcpy(copy, copy + (w - 2));
         i++;
     }
-    printLine(x, y + i, copy, _BLACK_, _WHITE_);
+    printLine(x, y + i, copy, tColor, _WHITE_);
     free(copy);
 
     if (strlen(script) <= currLen)

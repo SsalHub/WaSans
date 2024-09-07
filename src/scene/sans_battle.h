@@ -18,7 +18,7 @@ static COORD playerPos;
 static int scriptIdx;
 static const char scripts[_SANS_SCRIPT_LEN_][64] = {
     "it's a beautiful day outside.",
-    "birds are singing. flowers are blooming...",
+    "birds are singing. flowers are blooming.",
     "on days like these, kids like you...",
     "Should be burning in hell.",
 };
@@ -34,7 +34,7 @@ void renderBossPhase();
 void renderPlayerPhase();
 
 void renderSans(AssetFileType face);
-int renderSpeechBubble(const char* script);
+int renderSpeechBubble(const char* script, ConsoleColor tColor);
 void renderBossPhaseBox();
 void renderPlayerPhaseBox();
 void renderPlayerInfo();

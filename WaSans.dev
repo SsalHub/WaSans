@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;1;0;0;0;8;0;0;0
-UnitCount=19
+UnitCount=20
 
 [VersionInfo]
 Major=1
@@ -227,7 +227,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit20]
-FileName=data\character\sans\leg_normal.asset
+FileName=data\character\sans\face_normal_b.asset
 Folder=data/character/sans
 Compile=0
 Link=0

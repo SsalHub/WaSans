@@ -45,7 +45,7 @@ void runSansBattle()
 					break;
 				
 				case _SPACE_:
-				case _CARRIGE_RETURN_:
+				case _CARRIAGE_RETURN_:
 					if (battleSelect == 0)
 					{
 						playerHP -= 5;
@@ -94,7 +94,7 @@ void playerPhase()
 
 void renderSansBattle()
 {
-	renderSans();
+	renderSans(_SANS_FACE_NORMAL_A_);
 	
 //	renderBossPhaseBox();
 	renderPlayerPhaseBox();
@@ -109,7 +109,11 @@ void renderIntroPhase()
 	int flag;
 	
 	// render Sans
-	renderSans();
+	if (scriptIdx != 3)
+		renderSans(_SANS_FACE_NORMAL_A_);
+	else
+		renderSans(_SANS_FACE_NORMAL_B_);
+		
 	// render player info
 	renderPlayerInfo();
 	// render speech bubble
@@ -145,7 +149,7 @@ void renderIntroPhase()
 
 void renderBossPhase()
 {
-	renderSans();
+	renderSans(_SANS_FACE_NORMAL_A_);
 	renderBossPhaseBox();
 	renderPlayerInfo();
 	renderSelectBox();
@@ -153,13 +157,13 @@ void renderBossPhase()
 
 void renderPlayerPhase()
 {
-	renderSans();
+	renderSans(_SANS_FACE_NORMAL_A_);
 	renderPlayerPhaseBox();
 	renderPlayerInfo();
 	renderSelectBox();
 }
 
-void renderSans()
+void renderSans(AssetFileType face)
 {
 	const int MAX_TICK = 12;
 	static int tick, oldTime;
@@ -176,13 +180,13 @@ void renderSans()
 	
 	// leg
 //	printLines(x + 1 + leg_move[tick][0], y + 11 + leg_move[tick][1], AssetFile[_SANS_LEG_NORMAL_], _WHITE_);
-	printLines(x + 1, y + 11, AssetFile[_SANS_LEG_NORMAL_], _WHITE_, _BLACK_);
+	printLines(x + 1, y + 13, AssetFile[_SANS_LEG_NORMAL_], _WHITE_, _BLACK_);
 	// body
 //	printLines(x + body_move[tick][0], y + 7 + body_move[tick][1], AssetFile[_SANS_BODY_NORMAL_], _WHITE_);	
-	printLines(x, y + 7, AssetFile[_SANS_BODY_NORMAL_], _WHITE_, _BLACK_);	
+	printLines(x, y + 9, AssetFile[_SANS_BODY_NORMAL_], _WHITE_, _BLACK_);	
 	// face
-//	printLines(x + face_move[tick][0], y + face_move[tick][1], AssetFile[_SANS_FACE_NORMAL_A_], _WHITE_);
-	printLines(x, y, AssetFile[_SANS_FACE_NORMAL_A_], _WHITE_, _BLACK_);
+//	printLines(x + face_move[tick][0], y + face_move[tick][1], AssetFile[face], _WHITE_);
+	printLines(x, y, AssetFile[face], _WHITE_, _BLACK_);
 	
 	// set ticks based on current/old time
 	if (oldTime)
@@ -205,7 +209,7 @@ int renderSpeechBubble(const char* script)
 	int x = 74, y = 2, w = 24, h = 6, i, j, currTime;
 	static int currLen, oldTime;
 	static const char* pScript;
-	char buffer[ScreenWidth * 2], ch[3], *copy, tmp;
+	char buffer[ScreenWidth * 2], ch[3], *copy, tmp, input;
 	
 	if (pScript != script)
 	{
@@ -213,13 +217,22 @@ int renderSpeechBubble(const char* script)
 		pScript = script;
 	}
 	
-	if (!oldTime)
-		oldTime = clock();
-	currTime = clock();
-	if (80 < currTime - oldTime)
+	if (kbhit())
 	{
-		currLen = strlen(script) < currLen + 1 ? currLen : currLen + 1;
-		oldTime = currTime;
+		input = getch();
+		if (input == _SPACE_ || input == _CARRIAGE_RETURN_)
+			currLen = strlen(script);
+	}
+	else
+	{
+		if (!oldTime)
+			oldTime = clock();
+		currTime = clock();
+		if (80 < currTime - oldTime)
+		{
+			currLen = strlen(script) < currLen + 1 ? currLen : currLen + 1;
+			oldTime = currTime;
+		}
 	}
 	
 	// print bubble box
@@ -256,11 +269,9 @@ int renderSpeechBubble(const char* script)
 
 void renderBossPhaseBox()
 {
-	int x, y, w, h, i, j;
+	int x = 49, y = 17, w = 18, h = 8, i, j;
 	char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[3];
 	
-	w = 18;
-	h = 9;
 	buffer[0] = '\0';
 	for (i = 0; i < h; i++)
 	{
@@ -274,18 +285,14 @@ void renderBossPhaseBox()
 		strcat(buffer, "=: \n");
 	}
 	
-	x = 49;
-	y = 15;
 	printLines(x, y, buffer, _WHITE_, _BLACK_);
 }
 
 void renderPlayerPhaseBox()
 {
-	int x, y, w, h, i, j;
+	int x = 6, y = 16, w = 103, h = 8, i, j;
 	char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[3];
 	
-	w = 102;
-	h = 9;
 	buffer[0] = '\0';
 	for (i = 0; i < h; i++)
 	{
@@ -299,19 +306,16 @@ void renderPlayerPhaseBox()
 		strcat(buffer, "=: \n");
 	}
 	
-	x = 6;
-	y = 15;
 	printLines(x, y, buffer, _WHITE_, _BLACK_);
 }
 
 void renderPlayerInfo()
 {
-	int x, y, i, damaged;
+	int x, y = 24, i, damaged;
 	char hpText[11];
 	
 	// render player info
 	x = 12;
-	y = 24;
 	printLine(x, y, "HSU", _WHITE_, _BLACK_);
 	x = 26;
 	printLine(x, y, "LV 1", _WHITE_, _BLACK_);
@@ -345,11 +349,10 @@ void renderPlayerInfo()
 
 void renderSelectBox()
 {
-	int x, y;
+	int x, y = 25;
 	ConsoleColor tSelect[4] = { _YELLOW_, _YELLOW_, _YELLOW_, _YELLOW_ };
 	tSelect[battleSelect] = _LIGHT_YELLOW_;
 	x = 7;
-	y = 25;
 	printLines(x, y, AssetFile[_SELECT_BOX_], tSelect[0], _BLACK_);
 	printLine(x + 8, y + 2, "FIGHT", tSelect[0], _BLACK_); 
 	x += 27;

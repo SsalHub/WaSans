@@ -6,7 +6,7 @@
 #include <windows.h>
 #include "settings.h"
 
-#define _ASSETFILE_NUM_ 5
+#define _ASSETFILE_NUM_ 6
 
 extern char* AssetFile[_ASSETFILE_NUM_];
 static char AssetFileName[_ASSETFILE_NUM_][64];
@@ -18,6 +18,7 @@ typedef enum AssetFileType
 	_SANS_BODY_NORMAL_,
 	_SANS_LEG_NORMAL_,
 	_SANS_FACE_NORMAL_A_,
+	_SANS_FACE_NORMAL_B_,
 } AssetFileType;
 
 typedef enum ConsoleColor
@@ -50,7 +51,7 @@ typedef enum InputType
 	_DOWN_ 				= 80,
 	_UPPER_R_ 			= 82,
 	_LOWER_R_ 			= 114,
-	_CARRIGE_RETURN_ 	= 13,
+	_CARRIAGE_RETURN_ 	= 13,
 } InputType;
 
 void sleep(float sec);

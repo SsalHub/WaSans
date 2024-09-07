@@ -26,7 +26,7 @@ void renderIntroPhase();
 void renderBossPhase();
 void renderPlayerPhase();
 
-void renderSans();
+void renderSans(AssetFileType face);
 int renderSpeechBubble(const char* script);
 void renderBossPhaseBox();
 void renderPlayerPhaseBox();

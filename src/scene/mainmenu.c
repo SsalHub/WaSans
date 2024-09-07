@@ -28,7 +28,7 @@ int showMainmenu()
 					break;
 				
 				case _SPACE_:
-				case _CARRIGE_RETURN_:
+				case _CARRIAGE_RETURN_:
 					if (menuSelect == 0)
 					{
 						// begin game

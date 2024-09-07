@@ -12,9 +12,10 @@
 
 #define _SANS_SCRIPT_LEN_ 4
 
-static int battleSelect, playerHP;
-static const char scripts[_SANS_SCRIPT_LEN_][64];
+static int battleTurn, battleSelect, playerHP;
+static COORD playerPos;
 static int scriptIdx;
+static const char scripts[_SANS_SCRIPT_LEN_][64];
 
 void runSansBattle();
 void introPhase();

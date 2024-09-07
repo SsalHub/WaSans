@@ -8,6 +8,12 @@ static char AssetFileName[_ASSETFILE_NUM_][64] =  {
 					"../../data/character/sans/leg_normal.asset",
 					"../../data/character/sans/face_normal_a.asset",
 					"../../data/character/sans/face_normal_b.asset",
+					"../../data/character/sans/blast_a.asset",
+					"../../data/character/sans/blast_b.asset",
+					"../../data/character/sans/blast_c.asset",
+					"../../data/character/sans/blast_d.asset",
+					"../../data/character/sans/blast_e.asset",
+					"../../data/character/sans/blast_f.asset",
 				};
 				
 void sleep(float sec)

@@ -20,6 +20,7 @@ void runSansBattle()
 
     // Enter scene
     introPhase();
+    blackScreenEffect(1.0f);
     bossPhase();
     battleTurn++;
 //    playerPhase();

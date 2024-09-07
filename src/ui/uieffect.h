@@ -6,4 +6,5 @@
 
 void fadeOut(void (*renderer)(void));
 void fadeIn(void (*renderer)(void));
+void blackScreenEffect(float t);
 #endif

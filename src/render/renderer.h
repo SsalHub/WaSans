@@ -8,9 +8,6 @@
 #include "../settings.h"
 #include "../utils.h"
 
-extern int ScreenIndex;
-extern HANDLE ScreenHandle[2];
-
 typedef enum TextAlign
 {
 	_ALIGN_CENTER_ = -100,
@@ -19,6 +16,9 @@ typedef enum TextAlign
 	_ALIGN_TOP_,
 	_ALIGN_BOTTOM_,
 } TextAlign;
+
+extern int ScreenIndex;
+extern HANDLE ScreenHandle[2];
 
 void initScreen();
 void setWindowInfo(int w, int h);

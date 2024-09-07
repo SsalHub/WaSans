@@ -10,11 +10,8 @@ void sleep(float sec)
 void initDataAsset()
 {
 	AssetFileType t;
-	
 	for (t = 0; t < _ASSETFILE_NUM_; t++)
-	{
 		AssetFile[t] = readAssetFile(assetFilePath[t]);
-	}
 }
 
 char* readFile(const char* fname, char* dest)
@@ -81,4 +78,11 @@ void releaseAssetFile()
 			continue;
 		free(AssetFile[i]);
 	}
+}
+
+int getRandomRange(int min, int max)
+{
+	int limit = abs(max - min);
+	srand(time(NULL));
+	return rand() % limit - min;
 }

@@ -39,13 +39,13 @@ void runSansBattle()
 
             case _SPACE_:
             case _CARRIAGE_RETURN_:
-    			playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
                 if (battleSelect == 0)
                 {
                     playerHP -= 5;
                 }
                 else if (battleSelect == 3)
                 {
+    				playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
                     return;
                 }
                 break;
@@ -59,10 +59,8 @@ void runSansBattle()
 void introPhase()
 {
     scriptIdx = -1;
-
     sleep(1.0f);
     fadeIn(renderIntroPhase);
-
     while (scriptIdx < _SANS_SCRIPT_LEN_)
     {
         renderCustom(renderIntroPhase);
@@ -71,64 +69,34 @@ void introPhase()
 
 void bossPhase()
 {
-	static int playerSpeed = 1, oldTime;
+	static int oldTime = 0;
+	static int pattern[3] = {
+					1,
+					2,
+					3,
+			};
+	int patternIndex = 0;
     playerPos.X = 59;
     playerPos.Y = 19;
     
     switch (battleTurn)
     {
-    case -1: // intro turn
-        // run black screen effect
-        // render battle screen
-        while (1)
-        {
-        	if (kbhit() && getch() == _SPACE_)
-        		break;
-        		
-        	// player speed cooltime
-        	if (playerSpeed == 0)
-        	{
-        		if (oldTime == 0)
-        		{
-        			oldTime = clock();
-				}
-				else if (30 < clock() - oldTime)
-				{
-					playerSpeed = 1;
-					oldTime = 0;
-				}
-			}
-        	else
-        	{
-				// key input
-				if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
-				{
-					playerPos.X -= playerSpeed;
-					playerSpeed = 0;
-				}	
-				else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
-				{
-					playerPos.X += playerSpeed;
-					playerSpeed = 0;
-				}
-				
-				if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
-				{
-					playerPos.Y -= playerSpeed;
-					playerSpeed = 0;
-				}
-				else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
-				{
-					playerPos.Y += playerSpeed;
-					playerSpeed = 0;	
-				}
-			}
-            renderCustom(renderBossPhase);
-        }
-        break;
-        
-    case 0:
-        break;
+	    case -1: // intro turn
+	        while (1)
+	        {
+	        	movePlayer();
+	        	// runPattern(pattern[patternIndex]);
+	            renderCustom(renderBossPhase);
+	        }
+	        break;
+	        
+	    case 0:
+//	        while (1)
+//	        {
+//	        	movePlayer();
+//	            renderCustom(renderBossPhase);
+//	        }
+	        break;
     }
 }
 
@@ -204,7 +172,6 @@ void renderBossPhase()
     renderSans(_SANS_FACE_NORMAL_A_);
     renderBossPhaseBox();
     renderPlayerInfo();
-//    renderSelectBox();
 }
 
 void renderPlayerPhase()
@@ -319,35 +286,35 @@ int renderSpeechBubble(const char* script, ConsoleColor tColor)
 
 void renderBossPhaseBox()
 {
-    int x = 49, y = 16, w = 18, h = 8, i, j;
+    int i, j;
     char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[8];
 
     // print boss phase box
     buffer[0] = '\0';
-    for (i = 0; i < h; i++)
+    for (i = 0; i < bossPhaseBox.h; i++)
     {
         strcat(buffer, ":=");
-        if (i == 0 || i == h - 1)
+        if (i == 0 || i == bossPhaseBox.h - 1)
             strcpy(ch, "=");
         else
             strcpy(ch, " ");
-        for (j = 0; j < w; j++)
+        for (j = 0; j < bossPhaseBox.w; j++)
             strcat(buffer, ch);
         strcat(buffer, "=: \n");
     }
-    printLines(x, y, buffer, _WHITE_, _BLACK_);
+    printLines(bossPhaseBox.x, bossPhaseBox.y, buffer, _WHITE_, _BLACK_);
 
     // print player
     // fix player x pos
-    if (playerPos.X <= x + 2)
-        playerPos.X = x + 2;
-    else if (x + 1 + w <= playerPos.X)
-        playerPos.X = x + 1 + w;
+    if (playerPos.X <= bossPhaseBox.x + 2)
+        playerPos.X = bossPhaseBox.x + 2;
+    else if (bossPhaseBox.x + 1 + bossPhaseBox.w <= playerPos.X)
+        playerPos.X = bossPhaseBox.x + 1 + bossPhaseBox.w;
     // fix player y pos
-    if (playerPos.Y <= y)
-        playerPos.Y = y + 1;
-    else if (y + h - 2 <= playerPos.Y)
-        playerPos.Y = y + h - 2;
+    if (playerPos.Y <= bossPhaseBox.y)
+        playerPos.Y = bossPhaseBox.y + 1;
+    else if (bossPhaseBox.y + bossPhaseBox.h - 2 <= playerPos.Y)
+        playerPos.Y = bossPhaseBox.y + bossPhaseBox.h - 2;
     strcpy(ch, "¢¾");
     printLine(playerPos.X, playerPos.Y, ch, _HOTPINK_, _BLACK_);
 }
@@ -427,4 +394,79 @@ void renderSelectBox()
     x += 27;
     printLines(91, y, AssetFile[_SELECT_BOX_], tSelect[3], _BLACK_);
     printLine(x + 11, y + 2, "MERCY", tSelect[3], _BLACK_);
+}
+
+
+
+/* Boss Phase func */
+void movePlayer()
+{
+	static int playerSpeed = 1, oldTime;
+	if (playerSpeed == 0)
+	{
+		if (oldTime == 0)
+		{
+			oldTime = clock();
+		}
+		else if (30 < clock() - oldTime)
+		{
+			playerSpeed = 1;
+			oldTime = 0;
+		}
+	}
+	else
+	{
+		// key input
+		if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
+		{
+			playerPos.X -= playerSpeed;
+			playerSpeed = 0;
+		}	
+		else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
+		{
+			playerPos.X += playerSpeed;
+			playerSpeed = 0;
+		}
+		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
+		{
+			playerPos.Y -= playerSpeed;
+			playerSpeed = 0;
+		}
+		else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
+		{
+			playerPos.Y += playerSpeed;
+			playerSpeed = 0;
+		}
+	}
+}
+
+void fireBlastToCenter(BlastType blastX, BlastType blastY)
+{
+	int x, y;
+	switch (blastX)
+	{
+		case _BLAST_LEFT_:
+			x = bossPhaseBox.x - 20;
+			break;
+		case _BLAST_RIGHT_:
+			x = bossPhaseBox.x + bossPhaseBox.w + 5;
+	}
+	switch (blastY)
+	{
+		case _BLAST_TOP_:
+			x = bossPhaseBox.y - 8;
+			break;
+		case _BLAST_BOTTOM_:
+			x = bossPhaseBox.y + bossPhaseBox.h +  2;
+	}
+}
+
+void fireBlastToPlayer(int blastX, int blastY)
+{
+	int playerX = playerPos.X, playerY = playerPos.Y;
+}
+
+AssetFileType fixBlastAngle(BlastType blastX, BlastType blastY)
+{
+	return _SANS_BLAST_DIAGONAL_E_;
 }

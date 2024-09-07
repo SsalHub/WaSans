@@ -8,16 +8,6 @@
 
 #define _SOUNDASSET_LEN_ 3
 
-static MCI_OPEN_PARMS mciOpen;
-static MCI_PLAY_PARMS mciPlay[_SOUNDASSET_LEN_];
-static MCI_STATUS_PARMS mciStatus[_SOUNDASSET_LEN_];
-static DWORD sounds[_SOUNDASSET_LEN_];
-static const char soundFilePath[_SOUNDASSET_LEN_][64]= {
-    "../../data/bgm/startmenu.wav",
-    "../../data/bgm/megalovania.wav",
-    "../../data/voice/sans.wav",
-};
-
 typedef enum SoundFileType
 {
     _BGM_STARTMENU_ 		= 0,
@@ -32,6 +22,16 @@ typedef enum SoundPlayType
     _SOUND_BEGIN_,
     _SOUND_PAUSE_,
 } SoundPlayType;
+
+static MCI_OPEN_PARMS mciOpen;
+static MCI_PLAY_PARMS mciPlay[_SOUNDASSET_LEN_];
+static MCI_STATUS_PARMS mciStatus[_SOUNDASSET_LEN_];
+static DWORD sounds[_SOUNDASSET_LEN_];
+static const char soundFilePath[_SOUNDASSET_LEN_][64]= {
+    "../../data/bgm/startmenu.wav",
+    "../../data/bgm/megalovania.wav",
+    "../../data/voice/sans.wav",
+};
 
 void initSoundAsset();
 void loadWav(int id, const char* wavPath);

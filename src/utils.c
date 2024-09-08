@@ -157,3 +157,13 @@ float lerp(float from, float to, float t)
 		return to;
 	return abs(to - from) * t + from;
 }
+
+void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor)
+{
+	if (s != NULL)
+		strcpy(target->s, s);
+	target->x = x;
+	target->y = y;
+	target->tColor = tColor;
+	target->bColor = bColor;
+}

@@ -48,6 +48,20 @@ void playVoice(SoundFileType fType)
 	}
 }
 
+void playSFX(SoundFileType fType)
+{
+	int dwID = fType + 1;
+	mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, (DWORD)(LPVOID)NULL);
+	mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&(mciPlay[fType]));
+//	mciStatus[fType].dwItem = MCI_STATUS_MODE;
+//	mciSendCommand(dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)(LPSTR)&(mciStatus[fType])); 
+//	if (mciStatus[fType].dwReturn != MCI_MODE_PLAY)		// if not playing this sound
+//	{
+//		mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, (DWORD)(LPVOID)NULL);
+//		mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&(mciPlay[fType]));
+//	}
+}
+
 void releaseSoundAsset()
 {
 	int i;

@@ -81,8 +81,8 @@ typedef struct Pattern
 	HANDLE hThread;
 	DWORD isActive;
 	unsigned int threadID;
-	RenderInfo renderInfo[10];
 	int renderInfoLen;
+	RenderInfo renderInfo[10];
 } Pattern;
 
 static const char assetFilePath[_ASSETFILE_NUM_][64] = {
@@ -117,4 +117,5 @@ int getRandomRange(int min, int max);
 char* rotateString(char* dst, char* src, int angle);
 HANDLE startPattern(void (*pattern)(int), int data, unsigned int* threadID);
 float lerp(float from, float to, float t);
+void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor);
 #endif

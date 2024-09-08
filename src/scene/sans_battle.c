@@ -12,7 +12,6 @@ void runSansBattle()
 
     // Enter scene
     introPhase();
-    blackScreenEffect(1.0f);
     bossPhase();
     battleTurn++;
     playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
@@ -77,16 +76,19 @@ void initSansPattern()
 /* Each Phase Func */
 void introPhase()
 {
+    const int introScriptLen = 3;
     scriptIdx = -1;
+    
     sleep(1.0f);
     fadeIn(renderIntroPhase);
-    while (scriptIdx < _SANS_SCRIPT_LEN_)
+    while (scriptIdx < introScriptLen)
         renderCustom(renderIntroPhase);
 }
 
 void bossPhase()
 {
 	static int oldTime = 0;
+	const int indexScriptLen = 4;
 	int currTime, i;
     playerPos.X = 59;
     playerPos.Y = 19;
@@ -94,23 +96,31 @@ void bossPhase()
     switch (battleTurn)
     {
 	    case -1: // intro turn
+	    	playSFX(_SFX_MOMENT_);
+    		blackScreenEffect(1.0f);
+	    	playSFX(_SFX_MOMENT_);
+	    	
 	    	patternIdx = 0;
 	    	oldTime = clock();
 	        while (1)
 	        {
+	        	// run boss pattern
 				currTime = clock();
 				if (patternIdx < _SANS_PATTERN_LEN_ && 1000 < currTime - oldTime)
 				{
-					i = patternIdx;
-					patternIdx++;
-					sansPattern[i].hThread = startPattern(
+					if (patternIdx < _SANS_PATTERN_LEN_ && indexScriptLen <= scriptIdx)
+					{
+						i = patternIdx;
+						patternIdx++;
+						sansPattern[i].hThread = startPattern(
 							sansPattern[i].pattern,
 							(int)(sansPattern[i].data),
 							&(sansPattern[i].threadID)
-					);
-					oldTime = currTime;
+						);
+						oldTime = currTime;
+					}
 				}
-				
+				// if patterns all completed, quit loop
 	            for (i = 0; i < _SANS_PATTERN_LEN_; i++)
 	            {
 	            	GetExitCodeThread(sansPattern[i].hThread, &(sansPattern[i].isActive));
@@ -162,13 +172,7 @@ void renderIntroPhase()
     static int oldTime = 0;
     int flag;
 
-    // render Sans
-    if (scriptIdx != 3)
-        renderSans(_SANS_FACE_NORMAL_A_);
-    else
-        renderSans(_SANS_FACE_NORMAL_B_);
-
-    // render player info
+    renderSans(_SANS_FACE_NORMAL_A_);
     renderPlayerInfo();
     // render speech bubble
     if (scriptIdx < 0) // waiting script before speech
@@ -176,40 +180,78 @@ void renderIntroPhase()
         if (oldTime == 0)
         {
             oldTime = clock();
-            return;
         }
-        if (clock() - oldTime < 2000)
+        else if (2000 < clock() - oldTime)
         {
-            return;
+			scriptIdx = 0;
+	        oldTime = 0;
         }
-        scriptIdx = 0;
-        oldTime = 0;
     }
-    if (scriptIdx == 3)
-    	flag = renderSpeechBubble(scripts[scriptIdx], _RED_, 0);
     else
-    	flag = renderSpeechBubble(scripts[scriptIdx], _BLACK_, 1);
-    if (flag < 0)
     {
-        if (!oldTime)
-        {
-            oldTime = clock();
-            return;
-        }
-        if (2000 < clock() - oldTime)
-        {
-            scriptIdx++;
-            oldTime = 0;
-        }
-    }
+	    flag = renderSpeechBubble(scripts[scriptIdx], _BLACK_, 1);
+	    if (flag < 0)
+	    {
+	        if (!oldTime)
+	        {
+	            oldTime = clock();
+	        }
+	        else if (2000 < clock() - oldTime)
+	        {
+	            scriptIdx++;
+	            oldTime = 0;
+	        }
+	    }
+	}
 }
 
 void renderBossPhase()
 {
-    renderSans(_SANS_FACE_NORMAL_A_);
+    static int oldTime = 0, bWait = 1;
+	const int introScriptLen = 4;
+	int flag;
+	
     renderBossPhaseBox();
-	renderPattern();
     renderPlayerInfo();
+    // render speech bubble
+	if (battleTurn == -1)
+	{
+		if (bWait)	// wait before rendering speech bubble
+		{
+	        if (oldTime == 0)
+	        {
+	            oldTime = clock();
+	        }
+	        else if (2000 < clock() - oldTime)
+	        {
+	        	bWait = 0;
+	        	oldTime = 0;
+	        }
+    		renderSans(_SANS_FACE_NORMAL_B_);
+		}
+		else if (scriptIdx < introScriptLen)
+		{
+			renderSans(_SANS_FACE_NORMAL_B_);
+			flag = renderSpeechBubble(scripts[scriptIdx], _RED_, 0);
+			if (flag < 0)
+		    {
+		        if (oldTime == 0)
+		        {
+		            oldTime = clock();
+		        }
+		        else if (2000 < clock() - oldTime)
+		        {
+		            scriptIdx++;
+		            oldTime = 0;
+		        }
+		    }
+		}
+		else
+		{
+    		renderSans(_SANS_FACE_NORMAL_A_);
+		}
+	}
+	renderPattern();
 }
 
 void renderPlayerPhase()
@@ -279,7 +321,7 @@ int renderSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
         if (!oldTime)
             oldTime = clock();
         currTime = clock();
-        if (80 < currTime - oldTime)
+        if (120 < currTime - oldTime)
         {
             currLen = strlen(script) < currLen + 1 ? currLen : currLen + 1;
             oldTime = currTime;
@@ -513,7 +555,7 @@ void fireBlastToCenter(BlastAngle blastAngle)
 		case _BLAST_TOP_CENTER_:
 			targetX = bossPhaseBox.x + (bossPhaseBox.w / 2) - 5;
 			targetY = bossPhaseBox.y - 9;
-			beginX 	= targetX - 12;
+			beginX 	= targetX - 18;
 			beginY 	= targetY - 4;
 			break;
 		case _BLAST_TOP_RIGHT_:
@@ -553,14 +595,23 @@ void fireBlastToCenter(BlastAngle blastAngle)
 	fixBlastAngle(blast, blastSize, blastAngle);
 	sansPattern[pId].renderInfoLen = 1;
 	
+	playSFX(_SFX_GASTERBLASTER_);
 	oldTime = clock();
 	while (1)
 	{
 		t = (clock() - oldTime) / 200.0f;
-		sansPattern[pId].renderInfo[renderInfoIdx].x = (int)lerp(beginX, targetX, t);
-		sansPattern[pId].renderInfo[renderInfoIdx].y = (int)lerp(beginY, targetY, t);
-		sansPattern[pId].renderInfo[renderInfoIdx].tColor = _WHITE_;
-		sansPattern[pId].renderInfo[renderInfoIdx].bColor = _BLACK_;
+//		sansPattern[pId].renderInfo[renderInfoIdx].x = (int)lerp(beginX, targetX, t);
+//		sansPattern[pId].renderInfo[renderInfoIdx].y = (int)lerp(beginY, targetY, t);
+//		sansPattern[pId].renderInfo[renderInfoIdx].tColor = _WHITE_;
+//		sansPattern[pId].renderInfo[renderInfoIdx].bColor = _BLACK_;
+		setRenderInfo(
+			&(sansPattern[pId].renderInfo[renderInfoIdx]), 
+			(int)lerp(beginX, targetX, t),
+			(int)lerp(beginY, targetY, t),
+			NULL,
+			_WHITE_,
+			_BLACK_
+		);
 		sleep(0.01f);
 	}
 	free(blast);

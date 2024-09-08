@@ -1,5 +1,5 @@
-#ifndef __RENDER__
-#define __RENDER__
+#ifndef __RENDERER__
+#define __RENDERER__
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,6 +19,7 @@ typedef enum TextAlign
 
 extern int ScreenIndex;
 extern HANDLE ScreenHandle[2];
+extern char* ScreenBuffer;
 
 void initScreen();
 void setWindowInfo(int w, int h);

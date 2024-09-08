@@ -86,3 +86,74 @@ int getRandomRange(int min, int max)
 	srand(time(NULL));
 	return rand() % limit - min;
 }
+
+char* rotateString(char* dst, char* src, int angle)
+{
+	int w = 0, h = 0, i, j;
+	
+	if (angle / 90 == 0)
+	{
+		strcpy(dst, src);
+		return dst;
+	}
+	
+	// get source string's width/height
+	i = 0;
+	while (src[i])
+	{
+		if (src[i] == '\n')
+			h++;
+		if (h == 0)
+			w++;
+		i++;
+	}
+	
+	switch (angle / 90)
+	{
+		case 1:
+			for (i = 0; i <= h; i++)
+			{
+				for (j = 0; j <= w; j++)
+				{
+					dst[(i * h) + j] = src[h * (h - j - 1) + i];
+				}
+			}
+			break;
+			
+		case 2:
+			for (i = 0; i <= h; i++)
+			{
+				for (j = 0; j <= w; j++)
+				{
+					dst[(i * h) + j] = src[h * (h - i - 1) + (w - j - 1)];
+				}
+			}
+			break;
+			
+		case 3:
+			for (i = 0; i <= h; i++)
+			{
+				for (j = 0; j <= w; j++)
+				{
+					dst[(i * h) + j] = src[h * j + (w - i - 1)];
+				}
+			}
+			break;
+	}
+	strcpy(dst, src);
+	return dst;
+}
+
+HANDLE startPattern(void (*pattern)(int), int data, unsigned int* threadID)
+{
+	return (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)pattern, (void*)data, 0, threadID);
+}
+
+float lerp(float from, float to, float t)
+{
+	if (t <= 0)
+		return from;
+	if (1 <= t)
+		return to;
+	return abs(to - from) * t + from;
+}

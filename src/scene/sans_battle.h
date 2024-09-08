@@ -11,20 +11,24 @@
 #include "../render/renderer.h"
 #include "../sound/sounds.h"
 
-#define _SANS_SCRIPT_LEN_ 4
-#define _BLAST_ANGLE_LEN_ 7
+#define _SANS_SCRIPT_LEN_ 	4
+#define _BLAST_ANGLE_LEN_ 	7
+#define _SANS_PATTERN_LEN_ 	1
 
 typedef enum BlastAngle
 {
-	_BLAST_TOP_LEFT_		= -100,
-	_BLAST_TOP_CENTER_,
-	_BLAST_TOP_RIGHT_,
+	_BLAST_TOP_CENTER_		= 0,	// vertical
+	_BLAST_TOP_RIGHT_,				// diagonal
+	
+	_BLAST_MID_RIGHT_		= 90,
+	_BLAST_BOT_RIGHT_,
+	
+	_BLAST_BOT_CENTER_		= 180,
+	_BLAST_BOT_LEFT_,
+	
+	_BLAST_TOP_LEFT_		= 270,
 	_BLAST_MID_LEFT_,
 //	_BLAST_MID_CENTER_,
-	_BLAST_MID_RIGHT_,
-	_BLAST_BOT_LEFT_,
-	_BLAST_BOT_CENTER_,
-	_BLAST_BOT_RIGHT_,
 } BlastAngle;
 
 typedef struct BossPhaseBox
@@ -35,9 +39,8 @@ typedef struct BossPhaseBox
 	int h;
 } BossPhaseBox;
 
-static int battleTurn, battleSelect, playerHP;
+static int battleTurn, battleSelect, playerHP, patternIdx, scriptIdx;
 static COORD playerPos;
-static int scriptIdx;
 static const char scripts[_SANS_SCRIPT_LEN_][64] = {
 				    "it's a beautiful day outside.",
 				    "birds are singing. flowers are blooming.",
@@ -45,27 +48,37 @@ static const char scripts[_SANS_SCRIPT_LEN_][64] = {
 				    "Should be burning in hell.",
 				};
 static const BossPhaseBox bossPhaseBox = { 49, 16, 18, 8 };
+static Pattern sansPattern[_SANS_PATTERN_LEN_];
 
+/* Main func in sans battle */
 void runSansBattle();
+void initSansPattern();
+
+/* Each Phase Func */
 void introPhase();
 void bossPhase();
 void playerPhase();
 
+/* Main Renderer */
 void renderSansBattle();
 void renderIntroPhase();
 void renderBossPhase();
 void renderPlayerPhase();
 
+/* Sub Renderer */
 void renderSans(AssetFileType face);
-int renderSpeechBubble(const char* script, ConsoleColor tColor);
+int renderSpeechBubble(const char* script, ConsoleColor tColor, int bVoice);
 void renderBossPhaseBox();
 void renderPlayerPhaseBox();
 void renderPlayerInfo();
 void renderSelectBox();
+void renderPattern();
 
+/* Boss Phase func */
 void movePlayer();
-void fireBlastToCenter(BlastType blastX, BlastType blastY);
-void fireBlastToPlayer(int blastX, int blastY);
+void fireBlastToCenter(BlastAngle blastAngle);
+void fireBlastToPlayer(BlastAngle blastAngle);
 AssetFileType getBlastType(BlastAngle blastAngle);
-void fixBlastAngle(char* target, BlastAngle blastAngle, AssetFileType blastType);
+void fixBlastAngle(char* dst, size_t dstSize, BlastAngle blastAngle);
+void releasePattern();
 #endif

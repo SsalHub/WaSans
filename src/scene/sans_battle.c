@@ -7,6 +7,8 @@ void runSansBattle()
     playerHP = MaxHP;
     battleTurn = -1;
     battleSelect = 0;
+    
+    initSansPattern();
 
     // Enter scene
     introPhase();
@@ -55,6 +57,23 @@ void runSansBattle()
     }
 }
 
+void initSansPattern()
+{
+	sansPattern[0].pattern = (void (*)(int))fireBlastToCenter;
+	sansPattern[0].data = (int)_BLAST_TOP_CENTER_;
+	sansPattern[0].hThread = NULL;
+	sansPattern[0].threadID = 0;
+	sansPattern[0].isActive = 0;
+	sansPattern[0].renderInfoLen = 0;
+	
+//	sansPattern[1].pattern = (void (*)(int))fireBlastToCenter;
+//	sansPattern[1].data = (int)_BLAST_BOT_CENTER_;
+//	sansPattern[1].hThread = NULL;
+//	sansPattern[1].threadID = 0;
+//	sansPattern[1].isActive = 0;
+//	sansPattern[1].renderInfoLen = 0;
+}
+
 /* Each Phase Func */
 void introPhase()
 {
@@ -62,30 +81,46 @@ void introPhase()
     sleep(1.0f);
     fadeIn(renderIntroPhase);
     while (scriptIdx < _SANS_SCRIPT_LEN_)
-    {
         renderCustom(renderIntroPhase);
-    }
 }
 
 void bossPhase()
 {
 	static int oldTime = 0;
-	static int pattern[3] = {
-					1,
-					2,
-					3,
-			};
-	int patternIndex = 0;
+	int currTime, i;
     playerPos.X = 59;
     playerPos.Y = 19;
     
     switch (battleTurn)
     {
 	    case -1: // intro turn
+	    	patternIdx = 0;
+	    	oldTime = clock();
 	        while (1)
 	        {
+				currTime = clock();
+				if (patternIdx < _SANS_PATTERN_LEN_ && 1000 < currTime - oldTime)
+				{
+					i = patternIdx;
+					patternIdx++;
+					sansPattern[i].hThread = startPattern(
+							sansPattern[i].pattern,
+							(int)(sansPattern[i].data),
+							&(sansPattern[i].threadID)
+					);
+					oldTime = currTime;
+				}
+				
+	            for (i = 0; i < _SANS_PATTERN_LEN_; i++)
+	            {
+	            	GetExitCodeThread(sansPattern[i].hThread, &(sansPattern[i].isActive));
+	            	if (sansPattern[i].isActive == STILL_ACTIVE)
+	            		break;
+				}
+				if (patternIdx != 0 && _SANS_PATTERN_LEN_ <= i)
+					break;
+					
 	        	movePlayer();
-	        	// runPattern(pattern[patternIndex]);
 	            renderCustom(renderBossPhase);
 	        }
 	        break;
@@ -98,6 +133,8 @@ void bossPhase()
 //	        }
 	        break;
     }
+    
+    releasePattern();
 }
 
 void playerPhase()
@@ -149,9 +186,9 @@ void renderIntroPhase()
         oldTime = 0;
     }
     if (scriptIdx == 3)
-    	flag = renderSpeechBubble(scripts[scriptIdx], _RED_);
+    	flag = renderSpeechBubble(scripts[scriptIdx], _RED_, 0);
     else
-    	flag = renderSpeechBubble(scripts[scriptIdx], _BLACK_);
+    	flag = renderSpeechBubble(scripts[scriptIdx], _BLACK_, 1);
     if (flag < 0)
     {
         if (!oldTime)
@@ -171,6 +208,7 @@ void renderBossPhase()
 {
     renderSans(_SANS_FACE_NORMAL_A_);
     renderBossPhaseBox();
+	renderPattern();
     renderPlayerInfo();
 }
 
@@ -218,7 +256,7 @@ void renderSans(AssetFileType face)
     }
 }
 
-int renderSpeechBubble(const char* script, ConsoleColor tColor)
+int renderSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
 {
     int x = 74, y = 2, w = 24, h = 6, i, j, currTime;
     static int currLen = 0, oldTime = 0;
@@ -230,7 +268,6 @@ int renderSpeechBubble(const char* script, ConsoleColor tColor)
         currLen = 0;
         pScript = script;
     }
-
     if (kbhit())
     {
         input = getch();
@@ -248,7 +285,6 @@ int renderSpeechBubble(const char* script, ConsoleColor tColor)
             oldTime = currTime;
         }
     }
-
     // print bubble box
     buffer[0] = '\0';
     for (j = 0; j < w; j++)
@@ -279,7 +315,7 @@ int renderSpeechBubble(const char* script, ConsoleColor tColor)
 
     if (strlen(script) <= currLen)
         return -1;
-    if (0 < currLen && script[currLen - 1] != ' ')
+    if (bVoice && 0 < currLen && script[currLen - 1] != ' ')
     	playVoice(_VOICE_SANS_);
     return currLen;
 }
@@ -315,7 +351,7 @@ void renderBossPhaseBox()
         playerPos.Y = bossPhaseBox.y + 1;
     else if (bossPhaseBox.y + bossPhaseBox.h - 2 <= playerPos.Y)
         playerPos.Y = bossPhaseBox.y + bossPhaseBox.h - 2;
-    strcpy(ch, "¢¾");
+    strcpy(ch, "â™¥");
     printLine(playerPos.X, playerPos.Y, ch, _HOTPINK_, _BLACK_);
 }
 
@@ -396,6 +432,24 @@ void renderSelectBox()
     printLine(x + 11, y + 2, "MERCY", tSelect[3], _BLACK_);
 }
 
+void renderPattern()
+{
+	int i, j;
+	for (i = 0; i < patternIdx; i++)
+	{
+		for (j = 0; j < sansPattern[i].renderInfoLen; j++)
+		{
+			printLines(
+				sansPattern[i].renderInfo[j].x,
+				sansPattern[i].renderInfo[j].y,
+				sansPattern[i].renderInfo[j].s,
+				sansPattern[i].renderInfo[j].tColor,
+				sansPattern[i].renderInfo[j].bColor
+			);
+		}
+	}
+}
+
 
 
 /* Boss Phase func */
@@ -442,102 +496,80 @@ void movePlayer()
 
 void fireBlastToCenter(BlastAngle blastAngle)
 {
+	int pId = patternIdx - 1;
+	AssetFileType blastType = getBlastType(blastAngle);
+	int targetX, targetY, beginX, beginY;
+	int x, y, oldTime, renderInfoIdx = 0;
 	char* blast;
-	int x, y;
+	size_t blastSize;
+	float t;
+	
+	blastSize = (sizeof(char) * strlen(AssetFile[blastType])) * 2;
+	sansPattern[pId].renderInfo[renderInfoIdx].s = (char*)malloc(blastSize);
+	blast = sansPattern[pId].renderInfo[renderInfoIdx].s;
 	
 	switch (blastAngle)
 	{
-		case _BLAST_BOT_LEFT_:
-			x = bossPhaseBox.x - 20;
-			y = bossPhaseBox.y - 8;
+		case _BLAST_TOP_CENTER_:
+			targetX = bossPhaseBox.x + (bossPhaseBox.w / 2) - 5;
+			targetY = bossPhaseBox.y - 9;
+			beginX 	= targetX - 12;
+			beginY 	= targetY - 4;
 			break;
-		case _BLAST_BOT_CENTER_:
-			x = bossPhaseBox.x + (bossPhaseBox.w / 2);
-			y = bossPhaseBox.y - 8;
-			break;
-		case _BLAST_BOT_RIGHT_:
-			x = bossPhaseBox.x + bossPhaseBox.w + 5;
-			y = bossPhaseBox.y - 8;
-			break;
-		
-		case _BLAST_MID_LEFT_:
-			x = bossPhaseBox.x - 20;
-			y = bossPhaseBox.y + (bossPhaseBox.h / 2);
-			break;
-//		case _BLAST_MID_CENTER_:
-//			x = bossPhaseBox.x + (bossPhaseBox.w / 2);
-//			y = bossPhaseBox.y - 8;
-//			break;
-		case _BLAST_MID_RIGHT_:
-			x = bossPhaseBox.x + bossPhaseBox.w + 5;
-			y = bossPhaseBox.y + (bossPhaseBox.h / 2);
+		case _BLAST_TOP_RIGHT_:
+			targetX = bossPhaseBox.x + bossPhaseBox.w + 5;
+			targetY = bossPhaseBox.y - 9;
 			break;
 			
-		case _BLAST_TOP_LEFT_:
-			x = bossPhaseBox.x - 20;
-			y = bossPhaseBox.y + bossPhaseBox.h + 2;
+		case _BLAST_MID_RIGHT_:
+			targetX = bossPhaseBox.x + bossPhaseBox.w + 5;
+			targetY = bossPhaseBox.y + (bossPhaseBox.h / 2);
+			break;
+		case _BLAST_BOT_RIGHT_:
+			targetX = bossPhaseBox.x + bossPhaseBox.w + 5;
+			targetY = bossPhaseBox.y + bossPhaseBox.h + 2;
+			break;
+			
+		case _BLAST_BOT_CENTER_:
+			targetX = bossPhaseBox.x - 20;
+			targetY = bossPhaseBox.y - 8;
+			beginX 	= targetX + 16;
+			beginY 	= targetY + 5;
+			break;
+		case _BLAST_BOT_LEFT_:
+			targetX = bossPhaseBox.x - 20;
+			targetY = bossPhaseBox.y + bossPhaseBox.h + 2;
+			break;
+			
+		case _BLAST_MID_LEFT_:
+			targetX = bossPhaseBox.x - 20;
+			targetY = bossPhaseBox.y + (bossPhaseBox.h / 2);
 			break;
 		case _BLAST_TOP_LEFT_:
-			y = bossPhaseBox.y + bossPhaseBox.h + 2;
-			y = bossPhaseBox.y - 8;
-			break;
-		case _BLAST_TOP_LEFT_:
-			x = bossPhaseBox.x + bossPhaseBox.w + 5;
-			y = bossPhaseBox.y + bossPhaseBox.h + 2;
+			targetX = bossPhaseBox.x - 20;
+			targetY = bossPhaseBox.y - 8;
 			break;
 	}
-	fixBlastAngle(blast, blastAngle);
+	fixBlastAngle(blast, blastSize, blastAngle);
+	sansPattern[pId].renderInfoLen = 1;
 	
+	oldTime = clock();
+	while (1)
+	{
+		t = (clock() - oldTime) / 200.0f;
+		sansPattern[pId].renderInfo[renderInfoIdx].x = (int)lerp(beginX, targetX, t);
+		sansPattern[pId].renderInfo[renderInfoIdx].y = (int)lerp(beginY, targetY, t);
+		sansPattern[pId].renderInfo[renderInfoIdx].tColor = _WHITE_;
+		sansPattern[pId].renderInfo[renderInfoIdx].bColor = _BLACK_;
+		sleep(0.01f);
+	}
 	free(blast);
 }
 
-void fireBlastToPlayer(int blastX, int blastY)
+void fireBlastToPlayer(BlastAngle blastAngle)
 {
+	int pIdx = patternIdx - 1;
 	int playerX = playerPos.X, playerY = playerPos.Y;
-}
-
-void fixBlastAngle(char* target, BlastAngle blastAngle)
-{
-	AssetFileType blastType = getBlastType(blastAngle);
-	int angle = 0;
-	char* rotate;
-	size_t blastLen = sizeof(char) * strlen(AssetFile[blastType] + 1);
-	
-	target = (char*)malloc(blastLen);
-	rotate = (char*)malloc(blastLen);
-	strcpy(rotate, AssetFile[blastType]);
-	
-	switch (blastAngle)
-	{
-		// angle 0
-		case _BLAST_TOP_CENTER_:	// vertical
-		case _BLAST_TOP_RIGHT_:		// diagonal
-			angle = 0;
-			break;
-		// angle 90
-		case _BLAST_MID_RIGHT_:
-		case _BLAST_BOT_RIGHT_:
-			angle = 90;
-			break;
-		// angle 180
-		case _BLAST_BOT_CENTER_:
-		case _BLAST_TOP_LEFT_:
-			angle = 180;
-			break;
-		// angle 270
-		case _BLAST_MID_LEFT_:
-		case _BLAST_BOT_LEFT_:
-			angle = 270;
-			break;
-		
-	}
-	
-	// string rotation 
-	
-	
-	strcpy(target, rotate);
-	
-	free(rotate);
 }
 
 AssetFileType getBlastType(BlastAngle blastAngle)
@@ -545,7 +577,6 @@ AssetFileType getBlastType(BlastAngle blastAngle)
 	switch (blastAngle)
 	{
 		case _BLAST_MID_LEFT_:
-//		case _BLAST_MID_CENTER_:
 		case _BLAST_MID_RIGHT_:
 		case _BLAST_BOT_CENTER_:
 		case _BLAST_TOP_CENTER_:
@@ -558,4 +589,26 @@ AssetFileType getBlastType(BlastAngle blastAngle)
 			return _SANS_BLAST_DIAGONAL_A_;
 	}
 	return -1;
+}
+
+void fixBlastAngle(char* dst, size_t dstSize, BlastAngle blastAngle)
+{
+	AssetFileType blastType = getBlastType(blastAngle);
+	int angle = 0;
+	char* src;
+	
+	src = (char*)malloc(dstSize);
+	strcpy(src, AssetFile[blastType]);
+	// string rotation 
+	rotateString(dst, src, blastAngle);
+	free(src);
+}
+
+void releasePattern()
+{
+	int i;
+	for (i = 0; i < _SANS_PATTERN_LEN_; i++)
+	{
+		CloseHandle(sansPattern[i].hThread);
+	}
 }

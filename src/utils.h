@@ -3,6 +3,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+#include <process.h>
 #include <windows.h>
 #include "settings.h"
 
@@ -63,6 +65,26 @@ typedef enum InputType
     _CARRIAGE_RETURN_ 			= 13,
 } InputType;
 
+typedef struct RenderInfo
+{
+	int x;
+	int y;
+	char* s;
+	ConsoleColor tColor;
+	ConsoleColor bColor;
+} RenderInfo;
+
+typedef struct Pattern
+{
+	void (*pattern)(int);
+	int data;
+	HANDLE hThread;
+	DWORD isActive;
+	unsigned int threadID;
+	RenderInfo renderInfo[10];
+	int renderInfoLen;
+} Pattern;
+
 static const char assetFilePath[_ASSETFILE_NUM_][64] = {
 					"../../data/UNDERTALE_LOGO.asset",
 					"../../data/SELECT_BOX.asset",
@@ -92,4 +114,7 @@ char *readFile(const char *fname, char *dest);
 char *readAssetFile(const char *fname);
 void releaseAssetFile();
 int getRandomRange(int min, int max);
+char* rotateString(char* dst, char* src, int angle);
+HANDLE startPattern(void (*pattern)(int), int data, unsigned int* threadID);
+float lerp(float from, float to, float t);
 #endif

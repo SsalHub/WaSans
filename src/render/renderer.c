@@ -2,10 +2,12 @@
 
 int ScreenIndex;
 HANDLE ScreenHandle[2];
+char* ScreenBuffer;
 
 void initScreen()
 {
 	CONSOLE_CURSOR_INFO cinfo;
+	int i, j;
 	
 	ScreenIndex = 0;
 	ScreenHandle[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
@@ -18,6 +20,15 @@ void initScreen()
 	
 	setWindowInfo(ScreenWidth, ScreenHeight);
 	OldTime = clock();
+	
+	ScreenBuffer = (char*)malloc((ScreenWidth + 1) * ScreenHeight + 1);
+	ScreenBuffer[0] = '\0';
+	for (i = 0; i < ScreenHeight; i++)
+	{
+		for (j = 0; j < ScreenWidth; j++)
+			strcat(ScreenBuffer, " ");	
+		strcat(ScreenBuffer, "\n");
+	}
 }
 
 void setWindowInfo(int w, int h)
@@ -43,39 +54,22 @@ void flipScreen()
 
 void clearScreen()
 {
-	COORD pos = { 0, 0 };
-	DWORD dw;
-	char buffer[(ScreenWidth + 1) * ScreenHeight];
-	int x = 0, y = 0, i, j;
-//	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
-	buffer[0] = '\0';
-	for (j = 0; j < ScreenWidth; j++)
-		strcat(buffer, " ");	
-	for (i = 0; i < ScreenHeight; i++)
-		printLine(x, y + i, buffer, _BLACK_, _BLACK_);
+	int x = 0, y = 0;
+	printLines(x, y, ScreenBuffer, _BLACK_, _BLACK_);
 }
 
 void fillColorToScreen(ConsoleColor tColor, ConsoleColor bColor)
 {
-	COORD pos = { 0, 0 };
-	DWORD dw;
-	char buffer[(ScreenWidth + 1) * ScreenHeight];
-	int x = 0, y = 0, i, j;
-	
-	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
-	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
+	int x = 0, y = 0;
+	printLines(x, y, ScreenBuffer, tColor, bColor);
 //	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
-	buffer[0] = '\0';
-	for (j = 0; j < ScreenWidth; j++)
-		strcat(buffer, " ");	
-	for (i = 0; i < ScreenHeight; i++)
-		printLine(x, y + i, buffer, _BLACK_, _BLACK_);
 }
 
 void releaseScreen()
 {
 	CloseHandle(ScreenHandle[0]);
 	CloseHandle(ScreenHandle[1]);
+	free(ScreenBuffer);
 }
 
 void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)

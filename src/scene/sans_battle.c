@@ -440,25 +440,55 @@ void movePlayer()
 	}
 }
 
-void fireBlastToCenter(BlastType blastX, BlastType blastY)
+void fireBlastToCenter(BlastAngle blastAngle)
 {
+	char* blast;
 	int x, y;
-	switch (blastX)
+	
+	switch (blastAngle)
 	{
-		case _BLAST_LEFT_:
+		case _BLAST_BOT_LEFT_:
 			x = bossPhaseBox.x - 20;
+			y = bossPhaseBox.y - 8;
 			break;
-		case _BLAST_RIGHT_:
+		case _BLAST_BOT_CENTER_:
+			x = bossPhaseBox.x + (bossPhaseBox.w / 2);
+			y = bossPhaseBox.y - 8;
+			break;
+		case _BLAST_BOT_RIGHT_:
 			x = bossPhaseBox.x + bossPhaseBox.w + 5;
-	}
-	switch (blastY)
-	{
-		case _BLAST_TOP_:
-			x = bossPhaseBox.y - 8;
+			y = bossPhaseBox.y - 8;
 			break;
-		case _BLAST_BOTTOM_:
-			x = bossPhaseBox.y + bossPhaseBox.h +  2;
+		
+		case _BLAST_MID_LEFT_:
+			x = bossPhaseBox.x - 20;
+			y = bossPhaseBox.y + (bossPhaseBox.h / 2);
+			break;
+//		case _BLAST_MID_CENTER_:
+//			x = bossPhaseBox.x + (bossPhaseBox.w / 2);
+//			y = bossPhaseBox.y - 8;
+//			break;
+		case _BLAST_MID_RIGHT_:
+			x = bossPhaseBox.x + bossPhaseBox.w + 5;
+			y = bossPhaseBox.y + (bossPhaseBox.h / 2);
+			break;
+			
+		case _BLAST_TOP_LEFT_:
+			x = bossPhaseBox.x - 20;
+			y = bossPhaseBox.y + bossPhaseBox.h + 2;
+			break;
+		case _BLAST_TOP_LEFT_:
+			y = bossPhaseBox.y + bossPhaseBox.h + 2;
+			y = bossPhaseBox.y - 8;
+			break;
+		case _BLAST_TOP_LEFT_:
+			x = bossPhaseBox.x + bossPhaseBox.w + 5;
+			y = bossPhaseBox.y + bossPhaseBox.h + 2;
+			break;
 	}
+	fixBlastAngle(blast, blastAngle);
+	
+	free(blast);
 }
 
 void fireBlastToPlayer(int blastX, int blastY)
@@ -466,7 +496,66 @@ void fireBlastToPlayer(int blastX, int blastY)
 	int playerX = playerPos.X, playerY = playerPos.Y;
 }
 
-AssetFileType fixBlastAngle(BlastType blastX, BlastType blastY)
+void fixBlastAngle(char* target, BlastAngle blastAngle)
 {
-	return _SANS_BLAST_DIAGONAL_E_;
+	AssetFileType blastType = getBlastType(blastAngle);
+	int angle = 0;
+	char* rotate;
+	size_t blastLen = sizeof(char) * strlen(AssetFile[blastType] + 1);
+	
+	target = (char*)malloc(blastLen);
+	rotate = (char*)malloc(blastLen);
+	strcpy(rotate, AssetFile[blastType]);
+	
+	switch (blastAngle)
+	{
+		// angle 0
+		case _BLAST_TOP_CENTER_:	// vertical
+		case _BLAST_TOP_RIGHT_:		// diagonal
+			angle = 0;
+			break;
+		// angle 90
+		case _BLAST_MID_RIGHT_:
+		case _BLAST_BOT_RIGHT_:
+			angle = 90;
+			break;
+		// angle 180
+		case _BLAST_BOT_CENTER_:
+		case _BLAST_TOP_LEFT_:
+			angle = 180;
+			break;
+		// angle 270
+		case _BLAST_MID_LEFT_:
+		case _BLAST_BOT_LEFT_:
+			angle = 270;
+			break;
+		
+	}
+	
+	// string rotation 
+	
+	
+	strcpy(target, rotate);
+	
+	free(rotate);
+}
+
+AssetFileType getBlastType(BlastAngle blastAngle)
+{
+	switch (blastAngle)
+	{
+		case _BLAST_MID_LEFT_:
+//		case _BLAST_MID_CENTER_:
+		case _BLAST_MID_RIGHT_:
+		case _BLAST_BOT_CENTER_:
+		case _BLAST_TOP_CENTER_:
+			return _SANS_BLAST_VERTICAL_A_;
+		
+		case _BLAST_TOP_LEFT_:
+		case _BLAST_TOP_RIGHT_:
+		case _BLAST_BOT_LEFT_:
+		case _BLAST_BOT_RIGHT_:
+			return _SANS_BLAST_DIAGONAL_A_;
+	}
+	return -1;
 }

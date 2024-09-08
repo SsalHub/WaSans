@@ -63,7 +63,6 @@ typedef enum InputType
     _CARRIAGE_RETURN_ 			= 13,
 } InputType;
 
-extern char *AssetFile[_ASSETFILE_NUM_];
 static const char assetFilePath[_ASSETFILE_NUM_][64] = {
 					"../../data/UNDERTALE_LOGO.asset",
 					"../../data/SELECT_BOX.asset",
@@ -84,6 +83,8 @@ static const char assetFilePath[_ASSETFILE_NUM_][64] = {
 					"../../data/character/sans/blast/blast_diagonal_e.asset",
 					"../../data/character/sans/blast/blast_diagonal_f.asset",
 				};
+
+extern char *AssetFile[_ASSETFILE_NUM_];
 
 void sleep(float sec);
 void initDataAsset();

@@ -12,15 +12,20 @@
 #include "../sound/sounds.h"
 
 #define _SANS_SCRIPT_LEN_ 4
+#define _BLAST_ANGLE_LEN_ 7
 
-
-typedef enum BlastType
+typedef enum BlastAngle
 {
-	_BLAST_TOP_			= -100,
-	_BLAST_BOTTOM_,
-	_BLAST_LEFT_,
-	_BLAST_RIGHT_,
-} BlastType;
+	_BLAST_TOP_LEFT_		= -100,
+	_BLAST_TOP_CENTER_,
+	_BLAST_TOP_RIGHT_,
+	_BLAST_MID_LEFT_,
+//	_BLAST_MID_CENTER_,
+	_BLAST_MID_RIGHT_,
+	_BLAST_BOT_LEFT_,
+	_BLAST_BOT_CENTER_,
+	_BLAST_BOT_RIGHT_,
+} BlastAngle;
 
 typedef struct BossPhaseBox
 {
@@ -61,5 +66,6 @@ void renderSelectBox();
 void movePlayer();
 void fireBlastToCenter(BlastType blastX, BlastType blastY);
 void fireBlastToPlayer(int blastX, int blastY);
-AssetFileType fixBlastAngle(BlastType blastX, BlastType blastY);
+AssetFileType getBlastType(BlastAngle blastAngle);
+void fixBlastAngle(char* target, BlastAngle blastAngle, AssetFileType blastType);
 #endif

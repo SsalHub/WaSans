@@ -107,46 +107,51 @@ char* rotateString(char* dst, char* src, int angle)
 			w++;
 		i++;
 	}
+	h++;
+	w++;
 	
 	switch (angle / 90)
 	{
 		case 1:
-			for (i = 0; i <= h; i++)
+			for (i = 0; i < h; i++)
 			{
-				for (j = 0; j <= w; j++)
+				for (j = 0; j < w; j++)
 				{
-					dst[(i * h) + j] = src[h * (h - j - 1) + i];
+					dst[h * j + i] = src[w * i + (w - j - 1)];
 				}
+				dst[h * i + h] = '\n';
 			}
 			break;
 			
 		case 2:
-			for (i = 0; i <= h; i++)
+			for (i = 0; i < h; i++)
 			{
-				for (j = 0; j <= w; j++)
+				for (j = 0; j < w; j++)
 				{
-					dst[(i * h) + j] = src[h * (h - i - 1) + (w - j - 1)];
+					dst[(w * i) + j] = src[w * (h - i - 1) + (w - j - 1)];
 				}
+				dst[(w * i) + j] = '\n';
 			}
 			break;
 			
 		case 3:
-			for (i = 0; i <= h; i++)
+			for (i = 0; i < h; i++)
 			{
-				for (j = 0; j <= w; j++)
+				for (j = 0; j < w; j++)
 				{
-					dst[(i * h) + j] = src[h * j + (w - i - 1)];
+					dst[h * j + i] = src[w * (h - i - 1) + j];
 				}
+				dst[h * i + h] = '\n';
 			}
 			break;
 	}
-	strcpy(dst, src);
+	dst[strlen(src)] = '\0';
 	return dst;
 }
 
-HANDLE startPattern(void (*pattern)(int), int data, unsigned int* threadID)
+HANDLE startPattern(unsigned __stdcall (*pattern)(int), void* args, unsigned int* threadID)
 {
-	return (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)pattern, (void*)data, 0, threadID);
+	return (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)pattern, args, 0, threadID);
 }
 
 float lerp(float from, float to, float t)
@@ -155,7 +160,7 @@ float lerp(float from, float to, float t)
 		return from;
 	if (1 <= t)
 		return to;
-	return abs(to - from) * t + from;
+	return (to - from) * t + from;
 }
 
 void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor)

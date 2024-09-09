@@ -11,7 +11,8 @@ void initGame()
 {
 	initScreen();
 	initDataAsset();
-	initSoundAsset();
+	initBGMAsset();
+	initVoiceAsset();
 }
 
 void runGame()
@@ -40,5 +41,7 @@ void exitGame()
 	
 	releaseScreen();
 	releaseAssetFile();
-	releaseSoundAsset();
+//	releaseBGMAsset();
+//	releaseVoiceAsset();
+	releaseSoundAssets();
 }

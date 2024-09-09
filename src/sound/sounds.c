@@ -1,33 +1,44 @@
 #include "sounds.h"
 
-void initSoundAsset()
+void initBGMAsset()
 {
 	int i;
-	for (i = 0; i < _SOUNDASSET_LEN_; i++)
+	for (i = 0; i < _BGM_ASSET_LEN_; i++)
 	{
-		loadWav(i, soundFilePath[i]);
+		mciOpen.lpstrDeviceType = "WaveAudio";
+		mciOpen.lpstrElementName = bgmAssetPath[i];
+		bgmAsset[i].dw = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD)(LPVOID)&mciOpen);
+		bgmAsset[i].dwID = mciOpen.wDeviceID;
 	}
 }
 
-void loadWav(int id, const char* wavPath)
+void initVoiceAsset()
 {
-	mciOpen.lpstrDeviceType = "WaveAudio";
-	mciOpen.lpstrElementName = wavPath;
-	sounds[id] = mciSendCommand(id + 1, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD)(LPVOID)&mciOpen);
+	int i;
+	for (i = 0; i < _VOICE_ASSET_LEN_; i++)
+	{
+		mciOpen.lpstrDeviceType = "WaveAudio";
+		mciOpen.lpstrElementName = voiceAssetPath[i];
+		voiceAsset[i].dw = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD)(LPVOID)&mciOpen);
+		voiceAsset[i].dwID = mciOpen.wDeviceID;
+	}
 }
 
-void playBGM(SoundFileType fType, SoundPlayType flag)
+void playBGM(BGMAssetType bgmType, SoundPlayType flag)
 {
-	int dwID = fType + 1;
 	switch (flag)
 	{
 		case _SOUND_BEGIN_:
-			mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, (DWORD)(LPVOID)NULL);
-			mciSendCommand(dwID, MCI_PLAY, MCI_DGV_PLAY_REPEAT, (DWORD)(LPVOID)&(mciPlay[fType]));
+			mciSendCommand(bgmAsset[bgmType].dwID, MCI_SEEK, MCI_SEEK_TO_START, NULL);
+			mciSendCommand(bgmAsset[bgmType].dwID, MCI_PLAY, MCI_DGV_PLAY_REPEAT, (DWORD)(LPVOID)&mciPlay);
 			break;
 			
+		case _SOUND_RESUME_:
+			mciSendCommand(bgmAsset[bgmType].dwID, MCI_RESUME, MCI_NOTIFY, (DWORD)(LPVOID)&mciPlay);
+			return;
+			
 		case _SOUND_PAUSE_:
-			mciSendCommand(dwID, MCI_PAUSE, MCI_NOTIFY, (DWORD)(LPVOID)&(mciPlay[fType]));
+			mciSendCommand(bgmAsset[bgmType].dwID, MCI_PAUSE, MCI_NOTIFY, (DWORD)(LPVOID)&mciPlay);
 			return;
 			
 		default:
@@ -35,38 +46,74 @@ void playBGM(SoundFileType fType, SoundPlayType flag)
 	}
 }
 
-void playVoice(SoundFileType fType)
+void playVoice(VoiceAssetType voiceType)
 {
-	int dwID = fType + 1;
-	
-	mciStatus[fType].dwItem = MCI_STATUS_MODE;
-	mciSendCommand(dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)(LPSTR)&(mciStatus[fType])); 
-	if (mciStatus[fType].dwReturn != MCI_MODE_PLAY)		// if not playing this sound
+	mciStatus.dwItem = MCI_STATUS_MODE;
+	mciSendCommand(voiceAsset[voiceType].dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)(LPSTR)&mciStatus); 
+	if (mciStatus.dwReturn != MCI_MODE_PLAY)		// if not playing this sound
 	{
-		mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, (DWORD)(LPVOID)NULL);
-		mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&(mciPlay[fType]));
+		mciSendCommand(voiceAsset[voiceType].dwID, MCI_SEEK, MCI_SEEK_TO_START, NULL);
+		mciSendCommand(voiceAsset[voiceType].dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&mciPlay);
 	}
 }
 
-void playSFX(SoundFileType fType)
+void playSFX(SFXAssetType sfxType)
 {
-	int dwID = fType + 1;
-	mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, (DWORD)(LPVOID)NULL);
-	mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&(mciPlay[fType]));
-//	mciStatus[fType].dwItem = MCI_STATUS_MODE;
-//	mciSendCommand(dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)(LPSTR)&(mciStatus[fType])); 
-//	if (mciStatus[fType].dwReturn != MCI_MODE_PLAY)		// if not playing this sound
-//	{
-//		mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, (DWORD)(LPVOID)NULL);
-//		mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&(mciPlay[fType]));
-//	}
+	DWORD dw;
+	unsigned int dwID;
+	
+	// open wav
+	mciOpen.lpstrDeviceType = "WaveAudio";
+	mciOpen.lpstrElementName = sfxAssetPath[sfxType];
+	dw = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD)(LPVOID)&mciOpen);
+	dwID = mciOpen.wDeviceID;
+	// play wav
+	mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, NULL);
+	mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&mciPlay);
 }
 
-void releaseSoundAsset()
+/* Not using static vars */
+void playSFXOnThread(SFXAssetType sfxType)
+{
+	MCI_OPEN_PARMS localOpen;
+	MCI_PLAY_PARMS localPlay;
+	DWORD dw;
+	unsigned int dwID;
+	
+	// open wav
+	localOpen.lpstrDeviceType = "WaveAudio";
+	localOpen.lpstrElementName = sfxAssetPath[sfxType];
+	dw = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD)(LPVOID)&localOpen);
+	dwID = localOpen.wDeviceID;
+	// play wav
+	mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, NULL);
+	mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&localPlay);
+}
+
+
+void releaseBGMAsset()
 {
 	int i;
-	for (i = 0; i < _SOUNDASSET_LEN_; i++)
+	for (i = 0; i < _BGM_ASSET_LEN_; i++)
 	{
-		mciSendCommand(i + 1, MCI_CLOSE, 0, (DWORD)(LPVOID)NULL);
+		mciSendCommand(bgmAsset[i].dwID, MCI_CLOSE, 0, NULL);
+	}
+}
+
+void releaseVoiceAsset()
+{
+	int i;
+	for (i = 0; i < _VOICE_ASSET_LEN_; i++)
+	{
+		mciSendCommand(voiceAsset[i].dwID, MCI_CLOSE, 0, NULL);
+	}
+}
+
+void releaseSoundAssets()
+{
+	if (mciSendCommand(MCI_ALL_DEVICE_ID, MCI_CLOSE, MCI_WAIT, NULL))
+	{
+		perror("release sound assets failed.");
+		exit(1);
 	}
 }

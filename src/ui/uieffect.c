@@ -29,15 +29,6 @@ void fadeOut(void (*renderer)(void))
 			oldTime = currTime;
 		}
 	}
-//    for (fadeProgress = 1; fadeProgress <= ScreenHeight; fadeProgress++)
-//    {
-//        clearScreen();
-//        (*renderer)();
-//        for (i = 0; i < fadeProgress; i++)
-//            printLine(0, i, fadeLine, _BLACK_, _BLACK_);
-//        flipScreen();
-//        Sleep(30);
-//    }
 }
 
 void fadeIn(void (*renderer)(void))
@@ -69,16 +60,6 @@ void fadeIn(void (*renderer)(void))
 			oldTime = currTime;
 		}
 	}
-
-//    for (fadeProgress = ScreenHeight; 1 <= fadeProgress; fadeProgress--)
-//    {
-//        clearScreen();
-//        (*renderer)();
-//        for (i = 0; i < fadeProgress; i++)
-//            printLine(0, i, fadeLine, _BLACK_, _BLACK_);
-//        flipScreen();
-//        Sleep(30);
-//    }
 }
 
 void blackScreenEffect(float t)

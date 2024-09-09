@@ -76,7 +76,7 @@ typedef struct RenderInfo
 
 typedef struct Pattern
 {
-	void (*pattern)(int);
+	unsigned __stdcall (*pattern)(int);
 	int data;
 	HANDLE hThread;
 	DWORD isActive;
@@ -115,7 +115,7 @@ char *readAssetFile(const char *fname);
 void releaseAssetFile();
 int getRandomRange(int min, int max);
 char* rotateString(char* dst, char* src, int angle);
-HANDLE startPattern(void (*pattern)(int), int data, unsigned int* threadID);
+HANDLE startPattern(unsigned __stdcall (*pattern)(int), void* args, unsigned int* threadID);
 float lerp(float from, float to, float t);
 void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor);
 #endif

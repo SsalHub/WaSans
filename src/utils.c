@@ -107,24 +107,29 @@ char* rotateString(char* dst, char* src, int angle)
 			w++;
 		i++;
 	}
-	h++;
 	w++;
+	h++; 
+	
+//	char es[32];
+//	sprintf(es, "w : %d, h : %d", w, h);		// 15, 8
+//	perror(es);
+//	exit(1);
 	
 	switch (angle / 90)
 	{
 		case 1:
-			for (i = 0; i < h; i++)
+			for (j = 0; j < w; j++)
 			{
-				for (j = 0; j < w; j++)
+				for (i = 0; i < h; i++)
 				{
-					dst[h * j + i] = src[w * i + (w - j - 1)];
+					dst[h * j + i] = src[w * (h - i - 1) + j];
 				}
-				dst[h * i + h] = '\n';
+				dst[h * j + i] = '\n';
 			}
 			break;
 			
 		case 2:
-			for (i = 0; i < h; i++)
+			for (i = 0; i < h - 1; i++)
 			{
 				for (j = 0; j < w; j++)
 				{
@@ -135,13 +140,13 @@ char* rotateString(char* dst, char* src, int angle)
 			break;
 			
 		case 3:
-			for (i = 0; i < h; i++)
+			for (j = 0; j < w; j++)
 			{
-				for (j = 0; j < w; j++)
+				for (i = 0; i < h; i++)
 				{
-					dst[h * j + i] = src[w * (h - i - 1) + j];
+					dst[h * j + i] = src[w * i + (w - j - 1)];
 				}
-				dst[h * i + h] = '\n';
+				dst[h * j + i] = '\n';
 			}
 			break;
 	}

@@ -247,7 +247,7 @@ void renderBossPhase()
 	        {
 	            oldTime = clock();
 	        }
-	        else if (2000 < clock() - oldTime)
+	        else if (1000 < clock() - oldTime)
 	        {
 	        	bWait = 0;
 	        	oldTime = 0;

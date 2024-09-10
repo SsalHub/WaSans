@@ -1,26 +1,23 @@
 #include "uieffect.h"
 
-void fadeOut(void (*renderer)(void))
+void fadeOut(void (*func)(void))
 {
 	const int fadeSpeed = 40;
-    int fadeProgress, oldTime, currTime, i;
+    int oldTime, currTime, i;
     char fadeLine[ScreenWidth + 1];
 
     for (i = 0; i < ScreenWidth; i++)
         fadeLine[i] = ' ';
     fadeLine[ScreenWidth] = '\0';
+    buffer = fadeLine;
 
 	oldTime = clock();
 	fadeProgress = 1;
+	renderer = func;
+	setCustomRenderer(renderFadeEffect);
 	while (fadeProgress <= ScreenHeight)
 	{
-		clearScreen();
         (*renderer)();
-	    for (i = 0; i < fadeProgress; i++)
-	        printLine(0, i, fadeLine, _BLACK_, _BLACK_);
-		printFrameInfo();
-	    flipScreen();
-		setFrameSpeed();
 		
 		currTime = clock();
 		if (fadeSpeed < currTime - oldTime)
@@ -31,28 +28,23 @@ void fadeOut(void (*renderer)(void))
 	}
 }
 
-void fadeIn(void (*renderer)(void))
+void fadeIn(void (*func)(void))
 {
 	const int fadeSpeed = 40;
-    int fadeProgress, oldTime, currTime, i;
+    int oldTime, currTime, i;
     char fadeLine[ScreenWidth + 1];
 
     for (i = 0; i < ScreenWidth; i++)
         fadeLine[i] = ' ';
     fadeLine[ScreenWidth] = '\0';
+    buffer = fadeLine;
 
 	oldTime = clock();
 	fadeProgress = ScreenHeight;
+	renderer = func;
+	setCustomRenderer(renderFadeEffect);
 	while (1 <= fadeProgress)
 	{
-		clearScreen();
-        (*renderer)();
-	    for (i = 0; i < fadeProgress; i++)
-	        printLine(0, i, fadeLine, _BLACK_, _BLACK_);
-		printFrameInfo();
-	    flipScreen();
-		setFrameSpeed();
-		
 		currTime = clock();
 		if (fadeSpeed < currTime - oldTime)
 		{
@@ -60,6 +52,13 @@ void fadeIn(void (*renderer)(void))
 			oldTime = currTime;
 		}
 	}
+}
+
+void renderFadeEffect()
+{
+	int i;
+    for (i = 0; i < fadeProgress; i++)
+        printLine(0, i, buffer, _BLACK_, _BLACK_);
 }
 
 void blackScreenEffect(float t)
@@ -74,11 +73,6 @@ void blackScreenEffect(float t)
 	oldTime = clock();
 	while (clock() - oldTime < 1000 * t)
 	{
-	    clearScreen();
-	    for (i = 0; i < ScreenHeight; i++)
-	        printLine(0, i, fadeLine, _BLACK_, _BLACK_);
-		printFrameInfo();
-	    flipScreen();
-		setFrameSpeed();
+	    fillColorToScreen(_BLACK_, _BLACK_);
 	}
 }

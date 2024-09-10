@@ -6,6 +6,7 @@ int showMainmenu()
 {
 	char input;
 	menuSelect = 0;
+	setCustomRenderer(renderMainmenu);
 	
 	playBGM(_BGM_STARTMENU_, _SOUND_BEGIN_);
 	while (1)
@@ -47,7 +48,7 @@ int showMainmenu()
 					return -1;
 			}
 		}
-		renderCustom(renderMainmenu);
+		waitForFrame();
 	}
 	return -1;
 }
@@ -55,15 +56,15 @@ int showMainmenu()
 void renderMainmenu()
 {
 	int x = 6, y = 5;
-	// print logo
+	
+	// render logo
 	printLines(x, y, AssetFile[_LOGO_UNDERTALE_], _WHITE_, _BLACK_);	
 	printLine(x + 55, y + 2, "####", _HOTPINK_, _BLACK_);
 	printLine(x + 56, y + 3, "=/", _HOTPINK_, _BLACK_);
-	
-	// print selections
+	// render selections
 	ConsoleColor tSelect[2] = { _WHITE_, _WHITE_ };
 	tSelect[menuSelect] = _YELLOW_;
-	
+	// render buttom
 	y = 21;
 	printLine(_ALIGN_CENTER_, y, "Begin Game", tSelect[0], _BLACK_);
 	printLine(_ALIGN_CENTER_, y + 2, "Exit Game", tSelect[1], _BLACK_);

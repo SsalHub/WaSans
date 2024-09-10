@@ -8,7 +8,7 @@
 #include <windows.h>
 #include "settings.h"
 
-#define _ASSETFILE_NUM_ 18
+#define _ASSETFILE_NUM_ 6
 
 typedef enum AssetFileType
 {
@@ -92,18 +92,6 @@ static const char assetFilePath[_ASSETFILE_NUM_][64] = {
 					"../../data/character/sans/leg_normal.asset",
 					"../../data/character/sans/face_normal_a.asset",
 					"../../data/character/sans/face_normal_b.asset",
-					"../../data/character/sans/blast/blast_vertical_a.asset",
-					"../../data/character/sans/blast/blast_vertical_b.asset",
-					"../../data/character/sans/blast/blast_vertical_c.asset",
-					"../../data/character/sans/blast/blast_vertical_d.asset",
-					"../../data/character/sans/blast/blast_vertical_e.asset",
-					"../../data/character/sans/blast/blast_vertical_f.asset",
-					"../../data/character/sans/blast/blast_diagonal_a.asset",
-					"../../data/character/sans/blast/blast_diagonal_b.asset",
-					"../../data/character/sans/blast/blast_diagonal_c.asset",
-					"../../data/character/sans/blast/blast_diagonal_d.asset",
-					"../../data/character/sans/blast/blast_diagonal_e.asset",
-					"../../data/character/sans/blast/blast_diagonal_f.asset",
 				};
 
 extern char *AssetFile[_ASSETFILE_NUM_];

@@ -18,6 +18,9 @@ void initGame()
 void runGame()
 {
 	int bExit;
+	
+	bRenderThread = 1;
+	renderThread = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)beginRenderThread, NULL, 0, &pRenderThread);
 	while (1)
 	{
 		bExit = showMainmenu();
@@ -29,6 +32,7 @@ void runGame()
 		else // error
 		{
 			perror("Mainmenu selection error");
+			exitGame();
 			exit(1);
 		}
 	}

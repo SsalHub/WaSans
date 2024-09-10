@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <process.h>
 #include <windows.h>
 #include "../settings.h"
 #include "../utils.h"
@@ -17,9 +18,15 @@ typedef enum TextAlign
 	_ALIGN_BOTTOM_,
 } TextAlign;
 
+extern int bRenderThread;
+extern HANDLE renderThread;
+extern unsigned int pRenderThread;
 extern int ScreenIndex;
 extern HANDLE ScreenHandle[2];
 extern char* ScreenBuffer;
+
+static int bRender, FPS, oldFPS;
+static void (*customRenderer)(void);
 
 void initScreen();
 void setWindowInfo(int w, int h);
@@ -31,6 +38,9 @@ void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor
 void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor);
 void render();
 void renderCustom(void (*customRenderer)(void));
-void printFrameInfo();
-void setFrameSpeed();
+unsigned __stdcall beginRenderThread();
+void setCustomRenderer(void (*func)(void));
+void printFPS();
+void checkFPS();
+void waitForFrame();
 #endif

@@ -1,7 +1,7 @@
 #ifndef __SETTINGS__
 #define __SETTINGS__
 
-extern int BaseFrame, FPS, OldFPS, CurrTime, OldTime;
 extern int ScreenWidth, ScreenHeight;
+extern int BaseFrame;
 extern int MaxHP;
 #endif

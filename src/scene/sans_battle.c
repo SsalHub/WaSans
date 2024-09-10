@@ -5,7 +5,7 @@ void runSansBattle()
 {
     char input;
     playerHP = MaxHP;
-    battleTurn = -1;
+    battleTurn = 0;
     battleSelect = 0;
     
     initSansPattern();
@@ -52,7 +52,7 @@ void runSansBattle()
                 break;
             }
         }
-        renderCustom(renderSansBattle);
+//        renderCustom(renderSansBattle);
     }
 }
 
@@ -103,7 +103,7 @@ void bossPhase()
     
     switch (battleTurn)
     {
-	    case -1: // intro turn
+	    case 0: // intro turn
 	    	playSFX(_SFX_MOMENT_);
     		blackScreenEffect(1.0f);
 	    	playSFX(_SFX_MOMENT_);
@@ -114,7 +114,7 @@ void bossPhase()
 	        {
 	        	// run boss pattern
 				currTime = clock();
-				if (patternIdx < _SANS_PATTERN_LEN_ && 1000 < currTime - oldTime)
+				if (1000 < currTime - oldTime)
 				{
 					if (patternIdx < _SANS_PATTERN_LEN_ && indexScriptLen <= scriptIdx)
 					{
@@ -151,7 +151,7 @@ void bossPhase()
 	        }
 	        break;
 	        
-	    case 0:
+	    case 1:
 //	        while (1)
 //	        {
 //	        	movePlayer();
@@ -165,7 +165,7 @@ void bossPhase()
 
 void playerPhase()
 {
-    if (battleTurn == 0)
+    if (battleTurn == 1)
     {
         // action
     }

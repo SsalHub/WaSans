@@ -110,11 +110,6 @@ char* rotateString(char* dst, char* src, int angle)
 	w++;
 	h++; 
 	
-//	char es[32];
-//	sprintf(es, "w : %d, h : %d", w, h);		// 15, 8
-//	perror(es);
-//	exit(1);
-	
 	switch (angle / 90)
 	{
 		case 1:

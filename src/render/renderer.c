@@ -1,5 +1,8 @@
 #include "renderer.h"
 
+int bRenderThread;
+HANDLE renderThread;  
+unsigned int pRenderThread;
 int ScreenIndex;
 HANDLE ScreenHandle[2];
 char* ScreenBuffer;
@@ -19,7 +22,6 @@ void initScreen()
 	SetConsoleCursorInfo(ScreenHandle[1], &cinfo);
 	
 	setWindowInfo(ScreenWidth, ScreenHeight);
-	OldTime = clock();
 	
 	ScreenBuffer = (char*)malloc((ScreenWidth + 1) * ScreenHeight + 1);
 	ScreenBuffer[0] = '\0';
@@ -29,6 +31,10 @@ void initScreen()
 			strcat(ScreenBuffer, " ");	
 		strcat(ScreenBuffer, "\n");
 	}
+	
+	FPS = 0;
+	oldFPS = -1;
+	customRenderer = NULL;
 }
 
 void setWindowInfo(int w, int h)
@@ -67,8 +73,11 @@ void fillColorToScreen(ConsoleColor tColor, ConsoleColor bColor)
 
 void releaseScreen()
 {
+	bRenderThread = 0;
+	CloseHandle(renderThread);
 	CloseHandle(ScreenHandle[0]);
 	CloseHandle(ScreenHandle[1]);
+    WaitForSingleObject(renderThread, INFINITE); // wait until render thread closed
 	free(ScreenBuffer);
 }
 
@@ -167,41 +176,67 @@ void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColo
 void render()
 {
 	clearScreen();
-	printFrameInfo();
+	printFPS();
 	flipScreen();
-	setFrameSpeed();
+	checkFPS();
+	waitForFrame();
 }
 
 void renderCustom(void (*customRenderer)(void))
 {
 	clearScreen();
 	(*customRenderer)();
-	printFrameInfo();
+	printFPS();
 	flipScreen();
-	setFrameSpeed();
+	checkFPS();
+	waitForFrame();
 }
 
-void printFrameInfo()
+unsigned __stdcall beginRenderThread()
 {
-	char fps_info[30], fps_itoa[10];
-	strcpy(fps_info, "FPS : ");
-	if (0 < OldFPS)
-		itoa(OldFPS, fps_itoa, 10);
-		
-	CurrTime = clock();
-	if (1000 <= CurrTime - OldTime)
+	while (bRenderThread)
 	{
-		itoa(FPS, fps_itoa, 10);
-		OldTime = CurrTime;
-		OldFPS = FPS;
-		FPS = 0;
+		clearScreen();
+		if (customRenderer != NULL)
+			(*customRenderer)();
+		printFPS();
+		flipScreen();
+		checkFPS();
+		waitForFrame();
 	}
-	strcat(fps_info, fps_itoa);
-	FPS++;
-	printLine(ScreenWidth - 12, _ALIGN_TOP_, fps_info, _WHITE_, _BLACK_);
 }
 
-void setFrameSpeed()
+void setCustomRenderer(void (*func)(void))
 {
-	Sleep(1000 / BaseFrame);	
+	customRenderer = func;
+}
+
+void printFPS()
+{
+	char fps_text[30], itoa_text[10];
+	strcpy(fps_text, "FPS : ");
+	
+	if (0 <= oldFPS)
+		itoa(oldFPS, itoa_text, 10);
+	strcat(fps_text, itoa_text);
+	printLine(ScreenWidth - 12, _ALIGN_TOP_, fps_text, _WHITE_, _BLACK_);
+}
+
+void checkFPS()
+{
+	static int oldTime = -1000;
+	int currTime;
+	FPS++;
+	currTime = clock();
+	if (1000 <= currTime - oldTime)
+	{
+		oldTime = currTime;
+		oldFPS = FPS;
+		FPS = 0;
+	}	
+}
+
+void waitForFrame()
+{
+	Sleep(1000 / BaseFrame);
 }

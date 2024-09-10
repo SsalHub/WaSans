@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "utils.h"
 #include "render/renderer.h"
+#include "scene/scenemanager.h"
 #include "scene/mainmenu.h"
 #include "sound/sounds.h"
 

@@ -1,65 +1,25 @@
 #include "sans_battle.h"
 
 /* Main func in sans battle */
-void runSansBattle()
+void initSansBattle()
 {
-    char input;
     playerHP = MaxHP;
     battleTurn = 0;
     battleSelect = 0;
     
     initSansPattern();
-
-    // Enter scene
+	
+	///////
     introPhase();
     bossPhase();
     battleTurn++;
-//    playerPhase();
-
+    
     playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
-    while (1)
-    {
-        if (kbhit())
-        {
-            input = getch();
-            switch (input)
-            {
-            case _LEFT_:
-            case 'A':
-            case 'a':
-                if (0 < battleSelect)
-                    battleSelect--;
-                break;
-
-            case _RIGHT_:
-            case 'D':
-            case 'd':
-                if (battleSelect < 3)
-                    battleSelect++;
-                break;
-
-            case _SPACE_:
-            case _CARRIAGE_RETURN_:
-                if (battleSelect == 0)
-                {
-                    playerHP -= 5;
-                }
-                else if (battleSelect == 3)
-                {
-    				playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
-                    return;
-                }
-                break;
-            }
-        }
-//        renderCustom(renderSansBattle);
-    }
 }
 
 void initSansPattern()
 {
 	int i;
-	
 	// init basic info
 	for (i = 0; i < _SANS_PATTERN_LEN_; i++)
 	{
@@ -68,13 +28,56 @@ void initSansPattern()
 		sansPattern[i].isActive = 0;
 		sansPattern[i].renderInfoLen = 0;
 	}
-	
 	// init detail info
 	sansPattern[0].pattern = (unsigned __stdcall (*)(int))fireBlastToCenter;
 	sansPattern[0].data = (int)_BLAST_MID_RIGHT_;
-	
 	sansPattern[1].pattern = (unsigned __stdcall (*)(int))fireBlastToCenter;
 	sansPattern[1].data = (int)_BLAST_MID_LEFT_;
+}
+
+SceneType runSansBattle()
+{
+    char input;
+
+    // Enter scene
+    introPhase();
+    bossPhase();
+    battleTurn++;
+
+    if (kbhit())
+    {
+        input = getch();
+        switch (input)
+        {
+        case _LEFT_:
+        case 'A':
+        case 'a':
+            if (0 < battleSelect)
+                battleSelect--;
+            break;
+
+        case _RIGHT_:
+        case 'D':
+        case 'd':
+            if (battleSelect < 3)
+                battleSelect++;
+            break;
+
+        case _SPACE_:
+        case _CARRIAGE_RETURN_:
+            if (battleSelect == 0)
+            {
+                playerHP -= 5;
+            }
+            else if (battleSelect == 3)
+            {
+				playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
+                return _SCENE_MAINMENU_;
+            }
+            break;
+        }
+    }
+    return _SCENE_SANS_BATTLE_;
 }
 
 /* Each Phase Func */
@@ -86,6 +89,7 @@ void introPhase()
     playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
     sleep(1.0f);
     fadeIn(renderIntroPhase);
+	setSceneRenderer(renderIntroPhase);
     while (scriptIdx < introScriptLen)
     {
         renderCustom(renderIntroPhase);

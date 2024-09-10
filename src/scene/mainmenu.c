@@ -2,55 +2,55 @@
 
 static int menuSelect;
 
-int showMainmenu()
+void initMainMenu()
+{
+	setSceneRenderer(renderMainmenu);
+	playBGM(_BGM_STARTMENU_, _SOUND_BEGIN_);
+}
+
+SceneType runMainmenu()
 {
 	char input;
 	menuSelect = 0;
-	setCustomRenderer(renderMainmenu);
 	
-	playBGM(_BGM_STARTMENU_, _SOUND_BEGIN_);
-	while (1)
+	if (kbhit())
 	{
-		if (kbhit())
+		input = getch();
+		switch (input)
 		{
-			input = getch();
-			switch (input)
-			{
-				case _UP_:
-				case 'W':
-				case 'w':	
-					if (0 < menuSelect)
-						menuSelect--;
-					break;		
-				
-				case _DOWN_:
-				case 'S':
-				case 's':
-					if (menuSelect < 1)
-						menuSelect++;
-					break;
-				
-				case _SPACE_:
-				case _CARRIAGE_RETURN_:
-					playBGM(_BGM_STARTMENU_, _SOUND_PAUSE_);
-					if (menuSelect == 0)
-					{
-						// begin game
-						fadeOut(renderMainmenu);
-						runSansBattle();
-						return 0;
-					}
-					else if(menuSelect == 1)
-					{
-						// exit game
-						return 1;
-					}
-					return -1;
-			}
+			case _UP_:
+			case 'W':
+			case 'w':	
+				if (0 < menuSelect)
+					menuSelect--;
+				break;	
+			
+			case _DOWN_:
+			case 'S':
+			case 's':
+				if (menuSelect < 1)
+					menuSelect++;
+				break;
+			
+			case _SPACE_:
+			case _CARRIAGE_RETURN_:
+				playBGM(_BGM_STARTMENU_, _SOUND_PAUSE_);
+				if (menuSelect == 0)
+				{
+					// begin game
+					fadeOut();
+					runSansBattle();
+					return _SCENE_SANS_BATTLE_;
+				}
+				else if(menuSelect == 1)
+				{
+					// exit game
+					return _SCENE_EXIT_;
+				}
+				return _SCENE_MAINMENU_;
 		}
-		waitForFrame();
 	}
-	return -1;
+	return _SCENE_MAINMENU_;
 }
 
 void renderMainmenu()

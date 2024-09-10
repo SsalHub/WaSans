@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include "scenemanager.h"
 #include "../utils.h"
 #include "../settings.h"
 #include "../ui/uieffect.h"
@@ -51,8 +52,9 @@ static const BossPhaseBox bossPhaseBox = { 49, 16, 18, 8 };
 static Pattern sansPattern[_SANS_PATTERN_LEN_];
 
 /* Main func in sans battle */
-void runSansBattle();
+void initSansBattle();
 void initSansPattern();
+SceneType runSansBattle();
 
 /* Each Phase Func */
 void introPhase();

@@ -3,7 +3,7 @@
 #include <conio.h>
 #include <string.h>
 #include <windows.h>
-#include "sans_battle.h"
+#include "scenemanager.h"
 #include "../utils.h"
 #include "../settings.h"
 #include "../ui/uieffect.h"
@@ -12,6 +12,7 @@
 
 static int menuSelect;
 
-int showMainmenu();
+void initMainMenu();
+SceneType runMainmenu();
 void renderMainmenu();
 #endif

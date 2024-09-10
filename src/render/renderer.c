@@ -1,8 +1,8 @@
 #include "renderer.h"
 
-int bRenderThread;
-HANDLE renderThread;  
-unsigned int pRenderThread;
+int RendererThreadFlag;
+HANDLE RendererThread;  
+unsigned int RendererThreadAddr;
 int ScreenIndex;
 HANDLE ScreenHandle[2];
 char* ScreenBuffer;
@@ -34,7 +34,7 @@ void initScreen()
 	
 	FPS = 0;
 	oldFPS = -1;
-	customRenderer = NULL;
+	setSceneRenderer(NULL);
 }
 
 void setWindowInfo(int w, int h)
@@ -69,16 +69,6 @@ void fillColorToScreen(ConsoleColor tColor, ConsoleColor bColor)
 	int x = 0, y = 0;
 	printLines(x, y, ScreenBuffer, tColor, bColor);
 //	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
-}
-
-void releaseScreen()
-{
-	bRenderThread = 0;
-	CloseHandle(renderThread);
-	CloseHandle(ScreenHandle[0]);
-	CloseHandle(ScreenHandle[1]);
-    WaitForSingleObject(renderThread, INFINITE); // wait until render thread closed
-	free(ScreenBuffer);
 }
 
 void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)
@@ -182,40 +172,30 @@ void render()
 	waitForFrame();
 }
 
-void renderCustom(void (*customRenderer)(void))
+void renderCustom(Renderer *renderer)
 {
 	clearScreen();
-	(*customRenderer)();
+	(*renderer)();
 	printFPS();
 	flipScreen();
 	checkFPS();
 	waitForFrame();
 }
 
-unsigned __stdcall beginRenderThread()
+void setSceneRenderer(Renderer* renderer)
 {
-	while (bRenderThread)
-	{
-		clearScreen();
-		if (customRenderer != NULL)
-			(*customRenderer)();
-		printFPS();
-		flipScreen();
-		checkFPS();
-		waitForFrame();
-	}
+	sceneRenderer = renderer;
 }
 
-void setCustomRenderer(void (*func)(void))
+Renderer* getSceneRenderer()
 {
-	customRenderer = func;
+	return sceneRenderer;
 }
 
 void printFPS()
 {
 	char fps_text[30], itoa_text[10];
 	strcpy(fps_text, "FPS : ");
-	
 	if (0 <= oldFPS)
 		itoa(oldFPS, itoa_text, 10);
 	strcat(fps_text, itoa_text);
@@ -239,4 +219,34 @@ void checkFPS()
 void waitForFrame()
 {
 	Sleep(1000 / BaseFrame);
+}
+
+void beginRenderThread()
+{
+	bRenderThread = 1;
+	hRenderThread = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)renderThread, NULL, 0, &pRenderThread);
+}
+
+unsigned __stdcall renderThread()
+{
+	while (bRenderThread)
+	{
+		clearScreen();
+		if (sceneRenderer != NULL)
+			(*sceneRenderer)();
+		printFPS();
+		flipScreen();
+		checkFPS();
+		waitForFrame();
+	}
+}
+
+void releaseScreen()
+{
+	bRenderThread = 0;
+    WaitForSingleObject(hRenderThread, INFINITE); // wait until render thread closed
+	CloseHandle(hRenderThread);
+	CloseHandle(ScreenHandle[0]);
+	CloseHandle(ScreenHandle[1]);
+	free(ScreenBuffer);
 }

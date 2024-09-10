@@ -17,24 +17,25 @@ void initGame()
 
 void runGame()
 {
-	int bExit;
+	int currentScene;
 	
-	bRenderThread = 1;
-	renderThread = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)beginRenderThread, NULL, 0, &pRenderThread);
-	while (1)
+	beginRenderThread();
+	currentScene = _SCENE_MAINMENU_;
+	while (currentScene != _SCENE_EXIT_)
 	{
-		bExit = showMainmenu();
-		if (0 <= bExit)
+		// mainmenu
+		if (currentScene == _SCENE_MAINMENU_)
 		{
-			if (bExit == 1) // exit game
-				break;
+			initMainMenu();
+			currentScene = runMainmenu();
 		}
-		else // error
+		// sans battle
+		if (currentScene == _SCENE_SANS_BATTLE_)
 		{
-			perror("Mainmenu selection error");
-			exitGame();
-			exit(1);
+			initSansBattle();
+			currentScene = runSansBattle();
 		}
+		waitForFrame();
 	}
 }
 

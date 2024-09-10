@@ -9,6 +9,8 @@
 #include "../settings.h"
 #include "../utils.h"
 
+typedef void (Renderer)(void);
+
 typedef enum TextAlign
 {
 	_ALIGN_CENTER_ = -100,
@@ -18,29 +20,31 @@ typedef enum TextAlign
 	_ALIGN_BOTTOM_,
 } TextAlign;
 
-extern int bRenderThread;
-extern HANDLE renderThread;
-extern unsigned int pRenderThread;
 extern int ScreenIndex;
 extern HANDLE ScreenHandle[2];
 extern char* ScreenBuffer;
 
 static int bRender, FPS, oldFPS;
-static void (*customRenderer)(void);
+static Renderer* sceneRenderer;
+static int bRenderThread;
+static unsigned int pRenderThread;
+static HANDLE hRenderThread;
 
 void initScreen();
 void setWindowInfo(int w, int h);
 void flipScreen();
 void clearScreen();
 void fillColorToScreen(ConsoleColor tColor, ConsoleColor bColor);
-void releaseScreen();
 void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor);
 void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor);
 void render();
-void renderCustom(void (*customRenderer)(void));
-unsigned __stdcall beginRenderThread();
-void setCustomRenderer(void (*func)(void));
+void renderCustom(Renderer *renderer);
+void setSceneRenderer(Renderer* renderer);
+Renderer* getSceneRenderer();
 void printFPS();
 void checkFPS();
 void waitForFrame();
+void beginRenderThread();
+unsigned __stdcall renderThread();
+void releaseScreen();
 #endif

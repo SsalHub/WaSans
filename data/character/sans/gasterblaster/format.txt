@@ -1,0 +1,4 @@
+width : 18 (important)
+height : free
+
+if all files completed in a directory,  delete '-' character on last directory name.

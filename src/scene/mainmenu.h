@@ -4,6 +4,7 @@
 #include <string.h>
 #include <windows.h>
 #include "scenemanager.h"
+#include "gotoscene.h"
 #include "../utils.h"
 #include "../settings.h"
 #include "../ui/uieffect.h"
@@ -12,7 +13,9 @@
 
 static int menuSelect;
 
+//void Start();
+//void Update();
 void initMainMenu();
-SceneType runMainmenu();
+void runMainmenu();
 void renderMainmenu();
 #endif

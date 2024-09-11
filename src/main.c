@@ -10,32 +10,22 @@ int main(int argc, char *argv[]) {
 void initGame()
 {
 	initScreen();
+	initFirstScene();
+	// load assets
 	initDataAsset();
 	initBGMAsset();
 	initVoiceAsset();
+	// begin multi renderer thread
+	beginRenderThread();
 }
 
 void runGame()
 {
-	int currentScene;
-	
-	beginRenderThread();
-	currentScene = _SCENE_MAINMENU_;
-	while (currentScene != _SCENE_EXIT_)
+	ExitCode ec = _EXIT_NONE_;
+	while (ec != _EXIT_GAME_)
 	{
-		// mainmenu
-		if (currentScene == _SCENE_MAINMENU_)
-		{
-			initMainMenu();
-			currentScene = runMainmenu();
-		}
-		// sans battle
-		if (currentScene == _SCENE_SANS_BATTLE_)
-		{
-			initSansBattle();
-			currentScene = runSansBattle();
-		}
-		waitForFrame();
+		initSceneInfo(getCurrentScene());
+		ec = runScene();
 	}
 }
 

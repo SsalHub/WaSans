@@ -1,6 +1,16 @@
 #include "mainmenu.h"
 
-static int menuSelect;
+static int menuSelect = 0;
+
+//void Start()
+//{
+//	initMainMenu();
+//}
+//
+//void Update()
+//{
+//	runMainmenu();
+//}
 
 void initMainMenu()
 {
@@ -8,10 +18,9 @@ void initMainMenu()
 	playBGM(_BGM_STARTMENU_, _SOUND_BEGIN_);
 }
 
-SceneType runMainmenu()
+void runMainmenu()
 {
 	char input;
-	menuSelect = 0;
 	
 	if (kbhit())
 	{
@@ -39,18 +48,17 @@ SceneType runMainmenu()
 				{
 					// begin game
 					fadeOut();
-					runSansBattle();
-					return _SCENE_SANS_BATTLE_;
+					gotoSansBattleScene();
+					return;
 				}
 				else if(menuSelect == 1)
 				{
 					// exit game
-					return _SCENE_EXIT_;
+					gotoExitGame();
+					return;
 				}
-				return _SCENE_MAINMENU_;
 		}
 	}
-	return _SCENE_MAINMENU_;
 }
 
 void renderMainmenu()

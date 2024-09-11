@@ -1,20 +1,31 @@
 #include "sans_battle.h"
 
+//void Start()
+//{
+//	initSansBattle();
+//}
+//
+//void Update()
+//{
+//	runSansBattle();
+//}
+
 /* Main func in sans battle */
 void initSansBattle()
 {
     playerHP = MaxHP;
     battleTurn = 0;
     battleSelect = 0;
-    
-    initSansPattern();
 	
 	///////
-    introPhase();
-    bossPhase();
-    battleTurn++;
-    
-    playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
+//    introPhase();
+//    bossPhase();
+//    battleTurn++;
+	initSansPattern();
+	
+    sleep(1.0f);
+    playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
+    fadeIn(renderSansBattle);
 }
 
 void initSansPattern()
@@ -35,12 +46,13 @@ void initSansPattern()
 	sansPattern[1].data = (int)_BLAST_MID_LEFT_;
 }
 
-SceneType runSansBattle()
+void runSansBattle()
 {
     char input;
 
     // Enter scene
-    introPhase();
+    if (battleTurn == 0)
+		introPhase();
     bossPhase();
     battleTurn++;
 
@@ -52,32 +64,35 @@ SceneType runSansBattle()
         case _LEFT_:
         case 'A':
         case 'a':
-            if (0 < battleSelect)
-                battleSelect--;
+            0 < battleSelect ? battleSelect - 1 : battleSelect;
             break;
 
         case _RIGHT_:
         case 'D':
         case 'd':
-            if (battleSelect < 3)
-                battleSelect++;
+            battleSelect < _BATTLE_SELECT_LEN_ - 1 ? battleSelect + 1 : battleSelect;
             break;
 
         case _SPACE_:
         case _CARRIAGE_RETURN_:
-            if (battleSelect == 0)
-            {
-                playerHP -= 5;
-            }
-            else if (battleSelect == 3)
-            {
-				playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
-                return _SCENE_MAINMENU_;
-            }
-            break;
+        	switch (battleSelect)
+        	{
+        		case 0:
+        			if (0 < playerHP)
+        				playerHP -= 5;
+        			break;
+        		case 1:
+        			break;
+        		case 2:
+        			break;
+        		case 3:
+					playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
+					gotoMainmenuScene();
+	                return;
+			}
+			break;
         }
     }
-    return _SCENE_SANS_BATTLE_;
 }
 
 /* Each Phase Func */
@@ -86,14 +101,12 @@ void introPhase()
     const int introScriptLen = 3;
     scriptIdx = -1;
     
-    playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
-    sleep(1.0f);
-    fadeIn(renderIntroPhase);
 	setSceneRenderer(renderIntroPhase);
     while (scriptIdx < introScriptLen)
     {
-        renderCustom(renderIntroPhase);
+        waitForFrame();
 	}
+	setSceneRenderer(renderIntroPhase);
     playBGM(_BGM_BIRDNOISE_, _SOUND_PAUSE_);
 }
 
@@ -102,8 +115,6 @@ void bossPhase()
 	static int oldTime = 0;
 	const int indexScriptLen = 4;
 	int currTime, i;
-    playerPos.X = 59;
-    playerPos.Y = 19;
     
     switch (battleTurn)
     {
@@ -156,6 +167,7 @@ void bossPhase()
 	        break;
 	        
 	    case 1:
+			playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
 //	        while (1)
 //	        {
 //	        	movePlayer();
@@ -173,6 +185,8 @@ void playerPhase()
     {
         // action
     }
+    playerPos.X = 59;
+    playerPos.Y = 19;
 }
 
 /* Main Renderer */
@@ -181,10 +195,10 @@ void renderSansBattle()
     renderSans(_SANS_FACE_NORMAL_A_);
 
     //	renderBossPhaseBox();
-    renderPlayerPhaseBox();
+//    renderPlayerPhaseBox();
 
     renderPlayerInfo();
-    renderSelectBox();
+//    renderSelectBox();
 }
 
 void renderIntroPhase()

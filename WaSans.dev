@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;1;0;0;0;8;0;0;0
-UnitCount=37
+UnitCount=40
 
 [VersionInfo]
 Major=1
@@ -301,31 +301,34 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit38]
-FileName=data\bgm\birdnoise.wav
-Folder=data/bgm
-Compile=0
-Link=0
+FileName=src\scene\scenemanager.c
+Folder=src/scene
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
 [Unit39]
-FileName=data\bgm\cymbal.wav
-Folder=data/bgm
-Compile=0
-Link=0
+FileName=src\scene\gotoscene.h
+Folder=src/scene
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
 [Unit40]
-FileName=data\bgm\gameover.wav
-Folder=data/bgm
-Compile=0
-Link=0
+FileName=src\scene\gotoscene.c
+Folder=src/scene
+Compile=1
+Link=1
 Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
+CompileCpp=0
 
 [Unit41]
 FileName=data\sfx\attack.wav

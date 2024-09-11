@@ -6,12 +6,14 @@
 #include <string.h>
 #include <windows.h>
 #include "scenemanager.h"
+#include "gotoscene.h"
 #include "../utils.h"
 #include "../settings.h"
 #include "../ui/uieffect.h"
 #include "../render/renderer.h"
 #include "../sound/sounds.h"
 
+#define _BATTLE_SELECT_LEN_	4
 #define _SANS_SCRIPT_LEN_ 	4
 #define _BLAST_ANGLE_LEN_ 	7
 #define _SANS_PATTERN_LEN_ 	2
@@ -51,10 +53,12 @@ static const char scripts[_SANS_SCRIPT_LEN_][64] = {
 static const BossPhaseBox bossPhaseBox = { 49, 16, 18, 8 };
 static Pattern sansPattern[_SANS_PATTERN_LEN_];
 
+//void Start();
+//void Update();
 /* Main func in sans battle */
 void initSansBattle();
 void initSansPattern();
-SceneType runSansBattle();
+void runSansBattle();
 
 /* Each Phase Func */
 void introPhase();

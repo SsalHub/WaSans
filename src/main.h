@@ -3,9 +3,10 @@
 #include <conio.h>
 #include <stdlib.h>
 #include "utils.h"
+#include "settings.h"
 #include "render/renderer.h"
 #include "scene/scenemanager.h"
-#include "scene/mainmenu.h"
+#include "scene/gotoscene.h"
 #include "sound/sounds.h"
 
 int main(int argc, char *argv[]);

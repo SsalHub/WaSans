@@ -216,11 +216,6 @@ void checkFPS()
 	}	
 }
 
-void waitForFrame()
-{
-	Sleep(1000 / BaseFrame);
-}
-
 void beginRenderThread()
 {
 	bRenderThread = 1;

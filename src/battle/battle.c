@@ -16,6 +16,7 @@ void initBattle(int len, BattleObject enemy[][3])
 	initEnemyPhaseBox();
 	initPlayerPhaseBox();
 	initEnemyInfo(len, enemy);
+	setSceneRenderer(renderBattleScene);
 }
 
 void initEnemyPhaseBox()
@@ -91,14 +92,24 @@ void setBattlePhase(BattlePhase phase)
 	battlePhase = phase;
 }
 
+void gotoNextPhase()
+{
+	battlePhase = _PLAYER_PHASE_ <= battlePhase ? _ENEMY_PHASE_ : battlePhase + 1;
+}
+
+void gotoNextTurn()
+{
+	battleTurn++;
+}
+
 BattlePhase getBattlePhase()
 {
 	return battlePhase;
 }
 
-void gotoNextPhase()
+int getBattleTurn()
 {
-	battlePhase = _PLAYER_PHASE_ <= battlePhase ? _ENEMY_PHASE_ : battlePhase + 1;
+	return battleTurn;
 }
 
 HANDLE startPattern(Pattern pattern, void* args, unsigned int* threadID)

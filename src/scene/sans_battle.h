@@ -48,20 +48,20 @@ static PatternInfo sansPattern[_SANS_PATTERN_LEN_];
 //void Update();
 /* Main func in sans battle */
 void initSansBattle();
-void initSansObject(BattleObject* sansObject);
+void initSansObject(BattleObject** enemy);
 void initSansPattern();
 void runSansBattle();
 
 /* Each Phase Func */
-void introPhase();
-void bossPhase();
-void playerPhase();
+static void introPhase();
+static void enemyPhase();
+static void playerPhase();
 
 /* Main Renderer */
-void renderSansBattle();
-void renderIntroPhase();
-void renderBossPhase();
-void renderPlayerPhase();
+//void renderSansBattle();
+//void renderIntroPhase();
+//void renderBossPhase();
+//void renderPlayerPhase();
 
 /* Sub Renderer */
 void renderSans(AssetFileType face);
@@ -79,5 +79,10 @@ unsigned __stdcall fireBlastToPlayer(void* args);
 AssetFileType getBlastType(BlastAngle blastAngle);
 char* fixBlastAngle(char* dst, size_t dstSize, BlastAngle blastAngle);
 int getLastPatternIdx();
+
+/* etc */
+void setSansFace(AssetFileType facetype);
+
+/* Terminate Func */
 void releasePattern();
 #endif

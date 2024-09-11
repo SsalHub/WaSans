@@ -8,6 +8,7 @@
 #define _ENEMY_BODY_	1
 #define _ENEMY_FACE_	2
 
+
 typedef unsigned __stdcall (*Pattern)(void*);
 
 typedef enum BattlePhase
@@ -46,6 +47,7 @@ extern BattleObject (*EnemyInfo)[3];
 extern BattleObject EnemyPhaseBox, PlayerPhaseBox, *SpeechBubble;
 
 
+
 static int battleTurn, battleSelect, battlePhase, playerHP;
 static int enemyLen;
 
@@ -58,10 +60,12 @@ void initEnemyInfo(int len, BattleObject enemy[][3]);
 void initSpeechBubble();
 
 /* Util Func */
-void setBattlePhase(BattlePhase phase);
+void 		setBattlePhase(BattlePhase phase);
+void 		gotoNextPhase();
+void 		gotoNextTurn();
 BattlePhase getBattlePhase();
-void gotoNextPhase();
-HANDLE startPattern(Pattern pattern, void* args, unsigned int* threadID);
+int 		getBattleTurn();
+HANDLE 		startPattern(Pattern pattern, void* args, unsigned int* threadID);
 
 /* Main Renderer */
 void renderBattleScene();

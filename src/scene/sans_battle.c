@@ -16,6 +16,8 @@ void initSansBattle()
     playerHP = MaxHP;
     battleTurn = 0;
     battleSelect = 0;
+    scriptIdx = -1;
+    patternIdx = 0;
 	
 	///////
 //    introPhase();
@@ -26,6 +28,7 @@ void initSansBattle()
     sleep(1.0f);
     playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
     fadeIn(renderSansBattle);
+    introPhase();
 }
 
 void initSansPattern()
@@ -51,55 +54,53 @@ void runSansBattle()
     char input;
 
     // Enter scene
-    if (battleTurn == 0)
-		introPhase();
+    playerPhase();
     bossPhase();
     battleTurn++;
 
-    if (kbhit())
-    {
-        input = getch();
-        switch (input)
-        {
-        case _LEFT_:
-        case 'A':
-        case 'a':
-            0 < battleSelect ? battleSelect - 1 : battleSelect;
-            break;
-
-        case _RIGHT_:
-        case 'D':
-        case 'd':
-            battleSelect < _BATTLE_SELECT_LEN_ - 1 ? battleSelect + 1 : battleSelect;
-            break;
-
-        case _SPACE_:
-        case _CARRIAGE_RETURN_:
-        	switch (battleSelect)
-        	{
-        		case 0:
-        			if (0 < playerHP)
-        				playerHP -= 5;
-        			break;
-        		case 1:
-        			break;
-        		case 2:
-        			break;
-        		case 3:
-					playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
-					gotoMainmenuScene();
-	                return;
-			}
-			break;
-        }
-    }
+//    if (kbhit())
+//    {
+//        input = getch();
+//        switch (input)
+//        {
+//        case _LEFT_:
+//        case 'A':
+//        case 'a':
+//            0 < battleSelect ? battleSelect - 1 : battleSelect;
+//            break;
+//
+//        case _RIGHT_:
+//        case 'D':
+//        case 'd':
+//            battleSelect < _BATTLE_SELECT_LEN_ - 1 ? battleSelect + 1 : battleSelect;
+//            break;
+//
+//        case _SPACE_:
+//        case _CARRIAGE_RETURN_:
+//        	switch (battleSelect)
+//        	{
+//        		case 0:
+//        			if (0 < playerHP)
+//        				playerHP -= 5;
+//        			break;
+//        		case 1:
+//        			break;
+//        		case 2:
+//        			break;
+//        		case 3:
+//					playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
+//					gotoMainmenuScene();
+//	                return;
+//			}
+//			break;
+//        }
+//    }
 }
 
 /* Each Phase Func */
 void introPhase()
 {
     const int introScriptLen = 3;
-    scriptIdx = -1;
     
 	setSceneRenderer(renderIntroPhase);
     while (scriptIdx < introScriptLen)
@@ -108,50 +109,45 @@ void introPhase()
 	}
 	setSceneRenderer(renderIntroPhase);
     playBGM(_BGM_BIRDNOISE_, _SOUND_PAUSE_);
+    bossPhase();
 }
 
 void bossPhase()
 {
-	static int oldTime = 0;
 	const int indexScriptLen = 4;
-	int currTime, i;
+	int i;
+    playerPos.X = 59;
+    playerPos.Y = 19;
     
     switch (battleTurn)
     {
 	    case 0: // intro turn
-	    	playSFX(_SFX_MOMENT_);
-    		blackScreenEffect(1.0f);
+			playSFX(_SFX_MOMENT_);
+			blackScreenEffect(1.0f);
+			setSceneRenderer(renderBossPhase);
 	    	playSFX(_SFX_MOMENT_);
 	    	
-	    	patternIdx = 0;
-	    	oldTime = clock();
+        	// run boss pattern
+			if (patternIdx < _SANS_PATTERN_LEN_ && indexScriptLen <= scriptIdx)
+			{
+				// run pattern 0
+				sansPattern[patternIdx].hThread = startPattern(
+					sansPattern[patternIdx].pattern,
+					&(sansPattern[patternIdx].data),
+					&(sansPattern[patternIdx].threadID)
+				);
+				patternIdx++;
+				// run pattern 1
+				sansPattern[patternIdx].hThread = startPattern(
+					sansPattern[patternIdx].pattern,
+					&(sansPattern[patternIdx].data),
+					&(sansPattern[patternIdx].threadID)
+				);
+				patternIdx++;
+			}
+			// wait until all pattern completed
 	        while (1)
 	        {
-	        	// run boss pattern
-				currTime = clock();
-				if (1000 < currTime - oldTime)
-				{
-					if (patternIdx < _SANS_PATTERN_LEN_ && indexScriptLen <= scriptIdx)
-					{
-						// run pattern 0
-						sansPattern[patternIdx].hThread = startPattern(
-							sansPattern[patternIdx].pattern,
-							&(sansPattern[patternIdx].data),
-							&(sansPattern[patternIdx].threadID)
-						);
-						patternIdx++;
-						// run pattern 1					
-						sansPattern[patternIdx].hThread = startPattern(
-							sansPattern[patternIdx].pattern,
-							&(sansPattern[patternIdx].data),
-							&(sansPattern[patternIdx].threadID)
-						);
-						patternIdx++;
-						
-						oldTime = currTime;
-					}
-				}
-				// if patterns all completed, quit loop
 	            for (i = 0; i < _SANS_PATTERN_LEN_; i++)
 	            {
 	            	GetExitCodeThread(sansPattern[i].hThread, &(sansPattern[i].isActive));
@@ -162,31 +158,33 @@ void bossPhase()
 					break;
 					
 	        	movePlayer();
-	            renderCustom(renderBossPhase);
+	        	waitForFrame();
 	        }
+    		releasePattern();
 	        break;
 	        
 	    case 1:
-			playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
 //	        while (1)
 //	        {
 //	        	movePlayer();
 //	            renderCustom(renderBossPhase);
 //	        }
+			setSceneRenderer(renderPlayerPhase);
 	        break;
     }
-    
-    releasePattern();
 }
 
 void playerPhase()
 {
-    if (battleTurn == 1)
-    {
-        // action
-    }
-    playerPos.X = 59;
-    playerPos.Y = 19;
+	switch (battleTurn)
+	{
+		case 0:
+			playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
+			break;
+			
+		case 1:
+			break;
+	}
 }
 
 /* Main Renderer */
@@ -395,7 +393,7 @@ int renderSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
     if (strlen(script) <= currLen)
         return -1;
     if (bVoice && 0 < currLen && script[currLen - 1] != ' ')
-    	playVoice(_VOICE_SANS_);
+    	playVoiceOnThread(_VOICE_SANS_);
     return currLen;
 }
 

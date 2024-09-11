@@ -301,7 +301,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit38]
-FileName=src\scene\scenemanager.c
+FileName=src\scene\gotoscene.c
 Folder=src/scene
 Compile=1
 Link=1
@@ -311,8 +311,8 @@ BuildCmd=
 CompileCpp=0
 
 [Unit39]
-FileName=src\scene\gotoscene.h
-Folder=src/scene
+FileName=src\battle\battlemanager.h
+Folder=src/battle
 Compile=1
 Link=1
 Priority=1000
@@ -321,8 +321,8 @@ BuildCmd=
 CompileCpp=0
 
 [Unit40]
-FileName=src\scene\gotoscene.c
-Folder=src/scene
+FileName=src\battle\battlemanager.c
+Folder=src/battle
 Compile=1
 Link=1
 Priority=1000
@@ -456,20 +456,10 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit35]
-FileName=src\battle\enemyphase.c
-CompileCpp=0
-Folder=src/battle
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-
 [Unit36]
-FileName=src\battle\enemyphase.h
+FileName=src\scene\scenemanager.c
 CompileCpp=0
-Folder=src/battle
+Folder=src/scene
 Compile=1
 Link=1
 Priority=1000
@@ -477,6 +467,16 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit37]
+FileName=src\scene\gotoscene.h
+CompileCpp=0
+Folder=src/scene
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit35]
 FileName=src\scene\scenemanager.h
 CompileCpp=0
 Folder=src/scene

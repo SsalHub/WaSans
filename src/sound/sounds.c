@@ -17,10 +17,8 @@ void initVoiceAsset()
 	int i;
 	for (i = 0; i < _VOICE_ASSET_LEN_; i++)
 	{
-		mciOpen.lpstrDeviceType = "WaveAudio";
-		mciOpen.lpstrElementName = voiceAssetPath[i];
-		voiceAsset[i].dw = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD)(LPVOID)&mciOpen);
-		voiceAsset[i].dwID = mciOpen.wDeviceID;
+		voiceAsset[i].dw = 0;
+		voiceAsset[i].dwID = 0;
 	}
 }
 
@@ -48,6 +46,7 @@ void playBGM(BGMAssetType bgmType, SoundPlayType flag)
 
 void playVoice(VoiceAssetType voiceType)
 {
+	// check wav is running
 	mciStatus.dwItem = MCI_STATUS_MODE;
 	mciSendCommand(voiceAsset[voiceType].dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)(LPSTR)&mciStatus); 
 	if (mciStatus.dwReturn != MCI_MODE_PLAY)		// if not playing this sound
@@ -70,24 +69,6 @@ void playSFX(SFXAssetType sfxType)
 	// play wav
 	mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, NULL);
 	mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&mciPlay);
-}
-
-/* Not using static vars */
-void playSFXOnThread(SFXAssetType sfxType)
-{
-	MCI_OPEN_PARMS localOpen;
-	MCI_PLAY_PARMS localPlay;
-	DWORD dw;
-	unsigned int dwID;
-	
-	// open wav
-	localOpen.lpstrDeviceType = "WaveAudio";
-	localOpen.lpstrElementName = sfxAssetPath[sfxType];
-	dw = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD)(LPVOID)&localOpen);
-	dwID = localOpen.wDeviceID;
-	// play wav
-	mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, NULL);
-	mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&localPlay);
 }
 
 
@@ -116,4 +97,64 @@ void releaseSoundAssets()
 		perror("release sound assets failed.");
 		exit(1);
 	}
+}
+
+unsigned __stdcall releaseSoundAuto(void* arg)
+{
+	unsigned int dwID = *((unsigned int*)arg);
+	MCI_STATUS_PARMS localStatus;
+	
+	// check wav is running
+	localStatus.dwItem = MCI_STATUS_MODE;
+	mciSendCommand(dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)(LPSTR)&localStatus); 
+	while (localStatus.dwReturn == MCI_MODE_PLAY)		// if not playing this sound
+	{
+		waitForFrame();
+	}
+	mciSendCommand(dwID, MCI_CLOSE, 0, NULL);
+}
+
+
+
+/* Using On Multi-Threads Only */
+void playVoiceOnThread(VoiceAssetType voiceType)
+{
+	MCI_OPEN_PARMS localOpen;
+	MCI_PLAY_PARMS localPlay;
+	MCI_STATUS_PARMS localStatus;
+	
+	if (!voiceAsset[voiceType].dwID)
+	{
+		// open wav
+		localOpen.lpstrDeviceType = "WaveAudio";
+		localOpen.lpstrElementName = voiceAssetPath[voiceType];
+		voiceAsset[voiceType].dw = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD)(LPVOID)&localOpen);
+		voiceAsset[voiceType].dwID = localOpen.wDeviceID;
+	}
+	// check wav is running
+	localStatus.dwItem = MCI_STATUS_MODE;
+	mciSendCommand(voiceAsset[voiceType].dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD)(LPSTR)&localStatus); 
+	if (localStatus.dwReturn != MCI_MODE_PLAY)		// if not playing this sound
+	{
+		mciSendCommand(voiceAsset[voiceType].dwID, MCI_SEEK, MCI_SEEK_TO_START, NULL);
+		mciSendCommand(voiceAsset[voiceType].dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&localPlay);
+	}
+}
+
+void playSFXOnThread(SFXAssetType sfxType)
+{
+	MCI_OPEN_PARMS localOpen;
+	MCI_PLAY_PARMS localPlay;
+	DWORD dw;
+	unsigned int dwID;
+	
+	// open wav
+	localOpen.lpstrDeviceType = "WaveAudio";
+	localOpen.lpstrElementName = sfxAssetPath[sfxType];
+	dw = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD)(LPVOID)&localOpen);
+	dwID = localOpen.wDeviceID;
+	// play wav
+	mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, NULL);
+	mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD)(LPVOID)&localPlay);
+	HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)releaseSoundAuto, &dwID, 0, NULL);
 }

@@ -2,9 +2,10 @@
 #define __SOUNDS__
 #include <stdio.h>
 #include <windows.h>
-#include <mmsystem.h>
+#include <process.h>
 #include <Digitalv.h>
 #include "../utils.h"
+#include "../settings.h"
 
 #define _SOUND_ASSET_LEN_ 	12
 #define _BGM_ASSET_LEN_		5
@@ -76,12 +77,18 @@ static const char sfxAssetPath[_SFX_ASSET_LEN_][64]= {
 
 void initBGMAsset();
 void initVoiceAsset();
+
 void playBGM(BGMAssetType bgmType, SoundPlayType flag);
 void playVoice(VoiceAssetType voiceType);
 void playSFX(SFXAssetType sfxType);
-/* Not using static vars */
-void playSFXOnThread(SFXAssetType sfxType); 
+
+/* Release Sound Assets */
 void releaseBGMAsset();
 void releaseVoiceAsset();
 void releaseSoundAssets();
+unsigned __stdcall releaseSoundAuto(void* arg);
+
+/* Using On Multi-Threads Only */
+void playVoiceOnThread(VoiceAssetType voiceType);
+void playSFXOnThread(SFXAssetType sfxType); 
 #endif

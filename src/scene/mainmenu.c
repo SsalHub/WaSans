@@ -57,6 +57,7 @@ void runMainmenu()
 					gotoExitGame();
 					return;
 				}
+				break;
 		}
 	}
 }

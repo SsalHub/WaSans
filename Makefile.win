@@ -4,8 +4,8 @@
 CPP      = g++.exe -D__DEBUG__
 CC       = gcc.exe -D__DEBUG__
 WINDRES  = windres.exe
-OBJ      = build/obj/main.o build/obj/settings.o build/obj/utils.o build/obj/mainmenu.o build/obj/sans_battle.o build/obj/renderer.o build/obj/uieffect.o build/obj/sounds.o build/obj/enemyphase.o build/obj/scenemanager.o build/obj/gotoscene.o
-LINKOBJ  = build/obj/main.o build/obj/settings.o build/obj/utils.o build/obj/mainmenu.o build/obj/sans_battle.o build/obj/renderer.o build/obj/uieffect.o build/obj/sounds.o build/obj/enemyphase.o build/obj/scenemanager.o build/obj/gotoscene.o
+OBJ      = build/obj/main.o build/obj/settings.o build/obj/utils.o build/obj/mainmenu.o build/obj/sans_battle.o build/obj/renderer.o build/obj/uieffect.o build/obj/sounds.o build/obj/scenemanager.o build/obj/gotoscene.o build/obj/battlemanager.o
+LINKOBJ  = build/obj/main.o build/obj/settings.o build/obj/utils.o build/obj/mainmenu.o build/obj/sans_battle.o build/obj/renderer.o build/obj/uieffect.o build/obj/sounds.o build/obj/scenemanager.o build/obj/gotoscene.o build/obj/battlemanager.o
 LIBS     = -L"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib" -L"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/lib" -static-libgcc "C:/Program Files (x86)/Windows Kits/10/Lib/10.0.26100.0/um/x64/WinMM.Lib" -pg -g3
 INCS     = -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include"
 CXXINCS  = -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/x86_64-w64-mingw32/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include" -I"C:/Program Files (x86)/Embarcadero/Dev-Cpp/TDM-GCC-64/lib/gcc/x86_64-w64-mingw32/9.2.0/include/c++"
@@ -48,11 +48,11 @@ build/obj/uieffect.o: src/ui/uieffect.c
 build/obj/sounds.o: src/sound/sounds.c
 	$(CC) -c src/sound/sounds.c -o build/obj/sounds.o $(CFLAGS)
 
-build/obj/enemyphase.o: src/battle/enemyphase.c
-	$(CC) -c src/battle/enemyphase.c -o build/obj/enemyphase.o $(CFLAGS)
-
 build/obj/scenemanager.o: src/scene/scenemanager.c
 	$(CC) -c src/scene/scenemanager.c -o build/obj/scenemanager.o $(CFLAGS)
 
 build/obj/gotoscene.o: src/scene/gotoscene.c
 	$(CC) -c src/scene/gotoscene.c -o build/obj/gotoscene.o $(CFLAGS)
+
+build/obj/battlemanager.o: src/battle/battlemanager.c
+	$(CC) -c src/battle/battlemanager.c -o build/obj/battlemanager.o $(CFLAGS)

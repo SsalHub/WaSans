@@ -99,9 +99,9 @@ void releaseSoundAssets()
 	}
 }
 
-unsigned __stdcall releaseSoundAuto(void* arg)
+unsigned __stdcall releaseSoundAuto(void* args)
 {
-	unsigned int dwID = *((unsigned int*)arg);
+	unsigned int dwID = *((unsigned int*)args);
 	MCI_STATUS_PARMS localStatus;
 	
 	// check wav is running

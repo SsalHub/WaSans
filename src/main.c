@@ -9,6 +9,8 @@ int main(int argc, char *argv[]) {
 
 void initGame()
 {
+	initPlayerName("SJW");
+	PlayerLevel = 1;
 	initScreen();
 	initFirstScene();
 	// load assets
@@ -35,6 +37,7 @@ void exitGame()
 	// printLine(_ALIGN_CENTER_, _ALIGN_TOP_, str, _WHITE_);
 	
 	releaseScreen();
+	releasePlayerName();
 	releaseAssetFile();
 //	releaseBGMAsset();
 //	releaseVoiceAsset();

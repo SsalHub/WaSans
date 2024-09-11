@@ -182,6 +182,16 @@ void renderCustom(Renderer *renderer)
 	waitForFrame();
 }
 
+void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor)
+{
+	if (s != NULL)
+		strcpy(target->s, s);
+	target->x = x;
+	target->y = y;
+	target->tColor = tColor;
+	target->bColor = bColor;
+}
+
 void setSceneRenderer(Renderer* renderer)
 {
 	sceneRenderer = renderer;

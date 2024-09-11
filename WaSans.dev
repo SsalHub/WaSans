@@ -310,18 +310,8 @@ OverrideBuildCmd=0
 BuildCmd=
 CompileCpp=0
 
-[Unit39]
-FileName=src\battle\battlemanager.h
-Folder=src/battle
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-CompileCpp=0
-
 [Unit40]
-FileName=src\battle\battlemanager.c
+FileName=src\battle\battle.h
 Folder=src/battle
 Compile=1
 Link=1
@@ -480,6 +470,16 @@ BuildCmd=
 FileName=src\scene\scenemanager.h
 CompileCpp=0
 Folder=src/scene
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit39]
+FileName=src\battle\battle.c
+CompileCpp=0
+Folder=src/battle
 Compile=1
 Link=1
 Priority=1000

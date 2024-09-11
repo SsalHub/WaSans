@@ -1,6 +1,7 @@
 #ifndef __SETTINGS__
 #define __SETTINGS__
 #include <Windows.h>
+#include <string.h>
 
 typedef enum ExitCode
 {
@@ -11,7 +12,10 @@ typedef enum ExitCode
 
 extern int ScreenWidth, ScreenHeight;
 extern int BaseFrame;
-extern int MaxHP;
+extern char* PlayerName;
+extern int PlayerLevel;
 
 void waitForFrame();
+void initPlayerName(char* name);
+void releasePlayerName();
 #endif

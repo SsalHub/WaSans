@@ -11,6 +11,15 @@
 
 typedef void (Renderer)(void);
 
+typedef struct RenderInfo
+{
+	int x;
+	int y;
+	char* s;
+	ConsoleColor tColor;
+	ConsoleColor bColor;
+} RenderInfo;
+
 typedef enum TextAlign
 {
 	_ALIGN_CENTER_ = -100,
@@ -39,6 +48,7 @@ void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor
 void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor);
 void render();
 void renderCustom(Renderer *renderer);
+void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor);
 void setSceneRenderer(Renderer* renderer);
 Renderer* getSceneRenderer();
 void printFPS();

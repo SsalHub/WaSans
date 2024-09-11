@@ -7,6 +7,7 @@
 #include <windows.h>
 #include "scenemanager.h"
 #include "gotoscene.h"
+#include "../battle/battle.h"
 #include "../utils.h"
 #include "../settings.h"
 #include "../ui/uieffect.h"
@@ -34,29 +35,20 @@ typedef enum BlastAngle
 //	_BLAST_MID_CENTER_,
 } BlastAngle;
 
-typedef struct BossPhaseBox
-{
-	int x;
-	int y;
-	int w;
-	int h;
-} BossPhaseBox;
-
-static int battleTurn, battleSelect, playerHP, patternIdx, scriptIdx;
-static COORD playerPos;
+static int patternIdx, scriptIdx;
 static const char scripts[_SANS_SCRIPT_LEN_][64] = {
 				    "it's a beautiful day outside.",
 				    "birds are singing. flowers are blooming.",
 				    "on days like these, kids like you...",
 				    "Should be burning in hell.",
 				};
-static const BossPhaseBox bossPhaseBox = { 49, 16, 18, 8 };
-static Pattern sansPattern[_SANS_PATTERN_LEN_];
+static PatternInfo sansPattern[_SANS_PATTERN_LEN_];
 
 //void Start();
 //void Update();
 /* Main func in sans battle */
 void initSansBattle();
+void initSansObject(BattleObject* sansObject);
 void initSansPattern();
 void runSansBattle();
 
@@ -73,17 +65,17 @@ void renderPlayerPhase();
 
 /* Sub Renderer */
 void renderSans(AssetFileType face);
-int renderSpeechBubble(const char* script, ConsoleColor tColor, int bVoice);
-void renderBossPhaseBox();
-void renderPlayerPhaseBox();
-void renderPlayerInfo();
-void renderSelectBox();
+//int renderSpeechBubble(const char* script, ConsoleColor tColor, int bVoice);
+//void renderBossPhaseBox();
+//void renderPlayerPhaseBox();
+//void renderPlayerInfo();
+//void renderSelectBox();
 void renderPattern();
 
 /* Boss Phase func */
 void movePlayer();
-unsigned __stdcall fireBlastToCenter(void* arg);
-void fireBlastToPlayer(BlastAngle blastAngle);
+unsigned __stdcall fireBlastToCenter(void* args);
+unsigned __stdcall fireBlastToPlayer(void* args);
 AssetFileType getBlastType(BlastAngle blastAngle);
 char* fixBlastAngle(char* dst, size_t dstSize, BlastAngle blastAngle);
 int getLastPatternIdx();

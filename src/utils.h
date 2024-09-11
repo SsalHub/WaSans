@@ -14,8 +14,8 @@ typedef enum AssetFileType
 {
     _LOGO_UNDERTALE_ 			= 0,
     _SELECT_BOX_,
-    _SANS_BODY_NORMAL_,
     _SANS_LEG_NORMAL_,
+    _SANS_BODY_NORMAL_,
     _SANS_FACE_NORMAL_A_,
     _SANS_FACE_NORMAL_B_,
     _SANS_BLAST_VERTICAL_A_,
@@ -65,31 +65,11 @@ typedef enum InputType
     _CARRIAGE_RETURN_ 			= 13,
 } InputType;
 
-typedef struct RenderInfo
-{
-	int x;
-	int y;
-	char* s;
-	ConsoleColor tColor;
-	ConsoleColor bColor;
-} RenderInfo;
-
-typedef struct Pattern
-{
-	unsigned __stdcall (*pattern)(int);
-	int data;
-	HANDLE hThread;
-	DWORD isActive;
-	unsigned int threadID;
-	int renderInfoLen;
-	RenderInfo renderInfo[10];
-} Pattern;
-
 static const char assetFilePath[_ASSETFILE_NUM_][64] = {
 					"../../data/UNDERTALE_LOGO.asset",
 					"../../data/SELECT_BOX.asset",
-					"../../data/character/sans/body_normal.asset",
 					"../../data/character/sans/leg_normal.asset",
+					"../../data/character/sans/body_normal.asset",
 					"../../data/character/sans/face_normal_a.asset",
 					"../../data/character/sans/face_normal_b.asset",
 				};
@@ -102,8 +82,7 @@ char *readFile(const char *fname, char *dest);
 char *readAssetFile(const char *fname);
 void releaseAssetFile();
 int getRandomRange(int min, int max);
-char* rotateString(char* dst, char* src, int angle);
-HANDLE startPattern(unsigned __stdcall (*pattern)(int), void* args, unsigned int* threadID);
+//char* rotateString(char* dst, char* src, int angle);
 float lerp(float from, float to, float t);
-void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor);
+void fillSpaceChar(char* str, int begin, int end);
 #endif

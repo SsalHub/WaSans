@@ -87,72 +87,67 @@ int getRandomRange(int min, int max)
 	return rand() % limit - min;
 }
 
-char* rotateString(char* dst, char* src, int angle)
-{
-	int w = 0, h = 0, i, j;
-	
-	if (angle / 90 == 0)
-	{
-		strcpy(dst, src);
-		return dst;
-	}
-	
-	// get source string's width/height
-	i = 0;
-	while (src[i])
-	{
-		if (src[i] == '\n')
-			h++;
-		if (h == 0)
-			w++;
-		i++;
-	}
-	w++;
-	h++; 
-	
-	switch (angle / 90)
-	{
-		case 1:
-			for (j = 0; j < w; j++)
-			{
-				for (i = 0; i < h; i++)
-				{
-					dst[h * j + i] = src[w * (h - i - 1) + j];
-				}
-				dst[h * j + i] = '\n';
-			}
-			break;
-			
-		case 2:
-			for (i = 0; i < h - 1; i++)
-			{
-				for (j = 0; j < w; j++)
-				{
-					dst[(w * i) + j] = src[w * (h - i - 1) + (w - j - 1)];
-				}
-				dst[(w * i) + j] = '\n';
-			}
-			break;
-			
-		case 3:
-			for (j = 0; j < w; j++)
-			{
-				for (i = 0; i < h; i++)
-				{
-					dst[h * j + i] = src[w * i + (w - j - 1)];
-				}
-				dst[h * j + i] = '\n';
-			}
-			break;
-	}
-	dst[strlen(src)] = '\0';
-	return dst;
-}
-
-HANDLE startPattern(unsigned __stdcall (*pattern)(int), void* args, unsigned int* threadID)
-{
-	return (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)pattern, args, 0, threadID);
-}
+//char* rotateString(char* dst, char* src, int angle)
+//{
+//	int w = 0, h = 0, i, j;
+//	
+//	if (angle / 90 == 0)
+//	{
+//		strcpy(dst, src);
+//		return dst;
+//	}
+//	
+//	// get source string's width/height
+//	i = 0;
+//	while (src[i])
+//	{
+//		if (src[i] == '\n')
+//			h++;
+//		if (h == 0)
+//			w++;
+//		i++;
+//	}
+//	w++;
+//	h++; 
+//	
+//	switch (angle / 90)
+//	{
+//		case 1:
+//			for (j = 0; j < w; j++)
+//			{
+//				for (i = 0; i < h; i++)
+//				{
+//					dst[h * j + i] = src[w * (h - i - 1) + j];
+//				}
+//				dst[h * j + i] = '\n';
+//			}
+//			break;
+//			
+//		case 2:
+//			for (i = 0; i < h - 1; i++)
+//			{
+//				for (j = 0; j < w; j++)
+//				{
+//					dst[(w * i) + j] = src[w * (h - i - 1) + (w - j - 1)];
+//				}
+//				dst[(w * i) + j] = '\n';
+//			}
+//			break;
+//			
+//		case 3:
+//			for (j = 0; j < w; j++)
+//			{
+//				for (i = 0; i < h; i++)
+//				{
+//					dst[h * j + i] = src[w * i + (w - j - 1)];
+//				}
+//				dst[h * j + i] = '\n';
+//			}
+//			break;
+//	}
+//	dst[strlen(src)] = '\0';
+//	return dst;
+//}
 
 float lerp(float from, float to, float t)
 {
@@ -163,12 +158,12 @@ float lerp(float from, float to, float t)
 	return (to - from) * t + from;
 }
 
-void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor)
+void fillSpaceChar(char* str, int begin, int end)
 {
-	if (s != NULL)
-		strcpy(target->s, s);
-	target->x = x;
-	target->y = y;
-	target->tColor = tColor;
-	target->bColor = bColor;
+	int i;
+	strcpy(str + end + 1, str + begin);
+	for (i = begin; i <= end; i++)
+	{
+		str[i] = ' ';
+	}
 }

@@ -86,7 +86,7 @@ void playSFX(SFXAssetType sfxType);
 void releaseBGMAsset();
 void releaseVoiceAsset();
 void releaseSoundAssets();
-unsigned __stdcall releaseSoundAuto(void* arg);
+unsigned __stdcall releaseSoundAuto(void* args);
 
 /* Using On Multi-Threads Only */
 void playVoiceOnThread(VoiceAssetType voiceType);

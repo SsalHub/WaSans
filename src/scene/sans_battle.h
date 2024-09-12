@@ -7,7 +7,7 @@
 #include <windows.h>
 #include "scenemanager.h"
 #include "gotoscene.h"
-#include "../battle/battle.h"
+#include "battle/battle.h"
 #include "../utils.h"
 #include "../settings.h"
 #include "../ui/uieffect.h"
@@ -54,8 +54,8 @@ void runSansBattle();
 
 /* Each Phase Func */
 static void introPhase();
-static void enemyPhase();
 static void playerPhase();
+static void enemyPhase();
 
 /* Main Renderer */
 //void renderSansBattle();

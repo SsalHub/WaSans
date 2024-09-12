@@ -54,5 +54,5 @@ build/obj/scenemanager.o: src/scene/scenemanager.c
 build/obj/gotoscene.o: src/scene/gotoscene.c
 	$(CC) -c src/scene/gotoscene.c -o build/obj/gotoscene.o $(CFLAGS)
 
-build/obj/battle.o: src/battle/battle.c
-	$(CC) -c src/battle/battle.c -o build/obj/battle.o $(CFLAGS)
+build/obj/battle.o: src/scene/battle/battle.c
+	$(CC) -c src/scene/battle/battle.c -o build/obj/battle.o $(CFLAGS)

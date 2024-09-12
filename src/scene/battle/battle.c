@@ -2,7 +2,7 @@
 
 int MaxHP = 100;
 COORD PlayerPos;
-BattleObject (*EnemyInfo)[3];
+BattleObject** EnemyInfo;
 BattleObject EnemyPhaseBox, PlayerPhaseBox, *SpeechBubble;
 
 /* Init Functions */
@@ -94,7 +94,15 @@ void setBattlePhase(BattlePhase phase)
 
 void gotoNextPhase()
 {
-	battlePhase = _PLAYER_PHASE_ <= battlePhase ? _ENEMY_PHASE_ : battlePhase + 1;
+	if (_ENEMY_PHASE_ <= battlePhase)
+	{
+		battlePhase = _PLAYER_PHASE_;
+    	gotoNextTurn();
+	}
+	else
+	{
+		battlePhase++;
+	}
 }
 
 void gotoNextTurn()
@@ -294,7 +302,7 @@ void renderSpeechBubble()
 	    for (j = 0; j < bubbleWidth; j++)
 	        strcat(buffer, " ");
 	    for (i = 0; i < bubbleHeight; i++)
-	        printLine(x, y + i, buffer, _WHITE_, _WHITE_);
+	        printLine(SpeechBubble[i].x, SpeechBubble[i].y + i, buffer, _WHITE_, _WHITE_);
 	    strcat(buffer, " ");
 	    printLine(SpeechBubble[i].x - 1, SpeechBubble[i].y + (bubbleHeight / 2 - 1), buffer, _WHITE_, _WHITE_);
 	    // render text

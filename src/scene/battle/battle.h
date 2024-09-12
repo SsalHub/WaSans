@@ -1,8 +1,8 @@
 #ifndef __BATTLE__
 #define __BATTLE__
-#include "../settings.h"
-#include "../utils.h"
-#include "../render/renderer.h"
+#include "../../settings.h"
+#include "../../utils.h"
+#include "../../render/renderer.h"
 
 #define _ENEMY_LEG_		0
 #define _ENEMY_BODY_	1
@@ -14,8 +14,8 @@ typedef unsigned __stdcall (*Pattern)(void*);
 typedef enum BattlePhase
 {
 	_INTRO_PHASE_	= -1,
-	_ENEMY_PHASE_	= 0,
-	_PLAYER_PHASE_,
+	_PLAYER_PHASE_	= 0,
+	_ENEMY_PHASE_,
 } BattlePhase;
 
 typedef struct BattleObject
@@ -43,7 +43,7 @@ typedef struct PatternInfo
 
 extern int MaxHP;
 extern COORD PlayerPos;
-extern BattleObject (*EnemyInfo)[3];
+extern BattleObject** EnemyInfo;
 extern BattleObject EnemyPhaseBox, PlayerPhaseBox, *SpeechBubble;
 
 

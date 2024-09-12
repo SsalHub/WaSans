@@ -23,8 +23,10 @@ void initSansBattle()
 	// run intro phase
     sleep(1.0f);
     playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
-    fadeIn(renderSansBattle);
+    fadeIn(renderBattleScene);
     introPhase();
+    enemyPhase();
+	gotoNextPhase();
 }
 
 void initSansObject(BattleObject** enemy)
@@ -74,8 +76,6 @@ void runSansBattle()
 {
     playerPhase();
     enemyPhase();
-	gotoNextPhase();
-    gotoNextTurn();
 }
 
 
@@ -94,9 +94,19 @@ static void introPhase()
 	scriptIdx++;
     playBGM(_BGM_BIRDNOISE_, _SOUND_PAUSE_);
     gotoNextPhase();	// goto enemy phase
-    enemyPhase();
+}
+
+static void playerPhase()
+{
+	switch (battleTurn)
+	{
+		case 0:
+			playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
+			break;
+		case 1:
+			break;
+	}
 	gotoNextPhase();
-    gotoNextTurn();
 }
 
 static void enemyPhase()
@@ -111,7 +121,7 @@ static void enemyPhase()
 	    case 0: // intro turn
 			playSFX(_SFX_MOMENT_);
 			blackScreenEffect(1.0f);
-			setSceneRenderer(renderBossPhase);
+			setSceneRenderer(renderBattleScene);
 	    	playSFX(_SFX_MOMENT_);
 	    	
         	// run boss pattern
@@ -157,22 +167,10 @@ static void enemyPhase()
 //	        	movePlayer();
 //	            renderCustom(renderBossPhase);
 //	        }
-			setSceneRenderer(renderPlayerPhase);
+			setSceneRenderer(renderBattleScene);
 	        break;
     }
-}
-
-static void playerPhase()
-{
-	switch (battleTurn)
-	{
-		case 0:
-			playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
-			break;
-			
-		case 1:
-			break;
-	}
+	gotoNextPhase();
 }
 
 

@@ -74,8 +74,13 @@ void initSansPattern()
 
 void runSansBattle()
 {
-    playerPhase();
-    enemyPhase();
+	while (10 < battleTurn)
+	{
+	    playerPhase();
+	    enemyPhase();
+	}
+	gotoNextScene(_SCENE_MAINMENU_);
+	return;
 }
 
 

@@ -60,126 +60,100 @@ void flipScreen()
 
 void clearScreen()
 {
-	int x = 0, y = 0;
-	printLines(x, y, ScreenBuffer, _BLACK_, _BLACK_);
+	COORD pos = { 0, 0 };
+	DWORD dw;
+//	printLines(x, y, ScreenBuffer, _BLACK_, _BLACK_);
+	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
 }
 
 void fillColorToScreen(ConsoleColor tColor, ConsoleColor bColor)
 {
-	int x = 0, y = 0;
-	printLines(x, y, ScreenBuffer, tColor, bColor);
-//	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
+	COORD pos = { 0, 0 };
+	DWORD dw;
+//	printLines(x, y, ScreenBuffer, tColor, bColor);
+	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
 }
 
 void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)
 {
-	COORD pos;
+	COORD pos = { x, y };
 	DWORD dw;
+	if (x < 0)
+	{
+		if (x == _ALIGN_CENTER_)
+		{
+			pos.X = (ScreenWidth - strlen(str)) / 2;
+		}
+		else
+		{
+			if (x == _ALIGN_LEFT_)
+			{
+				pos.X = 0;
+			}
+			else
+			{
+				if (x == _ALIGN_RIGHT_)
+					pos.X = ScreenWidth - strlen(str) - 1;
+				
+			}
+		}
+	}
+	if (y < 0)
+	{
+		if (y == _ALIGN_CENTER_)
+		{
+			pos.Y = (ScreenHeight - 1) / 2;
+		}
+		else
+		{
+			if (y == _ALIGN_TOP_)
+			{
+				pos.Y = 0;
+			}
+			else
+			{
+				if (y == _ALIGN_BOTTOM_)
+					pos.Y = ScreenHeight - 1;
+				
+			}
+		}
+	}
 	
 	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
-	switch (x)
-	{
-		case _ALIGN_CENTER_:
-			pos.X = (ScreenWidth - strlen(str)) * 0.5f;
-			break;
-		case _ALIGN_LEFT_:
-			pos.X = 0;
-			break;
-		case _ALIGN_RIGHT_:
-			pos.X = ScreenWidth - strlen(str) - 1;
-			break;
-		default:
-			pos.X = x;
-			break;
-	}
-	switch (y)
-	{
-		case _ALIGN_CENTER_:
-			pos.Y = (ScreenHeight - 1) * 0.5f;
-			break;
-		case _ALIGN_TOP_:
-			pos.Y = 0;
-			break;
-		case _ALIGN_BOTTOM_:
-			pos.Y = ScreenHeight - 1;
-			break;
-		default:
-			pos.Y = y;
-			break;
-	}
 	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
 	WriteFile(ScreenHandle[ScreenIndex], str, strlen(str), &dw, NULL);
 }
 
 void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)
 {
-	COORD pos;
+	COORD pos = { x, y };
 	DWORD dw;
-	char* token, *copy;
-	
-	copy = (char*)malloc(sizeof(char) * (strlen(str) + 1));
-	strcpy(copy, str);
+	char *beg, *end;
 	
 	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
-	token = strtok(copy, "\n");
-	switch (x)
+	end = str;
+	beg = end;
+	while (*end)
 	{
-		case _ALIGN_CENTER_:
-			pos.X = (ScreenWidth - strlen(token)) * 0.5f;
-			break;
-		case _ALIGN_LEFT_:
-			pos.X = 0;
-			break;
-		case _ALIGN_RIGHT_:
-			pos.X = ScreenWidth - strlen(token) - 8;
-			break;
-		default:
-			pos.X = x;
-			break;
+		if (*end != '\n')
+		{
+			end++;
+			continue;
+		}
+		*end = '\0';
+		// print this line
+		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
+		WriteFile(ScreenHandle[ScreenIndex], beg, strlen(beg), &dw, NULL);
+		pos.Y++;
+		*end = '\n';
+		end++;
+		beg = end;
 	}
-	switch (y)
-	{
-		case _ALIGN_CENTER_:
-			pos.Y = (ScreenHeight - 1) * 0.5f;
-			break;
-		case _ALIGN_TOP_:
-			pos.Y = 0;
-			break;
-		case _ALIGN_BOTTOM_:
-			// should count num of \n in 'str', but bothering
-			pos.Y = 15;
-			break;
-		default:
-			pos.Y = y;
-			break;
-	}
-	while (token != NULL)
+	if (*beg)
 	{
 		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
-		WriteFile(ScreenHandle[ScreenIndex], token, strlen(token), &dw, NULL);
-		pos.Y++;
-		token = strtok(NULL, "\n");
+		WriteFile(ScreenHandle[ScreenIndex], beg, strlen(beg), &dw, NULL);
 	}
-	free(copy);
-}
-
-void render()
-{
-	clearScreen();
-	printFPS();
-	flipScreen();
-	checkFPS();
-	waitForFrame();
-}
-
-void renderCustom(Renderer *renderer)
-{
-	clearScreen();
-	(*renderer)();
-	printFPS();
-	flipScreen();
-	checkFPS();
-	waitForFrame();
 }
 
 void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor)
@@ -202,16 +176,6 @@ Renderer* getSceneRenderer()
 	return sceneRenderer;
 }
 
-void printFPS()
-{
-	char fps_text[30], itoa_text[10];
-	strcpy(fps_text, "FPS : ");
-	if (0 <= oldFPS)
-		itoa(oldFPS, itoa_text, 10);
-	strcat(fps_text, itoa_text);
-	printLine(ScreenWidth - 12, _ALIGN_TOP_, fps_text, _WHITE_, _BLACK_);
-}
-
 void checkFPS()
 {
 	static int oldTime = -1000;
@@ -224,6 +188,15 @@ void checkFPS()
 		oldFPS = FPS;
 		FPS = 0;
 	}	
+}
+
+void printFPS()
+{
+	char fps_text[30], itoa_text[10];
+	strcpy(fps_text, "FPS : ");
+	itoa(oldFPS, itoa_text, 10);
+	strcat(fps_text, itoa_text);
+	printLine(ScreenWidth - 12, _ALIGN_TOP_, fps_text, _WHITE_, _BLACK_);
 }
 
 void beginRenderThread()
@@ -239,9 +212,9 @@ unsigned __stdcall renderThread()
 		clearScreen();
 		if (sceneRenderer != NULL)
 			(*sceneRenderer)();
+		checkFPS();
 		printFPS();
 		flipScreen();
-		checkFPS();
 		waitForFrame();
 	}
 }
@@ -249,7 +222,7 @@ unsigned __stdcall renderThread()
 void releaseScreen()
 {
 	bRenderThread = 0;
-    WaitForSingleObject(hRenderThread, INFINITE); // wait until render thread closed
+    WaitForSingleObject(hRenderThread, INFINITE); 	// wait until render thread closed
 	CloseHandle(hRenderThread);
 	CloseHandle(ScreenHandle[0]);
 	CloseHandle(ScreenHandle[1]);

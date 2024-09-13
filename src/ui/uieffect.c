@@ -53,6 +53,7 @@ void fadeIn(Renderer* nextRenderer)
 		}
 		waitForFrame();
 	}
+	setSceneRenderer(nextRenderer);
 }
 
 void renderFadeEffect()

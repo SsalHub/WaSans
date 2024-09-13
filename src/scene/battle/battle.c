@@ -5,11 +5,31 @@ COORD PlayerPos;
 BattleObject** EnemyInfo;
 BattleObject EnemyPhaseBox, PlayerPhaseBox, *SpeechBubble;
 
+/* Main Renderer */
+void renderBattleScene()
+{
+    renderEnemy();
+    renderPlayerInfo();
+	switch (battlePhase)
+	{
+		case _INTRO_PHASE_:
+		case _ENEMY_PHASE_:
+    		renderEnemyPhaseBox();
+    		break;
+    	case _PLAYER_PHASE_:
+    		renderPlayerPhaseBox();
+    		renderSelectBox();
+    		break;
+	}
+}
+
+
+
 /* Init Functions */
 void initBattle(int len, BattleObject enemy[][3])
 {
+	battlePhase = _INTRO_PHASE_;
 	battleTurn = 0;
-	battlePhase = 0;
 	playerHP = MaxHP;
 	battleSelect = 0;
 	
@@ -123,26 +143,6 @@ int getBattleTurn()
 HANDLE startPattern(Pattern pattern, void* args, unsigned int* threadID)
 {
 	return (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)pattern, args, 0, threadID);
-}
-
-
-
-/* Main Renderer */
-void renderBattleScene()
-{
-    renderEnemy();
-    renderPlayerInfo();
-	switch (battlePhase)
-	{
-		case _INTRO_PHASE_:
-		case _ENEMY_PHASE_:
-    		renderEnemyPhaseBox();
-    		break;
-    	case _PLAYER_PHASE_:
-    		renderPlayerPhaseBox();
-    		renderSelectBox();
-    		break;
-	}
 }
 
 

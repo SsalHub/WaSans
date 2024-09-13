@@ -28,19 +28,20 @@ void playBGM(BGMAssetType bgmType, SoundPlayType flag)
 	{
 		case _SOUND_BEGIN_:
 			mciSendCommand(bgmAsset[bgmType].dwID, MCI_SEEK, MCI_SEEK_TO_START, (DWORD_PTR)(LPVOID)NULL);
-			mciSendCommand(bgmAsset[bgmType].dwID, MCI_PLAY, MCI_DGV_PLAY_REPEAT, (DWORD_PTR)(LPVOID)&mciPlay);
-			break;
+			mciSendCommand(bgmAsset[bgmType].dwID, MCI_PLAY, MCI_DGV_PLAY_REPEAT, (DWORD_PTR)(LPVOID)NULL);
+			return;
 			
 		case _SOUND_RESUME_:
-			mciSendCommand(bgmAsset[bgmType].dwID, MCI_RESUME, MCI_NOTIFY, (DWORD_PTR)(LPVOID)&mciPlay);
+			mciSendCommand(bgmAsset[bgmType].dwID, MCI_RESUME, 0, (DWORD_PTR)(LPVOID)NULL);
 			return;
 			
 		case _SOUND_PAUSE_:
-			mciSendCommand(bgmAsset[bgmType].dwID, MCI_PAUSE, MCI_NOTIFY, (DWORD_PTR)(LPVOID)&mciPlay);
+			mciSendCommand(bgmAsset[bgmType].dwID, MCI_PAUSE, 0, (DWORD_PTR)(LPVOID)NULL);
 			return;
 			
-		default:
-			break;
+		case _SOUND_STOP_:
+			mciSendCommand(bgmAsset[bgmType].dwID, MCI_STOP, 0, (DWORD_PTR)(LPVOID)NULL);
+			return;
 	}
 }
 
@@ -102,16 +103,16 @@ void releaseSoundAssets()
 unsigned __stdcall releaseSoundAuto(void* args)
 {
 	unsigned int dwID = *((unsigned int*)args);
-	MCI_STATUS_PARMS localStatus;
-	
-	// check wav is running
-	localStatus.dwItem = MCI_STATUS_MODE;
-	mciSendCommand(dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)(LPSTR)&localStatus); 
-	while (localStatus.dwReturn == MCI_MODE_PLAY)		// if not playing this sound
-	{
-		waitForFrame();
-	}
-	mciSendCommand(dwID, MCI_CLOSE, 0, (DWORD_PTR)(LPSTR)NULL);
+//	MCI_STATUS_PARMS localStatus;
+//	
+//	// check wav is running
+//	localStatus.dwItem = MCI_STATUS_MODE;
+//	mciSendCommand(dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)(LPSTR)&localStatus); 
+//	while (localStatus.dwReturn == MCI_MODE_PLAY)		// if not playing this sound
+//	{
+//		waitForFrame();
+//	}
+	mciSendCommand(dwID, MCI_CLOSE, MCI_WAIT, (DWORD_PTR)(LPSTR)NULL);
 }
 
 
@@ -156,5 +157,6 @@ void playSFXOnThread(SFXAssetType sfxType)
 	// play wav
 	mciSendCommand(dwID, MCI_SEEK, MCI_SEEK_TO_START, (DWORD_PTR)(LPVOID)NULL);
 	mciSendCommand(dwID, MCI_PLAY, MCI_NOTIFY, (DWORD_PTR)(LPVOID)&localPlay);
-	HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)releaseSoundAuto, &dwID, 0, (unsigned int*)NULL);
+	mciSendCommand(dwID, MCI_CLOSE, MCI_WAIT, (DWORD_PTR)(LPSTR)NULL);
+//	HANDLE hThread = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)releaseSoundAuto, &dwID, 0, (unsigned int*)NULL);
 }

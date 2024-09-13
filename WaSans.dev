@@ -301,8 +301,8 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit38]
-FileName=src\scene\gotoscene.c
-Folder=src/scene
+FileName=src\scene\battle\battle.h
+Folder=src/scene/battle
 Compile=1
 Link=1
 Priority=1000
@@ -447,9 +447,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit37]
-FileName=src\scene\gotoscene.h
+FileName=src\scene\battle\battle.c
 CompileCpp=0
-Folder=src/scene
+Folder=src/scene/battle
 Compile=1
 Link=1
 Priority=1000
@@ -467,9 +467,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit39]
-FileName=src\scene\battle\battle.c
+FileName=src\scene\loadscene.c
 CompileCpp=0
-Folder=src/scene/battle
+Folder=src/scene
 Compile=1
 Link=1
 Priority=1000
@@ -477,9 +477,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit40]
-FileName=src\scene\battle\battle.h
+FileName=src\scene\loadscene.h
 CompileCpp=0
-Folder=src/scene/battle
+Folder=src/scene
 Compile=1
 Link=1
 Priority=1000

@@ -1,7 +1,7 @@
 #include "settings.h"
 
 int ScreenWidth = 120, ScreenHeight = 30;
-int BaseFrame = 180;
+int BaseFrame = 240;
 char* PlayerName;
 int PlayerLevel;
 

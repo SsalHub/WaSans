@@ -43,6 +43,7 @@ typedef enum SoundPlayType
     _SOUND_BEGIN_,
     _SOUND_PAUSE_,
     _SOUND_RESUME_,
+    _SOUND_STOP_,
 } SoundPlayType;
 
 typedef struct Sound

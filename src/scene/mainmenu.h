@@ -4,17 +4,14 @@
 #include <string.h>
 #include <windows.h>
 #include "scenemanager.h"
-#include "gotoscene.h"
 #include "../utils.h"
 #include "../settings.h"
 #include "../ui/uieffect.h"
 #include "../render/renderer.h"
 #include "../sound/sounds.h"
 
-static int menuSelect;
+static int menuSelect = 0;
 
-//void Start();
-//void Update();
 void initMainMenu();
 void runMainmenu();
 void renderMainmenu();

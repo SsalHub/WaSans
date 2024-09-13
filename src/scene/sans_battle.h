@@ -5,14 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-#include "scenemanager.h"
-#include "gotoscene.h"
-#include "battle/battle.h"
 #include "../utils.h"
 #include "../settings.h"
 #include "../ui/uieffect.h"
 #include "../render/renderer.h"
 #include "../sound/sounds.h"
+#include "scenemanager.h"
+#include "battle/battle.h"
 
 #define _BATTLE_SELECT_LEN_	4
 #define _SANS_SCRIPT_LEN_ 	4

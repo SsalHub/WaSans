@@ -52,6 +52,9 @@ static int battleTurn, battleSelect, battlePhase, playerHP;
 static int enemyLen;
 
 
+/* Main Renderer */
+void renderBattleScene();
+
 /* Init Functions */
 void initBattle(int len, BattleObject enemy[][3]);
 void initEnemyPhaseBox();
@@ -66,9 +69,6 @@ void 		gotoNextTurn();
 BattlePhase getBattlePhase();
 int 		getBattleTurn();
 HANDLE 		startPattern(Pattern pattern, void* args, unsigned int* threadID);
-
-/* Main Renderer */
-void renderBattleScene();
 
 /* Sub Renderer */
 void renderEnemy();

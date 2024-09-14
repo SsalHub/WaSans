@@ -47,13 +47,25 @@ void playBGM(BGMAssetType bgmType, SoundPlayType flag)
 
 void playVoice(VoiceAssetType voiceType)
 {
+	MCI_OPEN_PARMS localOpen;
+	MCI_PLAY_PARMS localPlay;
+	MCI_STATUS_PARMS localStatus;
+	
+	if (!voiceAsset[voiceType].dwID)
+	{
+		// open wav
+		localOpen.lpstrDeviceType = "WaveAudio";
+		localOpen.lpstrElementName = voiceAssetPath[voiceType];
+		voiceAsset[voiceType].dw = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD_PTR)(LPVOID)&localOpen);
+		voiceAsset[voiceType].dwID = localOpen.wDeviceID;
+	}
 	// check wav is running
-	mciStatus.dwItem = MCI_STATUS_MODE;
-	mciSendCommand(voiceAsset[voiceType].dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)(LPSTR)&mciStatus); 
-	if (mciStatus.dwReturn != MCI_MODE_PLAY)		// if not playing this sound
+	localStatus.dwItem = MCI_STATUS_MODE;
+	mciSendCommand(voiceAsset[voiceType].dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)(LPSTR)&localStatus); 
+	if (localStatus.dwReturn != MCI_MODE_PLAY)		// if not playing this sound
 	{
 		mciSendCommand(voiceAsset[voiceType].dwID, MCI_SEEK, MCI_SEEK_TO_START, (DWORD_PTR)(LPVOID)NULL);
-		mciSendCommand(voiceAsset[voiceType].dwID, MCI_PLAY, MCI_NOTIFY, (DWORD_PTR)(LPVOID)&mciPlay);
+		mciSendCommand(voiceAsset[voiceType].dwID, MCI_PLAY, MCI_NOTIFY, (DWORD_PTR)(LPVOID)&localPlay);
 	}
 }
 
@@ -118,30 +130,6 @@ unsigned __stdcall releaseSoundAuto(void* args)
 
 
 /* Using On Multi-Threads Only */
-void playVoiceOnThread(VoiceAssetType voiceType)
-{
-	MCI_OPEN_PARMS localOpen;
-	MCI_PLAY_PARMS localPlay;
-	MCI_STATUS_PARMS localStatus;
-	
-	if (!voiceAsset[voiceType].dwID)
-	{
-		// open wav
-		localOpen.lpstrDeviceType = "WaveAudio";
-		localOpen.lpstrElementName = voiceAssetPath[voiceType];
-		voiceAsset[voiceType].dw = mciSendCommand(0, MCI_OPEN, MCI_OPEN_TYPE | MCI_OPEN_ELEMENT, (DWORD_PTR)(LPVOID)&localOpen);
-		voiceAsset[voiceType].dwID = localOpen.wDeviceID;
-	}
-	// check wav is running
-	localStatus.dwItem = MCI_STATUS_MODE;
-	mciSendCommand(voiceAsset[voiceType].dwID, MCI_STATUS, MCI_STATUS_ITEM, (DWORD_PTR)(LPSTR)&localStatus); 
-	if (localStatus.dwReturn != MCI_MODE_PLAY)		// if not playing this sound
-	{
-		mciSendCommand(voiceAsset[voiceType].dwID, MCI_SEEK, MCI_SEEK_TO_START, (DWORD_PTR)(LPVOID)NULL);
-		mciSendCommand(voiceAsset[voiceType].dwID, MCI_PLAY, MCI_NOTIFY, (DWORD_PTR)(LPVOID)&localPlay);
-	}
-}
-
 void playSFXOnThread(SFXAssetType sfxType)
 {
 	MCI_OPEN_PARMS localOpen;

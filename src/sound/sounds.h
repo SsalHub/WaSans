@@ -90,6 +90,5 @@ void releaseSoundAssets();
 unsigned __stdcall releaseSoundAuto(void* args);
 
 /* Using On Multi-Threads Only */
-void playVoiceOnThread(VoiceAssetType voiceType);
 void playSFXOnThread(SFXAssetType sfxType); 
 #endif

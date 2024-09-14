@@ -10,9 +10,9 @@ void renderBattleScene()
 {
     renderEnemy();
     renderPlayerInfo();
+    renderSpeechBubble();
 	switch (battlePhase)
 	{
-		case _INTRO_PHASE_:
 		case _ENEMY_PHASE_:
     		renderEnemyPhaseBox();
     		break;
@@ -103,6 +103,7 @@ void initEnemyInfo(int len, BattleObject (*enemy)[3])
 		EnemyInfo[i][_ENEMY_FACE_] = enemy[i][_ENEMY_FACE_];
 		
 		SpeechBubble[i].data = (char*)malloc(sizeof(char) * (ScreenWidth * 2));
+		strcpy(SpeechBubble[i].data, "");
 	}
 }
 
@@ -286,25 +287,38 @@ void renderSelectBox()
 
 void renderSpeechBubble()
 {
-//	int bubbleX = 74, bubbleY = 2;
 	static const int bubbleWidth = 24, bubbleHeight = 6;
-	char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)];
-	int i, j;
+	char buffer[(ScreenWidth + 1) * 5];
+	int i, j, len;
 	
+	
+    for (i = 0; i < bubbleWidth; i++)
+        buffer[i] = ' ';
+    buffer[bubbleWidth] = '\0';
 	for (i = 0; i < enemyLen; i++)
 	{
 		if (!SpeechBubble[i].isActive)
 			continue;
+			
 		// render bubble box
-	    buffer[0] = '\0';
-	    for (j = 0; j < bubbleWidth; j++)
-	        strcat(buffer, " ");
-	    for (i = 0; i < bubbleHeight; i++)
-	        printLine(SpeechBubble[i].x, SpeechBubble[i].y + i, buffer, _WHITE_, _WHITE_);
+	    for (j = 0; j < bubbleHeight; j++)
+	        printLine(SpeechBubble[i].x, SpeechBubble[i].y + j, buffer, _WHITE_, _WHITE_);
 	    strcat(buffer, " ");
 	    printLine(SpeechBubble[i].x - 1, SpeechBubble[i].y + (bubbleHeight / 2 - 1), buffer, _WHITE_, _WHITE_);
+	    
 	    // render text
-    	printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1, SpeechBubble[i].data, SpeechBubble[i].tColor, _WHITE_);
+	    len = strlen(SpeechBubble[i].data);
+	    j = 0;
+	    while (len / (bubbleWidth - 1))
+	    {
+	    	memcpy(buffer, SpeechBubble[i].data + ((bubbleWidth - 2) * j), bubbleWidth - 2);
+	    	buffer[bubbleWidth - 2] = '\0';
+    		printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
+    		j++;
+    		len -= (bubbleWidth - 2);
+		}
+		strcpy(buffer, SpeechBubble[i].data + ((bubbleWidth - 2) * j));
+    	printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
 	}
 }
 

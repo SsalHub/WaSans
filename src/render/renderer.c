@@ -188,7 +188,7 @@ Renderer* getCurrentRenderer()
 
 void printFPS()
 {
-	char fps_text[30], itoa_text[10] = "";
+	char fps_text[30], itoa_text[10];
 	checkFPS();
 	strcpy(fps_text, "FPS : ");
 	itoa(FPS, itoa_text, 10);

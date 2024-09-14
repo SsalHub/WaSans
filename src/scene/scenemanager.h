@@ -2,6 +2,7 @@
 #define __SCENEMANAGER__
 #include "loadscene.h"
 #include "../settings.h"
+#include "../render/renderer.h"
 
 typedef enum SceneType
 {

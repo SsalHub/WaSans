@@ -65,14 +65,8 @@ void initSansPattern()
 
 void runSansBattle()
 {
-    sleep(1.0f);
-	// run intro phase
-    playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
-    fadeIn(getSceneRenderer(_SCENE_SANS_BATTLE_));
-//    setSceneRenderer(renderBattleScene);
     introPhase();
     enemyPhase();
-	gotoNextPhase();
 	
 	// main phase
 	while (10 < battleTurn)
@@ -80,8 +74,11 @@ void runSansBattle()
 	    playerPhase();
 	    enemyPhase();
 	}
+	
+	
+	releasePattern();
+	releaseBattleAssets();
 	gotoNextScene(_SCENE_MAINMENU_);
-	return;
 }
 
 
@@ -91,24 +88,26 @@ static void introPhase()
 {
     const int introScriptLen = 3;
     int speechFlag = 0;
-	
+    
+	sleep(1.0f);
+	// run intro phase
+    playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
+    fadeIn(getSceneRenderer(_SCENE_SANS_BATTLE_));
+    
 	setSansFace(_SANS_FACE_NORMAL_A_);
-	SpeechBubble[_ENEMY_SANS_].isActive = 1;
+	sleep(1.0f);
+	scriptIdx = 0;
 	while (scriptIdx < introScriptLen)
 	{
-		if (0 <= speechFlag)
-			speechFlag = writeSpeechBubble(scripts[scriptIdx], _WHITE_, 1);
-    	sleep(0.05f);
+		speechFlag = writeSpeechBubble(scripts[scriptIdx], _BLACK_, 1);
+		if (speechFlag < 0)
+			scriptIdx++;
+    	waitForFrame();
 	}
 	SpeechBubble[_ENEMY_SANS_].isActive = 0;
 	
-	/* if one script all read, wait 2.0sec */
-	sleep(2.0f);
-	scriptIdx++;
-	
 	// end intro phase
     playBGM(_BGM_BIRDNOISE_, _SOUND_PAUSE_);
-    gotoNextPhase();	// goto enemy phase
 }
 
 static void playerPhase()
@@ -126,21 +125,33 @@ static void playerPhase()
 
 static void enemyPhase()
 {
-	const int indexScriptLen = 4;
-	int i;
+	const int introScriptLen = 4;
+	int i, speechFlag = 0;
     PlayerPos.X = 59;
     PlayerPos.Y = 19;
     
     switch (getBattleTurn())
     {
 	    case 0: // intro turn
+			setSansFace(_SANS_FACE_NORMAL_B_);
 			playSFX(_SFX_MOMENT_);
 			blackScreenEffect(1.0f);
-			setRenderer(renderBattleScene);
+	    	setBattlePhase(_ENEMY_PHASE_);
 	    	playSFX(_SFX_MOMENT_);
 	    	
+	    	// run script
+	    	sleep(1.0f);
+			while (scriptIdx < introScriptLen)
+			{
+				speechFlag = writeSpeechBubble(scripts[scriptIdx], _RED_, 0);
+				if (speechFlag < 0)
+					scriptIdx++;
+    			waitForFrame();
+			}
+			SpeechBubble[_ENEMY_SANS_].isActive = 0;
+	    	
         	// run boss pattern
-			if (patternIdx < _SANS_PATTERN_LEN_ && indexScriptLen <= scriptIdx)
+			if (patternIdx < _SANS_PATTERN_LEN_ && introScriptLen <= scriptIdx)
 			{
 				// run pattern 0
 				sansPattern[patternIdx].hThread = startPattern(
@@ -173,10 +184,10 @@ static void enemyPhase()
 	        	waitForFrame();
 	        }
 	        
-    		releasePattern();
 	        break;
 	        
 	    case 1:
+			setSansFace(_SANS_FACE_NORMAL_A_);
 //	        while (1)
 //	        {
 //	        	movePlayer();
@@ -340,43 +351,54 @@ void renderSans(AssetFileType face)
 
 int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
 {
-    static int currLen = 0, oldTime = 0;
-    static const char *pScript;
-    char buffer[ScreenWidth * 2], ch[3], input;
-	int i, j, currTime;
+    static int currLen = 0, oldTime = 0, readOver = 0;
+    static const char *pScript = NULL;
+    char ch[3], input;
+	int i, j, currTime, slen = strlen(script);
 
     if (pScript != script)
     {
-        currLen = 0;
         pScript = script;
+		readOver = 0;
+        currLen = 0;
+        oldTime = clock();
+		SpeechBubble[_ENEMY_SANS_].isActive = 1;
+		SpeechBubble[_ENEMY_SANS_].tColor = tColor;
     }
     if (kbhit())
     {
         input = getch();
         if (input == _SPACE_ || input == _CARRIAGE_RETURN_)
-            currLen = strlen(script);
+            currLen = slen;
     }
     else
     {
-        if (!oldTime)
-            oldTime = clock();
-        currTime = clock();
-        if (120 < currTime - oldTime)
+    	if (readOver)
+		{
+			// end this script
+			if (readOver < clock())
+				return -1;	
+			return currLen;
+		}
+        else
         {
-            currLen = strlen(script) < currLen + 1 ? currLen : currLen + 1;
-            oldTime = currTime;
-        }
+			currTime = clock();
+	        if (120 < currTime - oldTime)
+	        {
+	        	if (slen <= currLen)
+	        		readOver = currTime + 1500;
+				else
+					currLen++;
+	//            currLen = slen < currLen + 1 ? currLen : currLen + 1;
+	            oldTime = currTime;
+	        }
+		}
     }
-    
     // write script on 'SpeechBubble' until currLen
     memcpy(SpeechBubble[_ENEMY_SANS_].data, script, currLen);
     (SpeechBubble[_ENEMY_SANS_].data)[currLen] = '\0';
-    
-    
-    if (strlen(script) <= currLen)
-        return -1;
-    if (bVoice && 0 < currLen && script[currLen - 1] != ' ')
-    	playVoice(_VOICE_SANS_);
+    if (bVoice)
+		playVoice(_VOICE_SANS_);
     return currLen;
 }
 

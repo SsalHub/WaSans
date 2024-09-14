@@ -20,4 +20,5 @@ void gotoNextScene(SceneType scene);
 ExitCode runScene();
 void setCurrentScene(SceneType scene);
 SceneType getCurrentScene();
+Renderer* getSceneRenderer(SceneType scene);
 #endif

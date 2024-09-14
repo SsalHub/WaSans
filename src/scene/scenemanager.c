@@ -41,3 +41,17 @@ SceneType getCurrentScene()
 {
 	return currentScene;
 }
+
+Renderer* getSceneRenderer(SceneType scene)
+{
+	switch (scene)
+	{
+		case _SCENE_MAINMENU_:
+			return renderMainmenu;
+		case _SCENE_SANS_BATTLE_:
+			return renderBattleScene;
+		case _SCENE_EXIT_GAME_:
+			return NULL;
+	}
+	return NULL;
+}

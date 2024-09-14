@@ -16,7 +16,6 @@ void waitForFrame()
 void checkFPS()
 {
 	int currTime;
-	
 	if (fpsCount <= 0)
 	{
 		oldTime = clock();

@@ -12,12 +12,13 @@ void initSansBattle()
 	initSansPattern();
 	initSansObject(&sans);
 	initBattle(1, &sans);
-	
+	// init speech bubble
 	SpeechBubble[_ENEMY_SANS_].x = 74;
 	SpeechBubble[_ENEMY_SANS_].y = 2;
 	SpeechBubble[_ENEMY_SANS_].data = NULL;
 	SpeechBubble[_ENEMY_SANS_].tColor = _BLACK_;
 	SpeechBubble[_ENEMY_SANS_].bColor = _WHITE_;
+	SpeechBubble[_ENEMY_SANS_].isActive = 0;
 }
 
 void initSansObject(BattleObject (*enemy)[3])
@@ -68,8 +69,8 @@ void runSansBattle()
     sleep(1.0f);
 	// run intro phase
     playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
-    fadeIn(renderBattleScene);
-    setSceneRenderer(renderBattleScene);
+    fadeIn(getSceneRenderer(_SCENE_SANS_BATTLE_));
+//    setSceneRenderer(renderBattleScene);
     introPhase();
     enemyPhase();
 	gotoNextPhase();
@@ -89,15 +90,18 @@ void runSansBattle()
 /* Each Phase Func */
 static void introPhase()
 {
-     const int introScriptLen = 3;
+    const int introScriptLen = 3;
+    int speechFlag = 0;
 	
 	setSansFace(_SANS_FACE_NORMAL_A_);
+	SpeechBubble[_ENEMY_SANS_].isActive = 1;
 	while (scriptIdx < introScriptLen)
 	{
-		setSpeechBubble(scripts[scriptIdx], _WHITE_, 1);
+		if (0 <= speechFlag)
+			speechFlag = writeSpeechBubble(scripts[scriptIdx], _WHITE_, 1);
     	sleep(0.05f);
 	}
-    scriptIdx = 0;
+	SpeechBubble[_ENEMY_SANS_].isActive = 0;
 	
 	/* if one script all read, wait 2.0sec */
 	sleep(2.0f);
@@ -133,7 +137,7 @@ static void enemyPhase()
 	    case 0: // intro turn
 			playSFX(_SFX_MOMENT_);
 			blackScreenEffect(1.0f);
-			setSceneRenderer(renderBattleScene);
+			setRenderer(renderBattleScene);
 	    	playSFX(_SFX_MOMENT_);
 	    	
         	// run boss pattern
@@ -179,7 +183,7 @@ static void enemyPhase()
 //	        	movePlayer();
 //	            renderCustom(renderBossPhase);
 //	        }
-			setSceneRenderer(renderBattleScene);
+			setRenderer(renderBattleScene);
 	        break;
     }
 	gotoNextPhase();
@@ -337,10 +341,9 @@ void renderSans(AssetFileType face)
 
 int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
 {
-    int x = 74, y = 2;
     static int currLen = 0, oldTime = 0;
     static const char *pScript;
-    char buffer[ScreenWidth * 2], ch[3], *copy, tmp, input;
+    char buffer[ScreenWidth * 2], ch[3], input;
 	int i, j, currTime;
 
     if (pScript != script)
@@ -366,25 +369,12 @@ int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
         }
     }
     
-    // write script until currLen
-    x += 1;
-    y += 1;
-    copy = (char *)malloc(sizeof(char) * strlen(script) + 1);
-    strcpy(copy, script);
-    copy[currLen] = '\0';
-    i = 0;
-    while (strlen(copy) / (w - 2))
-    {
-        tmp = copy[w - 2];
-        copy[w - 2] = '\0';
-        printLine(x, y + i, copy, tColor, _WHITE_);
-        copy[w - 2] = tmp;
-        strcpy(copy, copy + (w - 2));
-        i++;
-    }
-    printLine(x, y + i, copy, tColor, _WHITE_);
-    free(copy);
-
+    // write script on 'SpeechBubble' until currLen
+    memcpy(buffer, script, currLen);
+    buffer[currLen] = '\0';
+    SpeechBubble[_ENEMY_SANS_].data = buffer;
+    
+    
     if (strlen(script) <= currLen)
         return -1;
     if (bVoice && 0 < currLen && script[currLen - 1] != ' ')

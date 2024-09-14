@@ -13,8 +13,8 @@ void fadeOut()
 
 	oldTime = clock();
 	fadeProgress = 1;
-	currentRenderer = getSceneRenderer();
-	setSceneRenderer(renderFadeEffect);
+	currentRenderer = getCurrentRenderer();
+	setRenderer(renderFadeEffect);
 	while (fadeProgress < ScreenHeight)
 	{
 		currTime = clock();
@@ -23,12 +23,12 @@ void fadeOut()
 			fadeProgress++;
 			oldTime = currTime;
 		}
-		waitForFrame();
+		sleep(0.01f);
 	}
-	setSceneRenderer(renderBlackScreenEffect);
+	setRenderer(renderBlackScreenEffect);
 }
 
-void fadeIn()
+void fadeIn(Renderer* renderer)
 {
 	const int fadeSpeed = 40;
     int oldTime, currTime, i;
@@ -41,8 +41,8 @@ void fadeIn()
 
 	oldTime = clock();
 	fadeProgress = ScreenHeight;
-	currentRenderer = getSceneRenderer();
-	setSceneRenderer(renderFadeEffect);
+	currentRenderer = renderer;
+	setRenderer(renderFadeEffect);
 	while (1 < fadeProgress)
 	{
 		currTime = clock();
@@ -51,7 +51,7 @@ void fadeIn()
 			fadeProgress--;
 			oldTime = currTime;
 		}
-		waitForFrame();
+		sleep(0.01f);
 	}
 }
 
@@ -67,14 +67,17 @@ void blackScreenEffect(float t)
 {
 	int oldTime, i;
     char flag;
+    Renderer* lastRenderer;
 	
 	oldTime = clock();
-	setSceneRenderer(renderBlackScreenEffect);
+	lastRenderer = getCurrentRenderer();
+	setRenderer(renderBlackScreenEffect);
 	while (clock() - oldTime < 1000 * t)
 	{
-		sleep(0.05f);
+		sleep(0.1f);
 //	    fillColorToScreen(_BLACK_, _BLACK_);
 	}
+	setRenderer(lastRenderer);
 }
 
 void renderBlackScreenEffect()

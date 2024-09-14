@@ -9,7 +9,7 @@ static int fadeProgress;
 static char* buffer;
 
 void fadeOut();
-void fadeIn();
+void fadeIn(Renderer* renderer);
 void renderFadeEffect();
 void blackScreenEffect(float t);
 void renderBlackScreenEffect();

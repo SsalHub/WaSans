@@ -9,7 +9,7 @@ HANDLE ScreenHandle[2];
 void initScreen()
 {
 	CONSOLE_CURSOR_INFO cinfo;
-	int i, j;
+	int i;
 	
 	ScreenIndex = 0;
 	ScreenHandle[0] = CreateConsoleScreenBuffer(GENERIC_READ | GENERIC_WRITE, 0, NULL, CONSOLE_TEXTMODE_BUFFER, NULL);
@@ -23,14 +23,11 @@ void initScreen()
 	setWindowInfo(ScreenWidth, ScreenHeight);
 	
 	lineBuffer = (char*)malloc(sizeof(char) * (ScreenWidth + 1));
-//	ScreenBuffer[0] = '\0';
-//	for (i = 0; i < ScreenHeight; i++)
-//	{
-//		for (j = 0; j < ScreenWidth; j++)
-//			strcat(ScreenBuffer, " ");	
-//		strcat(ScreenBuffer, "\n");
-//	}
-	setSceneRenderer(NULL);
+	blankBuffer = (char*)malloc(sizeof(char) * (ScreenWidth + 1));
+	for (i = 0; i < ScreenWidth; i++)
+		blankBuffer[i] = ' ';	
+	blankBuffer[ScreenWidth] = '\0';
+	setRenderer(NULL);
 }
 
 void setWindowInfo(int w, int h)
@@ -66,8 +63,20 @@ void fillColorToScreen(ConsoleColor tColor, ConsoleColor bColor)
 {
 	COORD pos = { 0, 0 };
 	DWORD dw;
-//	printLines(x, y, ScreenBuffer, tColor, bColor);
-	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
+	int i;
+	
+//	for (i = 0; i < ScreenWidth; i++)
+//		lineBuffer[i] = ' ';
+//	lineBuffer[ScreenWidth] = '\0';
+	
+	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
+	for (i = 0; i < ScreenHeight; i++)
+	{
+		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
+		WriteFile(ScreenHandle[ScreenIndex], blankBuffer, strlen(blankBuffer), &dw, NULL);
+		pos.Y++;
+	}
+//	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
 }
 
 void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)
@@ -114,7 +123,6 @@ void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor
 			}
 		}
 	}
-	
 	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
 	SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
 	WriteFile(ScreenHandle[ScreenIndex], str, strlen(str), &dw, NULL);
@@ -168,12 +176,12 @@ void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColo
 	target->bColor = bColor;
 }
 
-void setSceneRenderer(Renderer* renderer)
+void setRenderer(Renderer* renderer)
 {
 	sceneRenderer = renderer;
 }
 
-Renderer* getSceneRenderer()
+Renderer* getCurrentRenderer()
 {
 	return sceneRenderer;
 }
@@ -181,7 +189,6 @@ Renderer* getSceneRenderer()
 void printFPS()
 {
 	char fps_text[30], itoa_text[10] = "";
-	
 	checkFPS();
 	strcpy(fps_text, "FPS : ");
 	itoa(FPS, itoa_text, 10);
@@ -218,4 +225,5 @@ void releaseScreen()
 	CloseHandle(ScreenHandle[0]);
 	CloseHandle(ScreenHandle[1]);
 	free(lineBuffer);
+	free(blankBuffer);
 }

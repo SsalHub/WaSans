@@ -3,7 +3,7 @@
 
 void initMainMenu()
 {
-	setSceneRenderer(renderMainmenu);
+	setRenderer(renderMainmenu);
 	menuSelect = 0;
 	playBGM(_BGM_STARTMENU_, _SOUND_BEGIN_);
 }

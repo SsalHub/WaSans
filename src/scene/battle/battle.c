@@ -36,7 +36,6 @@ void initBattle(int len, BattleObject (*enemy)[3])
 	initEnemyPhaseBox();
 	initPlayerPhaseBox();
 	initEnemyInfo(len, enemy);
-	setSceneRenderer(renderBattleScene);
 }
 
 void initEnemyPhaseBox()
@@ -230,42 +229,38 @@ void renderPlayerInfo()
 {
 	static const int y = 24;
     int x = 11, i, damaged;
-    char tempstr[11];
-	char playerInfo[ScreenWidth];
+    char temp_str[11], itoa_str[8];
+//	char playerInfo[ScreenWidth];
     int idx = 0;
-
-    strcpy(playerInfo, "");
-    // set string that player basic info
-    fillSpaceChar(playerInfo, 0, 11);
-	strcat(playerInfo, PlayerName);
-    fillSpaceChar(playerInfo, 12 + strlen(PlayerName), 26);
-	strcat(playerInfo, "LV ");
-    itoa(PlayerLevel, tempstr, 10);
-	strcat(playerInfo, tempstr);
-
-    // set string that numeric HP info
-    fillSpaceChar(playerInfo, 27 + strlen("LV ") + strlen(tempstr), 42);
-	strcat(playerInfo, "HP");
-    fillSpaceChar(playerInfo, 43 + strlen("HP"), 57);
-    itoa(playerHP, tempstr, 10);
-	strcat(playerInfo, tempstr);
-	strcat(playerInfo, " / ");
-    itoa(MaxHP, tempstr, 10);
-	strcat(playerInfo, tempstr);
-	// render 
-    printLine(12, y, playerInfo, _WHITE_, _BLACK_);
     
-    // set string that HP info
+    // player name
+    printLine(12, y, PlayerName, _WHITE_, _BLACK_);
+    // player level
+	strcpy(temp_str, "LV ");
+    itoa(PlayerLevel, itoa_str, 10);
+	strcat(temp_str, itoa_str);
+    printLine(26, y, temp_str, _WHITE_, _BLACK_);
+    // player hp
+    printLine(47, y, "HP", _WHITE_, _BLACK_);
+    itoa(playerHP, temp_str, 10);
+    strcat(temp_str, " / ");
+    itoa(MaxHP, itoa_str, 10);
+    strcat(temp_str, itoa_str);
+    printLine(57, y, temp_str, _WHITE_, _BLACK_);
+    
+	// set string that HP info
     for (int i = 0; i < 10; i++)
-        tempstr[i] = '@';
-    tempstr[10] = '\0';
-    printLine(46, y, tempstr, _YELLOW_, _BLACK_);
+        temp_str[i] = '@';
+    temp_str[10] = '\0';
+    printLine(46, y, temp_str, _YELLOW_, _BLACK_);
     damaged = (MaxHP - playerHP) / 10;
-    // set player HP info
+    if (damaged <= 0)
+    	return;
+    // set current player HP info
     for (i = 0; i < damaged; i++)
-        tempstr[i] = '#';
-    tempstr[damaged] = '\0';
-    printLine(56 - damaged, y, tempstr, _RED_, _BLACK_);
+        temp_str[i] = '#';
+    temp_str[damaged] = '\0';
+    printLine(56 - damaged, y, temp_str, _RED_, _BLACK_);
 }
     
 void renderSelectBox()

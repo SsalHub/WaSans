@@ -4,6 +4,9 @@ int MaxHP = 100;
 COORD PlayerPos;
 BattleObject **EnemyInfo, *SpeechBubble;
 BattleObject EnemyPhaseBox, PlayerPhaseBox;
+PatternInfo *Patterns;
+
+
 
 /* Main Renderer */
 void renderBattleScene()
@@ -15,6 +18,7 @@ void renderBattleScene()
 	{
 		case _ENEMY_PHASE_:
     		renderEnemyPhaseBox();
+    		renderPattern();
     		break;
     	case _PLAYER_PHASE_:
     		renderPlayerPhaseBox();
@@ -26,7 +30,7 @@ void renderBattleScene()
 
 
 /* Init Functions */
-void initBattle(int len, BattleObject (*enemy)[3])
+void initBattle(int elen, BattleObject (*enemy)[3], int plen, PatternInfo* pattern)
 {
 	battlePhase = _INTRO_PHASE_;
 	battleTurn = 0;
@@ -35,7 +39,8 @@ void initBattle(int len, BattleObject (*enemy)[3])
 	
 	initEnemyPhaseBox();
 	initPlayerPhaseBox();
-	initEnemyInfo(len, enemy);
+	initEnemyInfo(elen, enemy);
+	initPatternInfo(plen, pattern);
 }
 
 void initEnemyPhaseBox()
@@ -89,10 +94,10 @@ void initPlayerPhaseBox()
     }
 }
 
-void initEnemyInfo(int len, BattleObject (*enemy)[3])
+void initEnemyInfo(int elen, BattleObject (*enemy)[3])
 {
 	int i;
-	enemyLen = len;
+	enemyLen = elen;
 	EnemyInfo = (BattleObject**)malloc(sizeof(BattleObject*) * enemyLen);
 	SpeechBubble = (BattleObject*)malloc(sizeof(BattleObject) * enemyLen);
 	for (i = 0; i < enemyLen; i++)
@@ -105,6 +110,12 @@ void initEnemyInfo(int len, BattleObject (*enemy)[3])
 		SpeechBubble[i].data = (char*)malloc(sizeof(char) * (ScreenWidth * 2));
 		strcpy(SpeechBubble[i].data, "");
 	}
+}
+
+void initPatternInfo(int plen, PatternInfo* pattern)
+{
+	patternLen = plen;
+	Patterns = pattern;
 }
 
 
@@ -193,7 +204,7 @@ void renderEnemyPhaseBox()
 
 void renderPlayerPos()
 {
-    char ch[8] = "♥";
+    char ch[8] = "O";
     // fix player x pos
     if (PlayerPos.X <= EnemyPhaseBox.x + 2)
         PlayerPos.X = EnemyPhaseBox.x + 2;
@@ -244,18 +255,18 @@ void renderPlayerInfo()
 	strcat(temp_str, itoa_str);
     printLine(26, y, temp_str, _WHITE_, _BLACK_);
     // player hp
-    printLine(47, y, "HP", _WHITE_, _BLACK_);
+    printLine(44, y, "HP", _WHITE_, _BLACK_);
     itoa(playerHP, temp_str, 10);
     strcat(temp_str, " / ");
     itoa(MaxHP, itoa_str, 10);
     strcat(temp_str, itoa_str);
-    printLine(57, y, temp_str, _WHITE_, _BLACK_);
+    printLine(62, y, temp_str, _WHITE_, _BLACK_);
     
 	// set string that HP info
     for (int i = 0; i < 10; i++)
         temp_str[i] = '@';
     temp_str[10] = '\0';
-    printLine(46, y, temp_str, _YELLOW_, _BLACK_);
+    printLine(48, y, temp_str, _YELLOW_, _BLACK_);
     damaged = (MaxHP - playerHP) / 10;
     if (damaged <= 0)
     	return;
@@ -263,7 +274,7 @@ void renderPlayerInfo()
     for (i = 0; i < damaged; i++)
         temp_str[i] = '#';
     temp_str[damaged] = '\0';
-    printLine(56 - damaged, y, temp_str, _RED_, _BLACK_);
+    printLine(58 - damaged, y, temp_str, _RED_, _BLACK_);
 }
     
 void renderSelectBox()
@@ -287,38 +298,63 @@ void renderSelectBox()
 
 void renderSpeechBubble()
 {
-	static const int bubbleWidth = 24, bubbleHeight = 6;
-	char buffer[(ScreenWidth + 1) * 5];
+	if (SpeechBubble == NULL)
+		return;
+	static int bubbleWidth = 0;
+	static char line[1024];
+	char buffer[ScreenWidth * 2];
 	int i, j, len;
 	
-	
-    for (i = 0; i < bubbleWidth; i++)
-        buffer[i] = ' ';
-    buffer[bubbleWidth] = '\0';
 	for (i = 0; i < enemyLen; i++)
 	{
 		if (!SpeechBubble[i].isActive)
 			continue;
-			
+		
 		// render bubble box
-	    for (j = 0; j < bubbleHeight; j++)
-	        printLine(SpeechBubble[i].x, SpeechBubble[i].y + j, buffer, _WHITE_, _WHITE_);
-	    strcat(buffer, " ");
-	    printLine(SpeechBubble[i].x - 1, SpeechBubble[i].y + (bubbleHeight / 2 - 1), buffer, _WHITE_, _WHITE_);
+		if (SpeechBubble[i].width != bubbleWidth)
+		{
+		    bubbleWidth = SpeechBubble[i].width;
+			for (j = 0; j < bubbleWidth; j++)
+		        line[j] = ' ';
+		    line[bubbleWidth] = '\0';
+		}
+	    for (j = 0; j < SpeechBubble[i].height; j++)
+	        printLine(SpeechBubble[i].x, SpeechBubble[i].y + j, line, _WHITE_, _WHITE_);
+	    printLine(SpeechBubble[i].x - 1, SpeechBubble[i].y + (SpeechBubble[i].height / 2 - 1), line, _WHITE_, _WHITE_);
 	    
 	    // render text
 	    len = strlen(SpeechBubble[i].data);
 	    j = 0;
-	    while (len / (bubbleWidth - 1))
+	    while (len / (SpeechBubble[i].width - 1))
 	    {
-	    	memcpy(buffer, SpeechBubble[i].data + ((bubbleWidth - 2) * j), bubbleWidth - 2);
-	    	buffer[bubbleWidth - 2] = '\0';
+	    	memcpy(buffer, SpeechBubble[i].data + ((SpeechBubble[i].width - 2) * j), SpeechBubble[i].width - 2);
+	    	buffer[SpeechBubble[i].width - 2] = '\0';
     		printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
     		j++;
-    		len -= (bubbleWidth - 2);
+    		len -= (SpeechBubble[i].width - 2);
 		}
-		strcpy(buffer, SpeechBubble[i].data + ((bubbleWidth - 2) * j));
+		strcpy(buffer, SpeechBubble[i].data + ((SpeechBubble[i].width - 2) * j));
     	printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
+	}
+}
+
+void renderPattern()
+{
+	int i, j;
+	for (i = 0; i < patternLen; i++)
+	{
+		if (!Patterns[i].isActive)
+			continue;
+		for (j = 0; j < Patterns[i].renderInfoLen; j++)
+		{
+			printLines(
+				Patterns[i].renderInfo[j].x,
+				Patterns[i].renderInfo[j].y,
+				Patterns[i].renderInfo[j].s,
+				Patterns[i].renderInfo[j].tColor,
+				Patterns[i].renderInfo[j].bColor
+			);
+		}
 	}
 }
 

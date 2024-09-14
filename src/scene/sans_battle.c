@@ -11,12 +11,14 @@ void initSansBattle()
 	// init battle
 	initSansPattern();
 	initSansObject(&sans);
-	initBattle(1, &sans);
+	initBattle(1, &sans, _SANS_PATTERN_LEN_, sansPattern);
 	// init speech bubble
 	SpeechBubble[_ENEMY_SANS_].x = 74;
 	SpeechBubble[_ENEMY_SANS_].y = 2;
 	SpeechBubble[_ENEMY_SANS_].tColor = _BLACK_;
 	SpeechBubble[_ENEMY_SANS_].bColor = _WHITE_;
+	SpeechBubble[_ENEMY_SANS_].width = 24;
+	SpeechBubble[_ENEMY_SANS_].height = 6;
 	SpeechBubble[_ENEMY_SANS_].isActive = 0;
 }
 
@@ -59,6 +61,7 @@ void initSansPattern()
 	// init detail info
 	sansPattern[0].pattern = (unsigned __stdcall (*)(void*))fireBlastToCenter;
 	sansPattern[0].data = (int)_BLAST_MID_RIGHT_;
+	
 	sansPattern[1].pattern = (unsigned __stdcall (*)(void*))fireBlastToCenter;
 	sansPattern[1].data = (int)_BLAST_MID_LEFT_;
 }
@@ -75,7 +78,7 @@ void runSansBattle()
 	    enemyPhase();
 	}
 	
-	
+	// exit battle scene
 	releasePattern();
 	releaseBattleAssets();
 	gotoNextScene(_SCENE_MAINMENU_);
@@ -146,28 +149,21 @@ static void enemyPhase()
 				speechFlag = writeSpeechBubble(scripts[scriptIdx], _RED_, 0);
 				if (speechFlag < 0)
 					scriptIdx++;
-    			waitForFrame();
+    			sleep(0.05f);
 			}
 			SpeechBubble[_ENEMY_SANS_].isActive = 0;
 	    	
         	// run boss pattern
-			if (patternIdx < _SANS_PATTERN_LEN_ && introScriptLen <= scriptIdx)
-			{
-				// run pattern 0
-				sansPattern[patternIdx].hThread = startPattern(
-					sansPattern[patternIdx].pattern,
-					&(sansPattern[patternIdx].data),
-					&(sansPattern[patternIdx].threadID)
-				);
-				patternIdx++;
-				// run pattern 1
-				sansPattern[patternIdx].hThread = startPattern(
-					sansPattern[patternIdx].pattern,
-					&(sansPattern[patternIdx].data),
-					&(sansPattern[patternIdx].threadID)
-				);
-				patternIdx++;
-			}
+			sansPattern[0].hThread = startPattern(
+				sansPattern[0].pattern,
+				&(sansPattern[0].data),
+				&(sansPattern[0].threadID)
+			);
+			sansPattern[1].hThread = startPattern(
+				sansPattern[1].pattern,
+				&(sansPattern[1].data),
+				&(sansPattern[1].threadID)
+			);
 			// wait until all pattern completed
 	        while (1)
 	        {
@@ -181,7 +177,7 @@ static void enemyPhase()
 					break;
 					
 	        	movePlayer();
-	        	waitForFrame();
+	        	sleep(0.05f);
 	        }
 	        
 	        break;
@@ -314,7 +310,7 @@ static void enemyPhase()
 
 
 /* Sub Renderer */
-void renderSans(AssetFileType face)
+void renderSans(AssetType face)
 {
     const int MAX_TICK = 12;
     static int tick, oldTime;
@@ -514,23 +510,23 @@ int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
 //    printLine(x + 11, y + 2, "MERCY", tSelect[3], _BLACK_);
 //}
 
-void renderPattern()
-{
-	int i, j;
-	for (i = 0; i < patternIdx; i++)
-	{
-		for (j = 0; j < sansPattern[i].renderInfoLen; j++)
-		{
-			printLines(
-				sansPattern[i].renderInfo[j].x,
-				sansPattern[i].renderInfo[j].y,
-				sansPattern[i].renderInfo[j].s,
-				sansPattern[i].renderInfo[j].tColor,
-				sansPattern[i].renderInfo[j].bColor
-			);
-		}
-	}
-}
+//void renderPattern()
+//{
+//	int i, j;
+//	for (i = 0; i < patternIdx; i++)
+//	{
+//		for (j = 0; j < sansPattern[i].renderInfoLen; j++)
+//		{
+//			printLines(
+//				sansPattern[i].renderInfo[j].x,
+//				sansPattern[i].renderInfo[j].y,
+//				sansPattern[i].renderInfo[j].s,
+//				sansPattern[i].renderInfo[j].tColor,
+//				sansPattern[i].renderInfo[j].bColor
+//			);
+//		}
+//	}
+//}
 
 
 
@@ -581,17 +577,12 @@ unsigned __stdcall fireBlastToCenter(void* args)
 	int pId = getLastPatternIdx();
 	if (pId < 0)
 		return 1;
+		
 	BlastAngle blastAngle = *((BlastAngle*)args);
-	AssetFileType blastType = getBlastType(blastAngle);
+	AssetType blastType = getBlastType(blastAngle);
 	int targetX, targetY, beginX, beginY;
-	int x, y, oldTime, renderInfoIdx = 0;
-	char* blast;
-	size_t blastSize;
+	int x, y, oldTime, renderInfoIdx = 0, blastId = 0;
 	float t;
-	
-	blastSize = (sizeof(char) * strlen(AssetFile[blastType])) * 2;
-	sansPattern[pId].renderInfo[renderInfoIdx].s = (char*)malloc(blastSize);
-	blast = sansPattern[pId].renderInfo[renderInfoIdx].s;
 	
 	switch (blastAngle)
 	{
@@ -607,8 +598,8 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			break;
 			
 		case _BLAST_MID_RIGHT_:
-			targetX = EnemyPhaseBox.x + EnemyPhaseBox.width + 8;
-			targetY = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 5;
+			targetX = EnemyPhaseBox.x + EnemyPhaseBox.width + 7;
+			targetY = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
 			beginX 	= targetX;
 			beginY 	= targetY - 5;
 			break;
@@ -631,8 +622,8 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			break;
 			
 		case _BLAST_MID_LEFT_:
-			targetX = EnemyPhaseBox.x - 18;
-			targetY = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 5;
+			targetX = EnemyPhaseBox.x - 20;
+			targetY = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
 			beginX 	= targetX;
 			beginY 	= targetY + 5;
 			break;
@@ -642,25 +633,37 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			break;
 	}
 	
-	fixBlastAngle(blast, blastSize, blastAngle);
 	sansPattern[pId].renderInfoLen = 1;
-	
-	playSFXOnThread(_SFX_GASTERBLASTER_);
 	oldTime = clock();
-	while (1)
+	setRenderInfo(
+		&(sansPattern[pId].renderInfo[renderInfoIdx]), 
+		beginX,
+		beginY,
+		AssetFile[blastType],
+		_WHITE_,
+		_BLACK_
+	);
+	sansPattern[pId].isActive = 1;
+	playSFXOnThread(_SFX_GASTERBLASTER_);
+	while (t < 1)
 	{
 		t = (clock() - oldTime) / 400.0f;
+		blastId = (int)(t / 0.18f);
+		if (5 < blastId)
+			blastId = 5;
+			
 		setRenderInfo(
 			&(sansPattern[pId].renderInfo[renderInfoIdx]), 
 			(int)lerp(beginX, targetX, t),
 			(int)lerp(beginY, targetY, t),
-			NULL,
+			AssetFile[blastType + blastId],
 			_WHITE_,
 			_BLACK_
 		);
-		sleep(0.01f);
+		sleep(0.05f);
 	}
-	free(blast);
+	sleep(1.0f);
+	sansPattern[pId].isActive = 0;
 }
 
 unsigned __stdcall fireBlastToPlayer(void* args)
@@ -672,36 +675,37 @@ unsigned __stdcall fireBlastToPlayer(void* args)
 	int playerX = PlayerPos.X, playerY = PlayerPos.Y;
 }
 
-AssetFileType getBlastType(BlastAngle blastAngle)
+AssetType getBlastType(BlastAngle blastAngle)
 {
 	switch (blastAngle)
 	{
 		case _BLAST_TOP_CENTER_:
+			return _SANS_BLASTER_VERT_0A_;
 		case _BLAST_MID_RIGHT_:
+			return _SANS_BLASTER_VERT_90A_;
 		case _BLAST_BOT_CENTER_:
+			return _SANS_BLASTER_VERT_180A_;
 		case _BLAST_MID_LEFT_:
-			return _SANS_BLAST_VERTICAL_A_;
+			return _SANS_BLASTER_VERT_270A_;
 		
 		case _BLAST_TOP_RIGHT_:
+			return _SANS_BLASTER_DIAG_0A_;
 		case _BLAST_BOT_RIGHT_:
+			return _SANS_BLASTER_DIAG_90A_;
 		case _BLAST_BOT_LEFT_:
+			return _SANS_BLASTER_DIAG_180A_;
 		case _BLAST_TOP_LEFT_:
-			return _SANS_BLAST_DIAGONAL_A_;
+			return _SANS_BLASTER_DIAG_270A_;
 	}
 	return -1;
 }
 
 char* fixBlastAngle(char* dst, size_t dstSize, BlastAngle blastAngle)
 {
-	AssetFileType blastType = getBlastType(blastAngle);
-	char* src;
-	
-	src = (char*)malloc(dstSize);
-	strcpy(src, AssetFile[blastType]);
+	AssetType blastType = getBlastType(blastAngle);
+	dst = AssetFile[blastType];
 	
 	// string rotation 
-//	rotateString(dst, src, blastAngle);
-	free(src);
 	return dst;
 }
 
@@ -712,7 +716,7 @@ int getLastPatternIdx()
 }
 
 /* etc */
-void setSansFace(AssetFileType facetype)
+void setSansFace(AssetType facetype)
 {
 	EnemyInfo[0][_ENEMY_FACE_].data = AssetFile[facetype];
 }

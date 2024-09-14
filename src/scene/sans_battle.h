@@ -39,6 +39,8 @@ enum _SansBattle_EnemyType
 	_ENEMY_SANS_ 			= 0,
 };
 
+
+
 static int patternIdx, scriptIdx;
 static const char scripts[_SANS_SCRIPT_LEN_][64] = {
 				    "it's a beautiful day outside.",
@@ -48,8 +50,7 @@ static const char scripts[_SANS_SCRIPT_LEN_][64] = {
 				};
 static PatternInfo sansPattern[_SANS_PATTERN_LEN_];
 
-//void Start();
-//void Update();
+
 /* Main func in sans battle */
 void initSansBattle();
 void initSansObject(BattleObject (*enemy)[3]);
@@ -68,24 +69,24 @@ static void enemyPhase();
 //void renderPlayerPhase();
 
 /* Sub Renderer */
-void renderSans(AssetFileType face);
+void renderSans(AssetType face);
 int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice);
 //void renderBossPhaseBox();
 //void renderPlayerPhaseBox();
 //void renderPlayerInfo();
 //void renderSelectBox();
-void renderPattern();
+//void renderPattern();
 
 /* Boss Phase func */
 void movePlayer();
 unsigned __stdcall fireBlastToCenter(void* args);
 unsigned __stdcall fireBlastToPlayer(void* args);
-AssetFileType getBlastType(BlastAngle blastAngle);
+AssetType getBlastType(BlastAngle blastAngle);
 char* fixBlastAngle(char* dst, size_t dstSize, BlastAngle blastAngle);
 int getLastPatternIdx();
 
 /* etc */
-void setSansFace(AssetFileType facetype);
+void setSansFace(AssetType facetype);
 
 /* Terminate Func */
 void releasePattern();

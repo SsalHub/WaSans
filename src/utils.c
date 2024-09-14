@@ -1,6 +1,9 @@
 #include "utils.h"
 
-char* AssetFile[_ASSETFILE_NUM_];
+
+char* AssetFile[_ASSET_LEN_];
+
+
 				
 void sleep(float sec)
 {
@@ -9,8 +12,8 @@ void sleep(float sec)
 
 void initDataAsset()
 {
-	AssetFileType t;
-	for (t = 0; t < _ASSETFILE_NUM_; t++)
+	AssetType t;
+	for (t = 0; t < _ASSET_LEN_; t++)
 		AssetFile[t] = readAssetFile(assetFilePath[t]);
 }
 
@@ -23,6 +26,7 @@ char* readFile(const char* fname, char* dest)
 	if (fp == NULL)
 	{
 		perror("Error opening file");
+		exit(1);
 		return NULL;
 	}
 	fseek(fp, 0, SEEK_END);
@@ -33,6 +37,7 @@ char* readFile(const char* fname, char* dest)
 	if (result <= 0) // fread failed
 	{
 		perror("Error reading file data");
+		exit(1);
 		return NULL;
 	}
 	fclose(fp);
@@ -72,7 +77,7 @@ char* readAssetFile(const char* fname)
 void releaseAssetFile()
 {
 	int i;
-	for (i = 0; i < _ASSETFILE_NUM_; i++)
+	for (i = 0; i < _ASSET_LEN_; i++)
 	{
 		if (AssetFile[i] == NULL)
 			continue;

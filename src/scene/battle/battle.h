@@ -49,22 +49,23 @@ extern int MaxHP;
 extern COORD PlayerPos;
 extern BattleObject **EnemyInfo, *SpeechBubble;
 extern BattleObject EnemyPhaseBox, PlayerPhaseBox;
+extern PatternInfo *Patterns;
 
 
 
 static int battleTurn, battleSelect, battlePhase, playerHP;
-static int enemyLen;
+static int enemyLen, patternLen;
 
 
 /* Main Renderer */
 void renderBattleScene();
 
 /* Init Functions */
-void initBattle(int len, BattleObject (*enemy)[3]);
+void initBattle(int elen, BattleObject (*enemy)[3], int plen, PatternInfo* pattern);
 void initEnemyPhaseBox();
 void initPlayerPhaseBox();
 void initEnemyInfo(int len, BattleObject (*enemy)[3]);
-void initSpeechBubble();
+void initPatternInfo(int plen, PatternInfo* pattern);
 
 /* Util Func */
 void 		setBattlePhase(BattlePhase phase);
@@ -82,6 +83,7 @@ void renderPlayerPhaseBox();
 void renderPlayerInfo();
 void renderSelectBox();
 void renderSpeechBubble();
+void renderPattern();
 
 /* Terminate Func */
 void releaseBattleAssets();

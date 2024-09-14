@@ -15,7 +15,6 @@ void initSansBattle()
 	// init speech bubble
 	SpeechBubble[_ENEMY_SANS_].x = 74;
 	SpeechBubble[_ENEMY_SANS_].y = 2;
-	SpeechBubble[_ENEMY_SANS_].data = NULL;
 	SpeechBubble[_ENEMY_SANS_].tColor = _BLACK_;
 	SpeechBubble[_ENEMY_SANS_].bColor = _WHITE_;
 	SpeechBubble[_ENEMY_SANS_].isActive = 0;
@@ -370,9 +369,8 @@ int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
     }
     
     // write script on 'SpeechBubble' until currLen
-    memcpy(buffer, script, currLen);
-    buffer[currLen] = '\0';
-    SpeechBubble[_ENEMY_SANS_].data = buffer;
+    memcpy(SpeechBubble[_ENEMY_SANS_].data, script, currLen);
+    (SpeechBubble[_ENEMY_SANS_].data)[currLen] = '\0';
     
     
     if (strlen(script) <= currLen)

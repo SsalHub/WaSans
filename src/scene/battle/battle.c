@@ -2,8 +2,8 @@
 
 int MaxHP = 100;
 COORD PlayerPos;
-BattleObject** EnemyInfo;
-BattleObject EnemyPhaseBox, PlayerPhaseBox, *SpeechBubble;
+BattleObject **EnemyInfo, *SpeechBubble;
+BattleObject EnemyPhaseBox, PlayerPhaseBox;
 
 /* Main Renderer */
 void renderBattleScene()
@@ -93,15 +93,17 @@ void initEnemyInfo(int len, BattleObject (*enemy)[3])
 {
 	int i;
 	enemyLen = len;
-	EnemyInfo = (BattleObject**)malloc(sizeof(BattleObject*) * len);
-	for (i = 0; i < len; i++)
+	EnemyInfo = (BattleObject**)malloc(sizeof(BattleObject*) * enemyLen);
+	SpeechBubble = (BattleObject*)malloc(sizeof(BattleObject) * enemyLen);
+	for (i = 0; i < enemyLen; i++)
 	{
 		EnemyInfo[i] = (BattleObject*)malloc(sizeof(BattleObject) * 3);
 		EnemyInfo[i][_ENEMY_LEG_] = enemy[i][_ENEMY_LEG_];
 		EnemyInfo[i][_ENEMY_BODY_] = enemy[i][_ENEMY_BODY_];
 		EnemyInfo[i][_ENEMY_FACE_] = enemy[i][_ENEMY_FACE_];
+		
+		SpeechBubble[i].data = (char*)malloc(sizeof(char) * (ScreenWidth * 2));
 	}
-	SpeechBubble = (BattleObject*)malloc(sizeof(BattleObject) * enemyLen);
 }
 
 
@@ -315,6 +317,7 @@ void releaseBattleAssets()
 	for (i = 0; i < enemyLen; i++)
 	{
 		free(EnemyInfo[i]);
+		free(SpeechBubble[i].data);
 	}
 	free(EnemyInfo);
 	free(SpeechBubble);

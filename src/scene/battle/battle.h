@@ -47,8 +47,8 @@ typedef struct PatternInfo
 
 extern int MaxHP;
 extern COORD PlayerPos;
-extern BattleObject** EnemyInfo;
-extern BattleObject EnemyPhaseBox, PlayerPhaseBox, *SpeechBubble;
+extern BattleObject **EnemyInfo, *SpeechBubble;
+extern BattleObject EnemyPhaseBox, PlayerPhaseBox;
 
 
 

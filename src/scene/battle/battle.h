@@ -56,10 +56,10 @@ static int enemyLen;
 void renderBattleScene();
 
 /* Init Functions */
-void initBattle(int len, BattleObject enemy[][3]);
+void initBattle(int len, BattleObject** enemy);
 void initEnemyPhaseBox();
 void initPlayerPhaseBox();
-void initEnemyInfo(int len, BattleObject enemy[][3]);
+void initEnemyInfo(int len, BattleObject** enemy);
 void initSpeechBubble();
 
 /* Util Func */

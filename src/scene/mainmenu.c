@@ -50,7 +50,7 @@ void runMainmenu()
 					break;
 			}
 		}
-		waitForFrame();
+		sleep(0.01f);
 	}
 	gotoNextScene(_SCENE_EXIT_GAME_);
 }

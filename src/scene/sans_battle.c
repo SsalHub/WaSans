@@ -13,13 +13,14 @@
 /* Main func in sans battle */
 void initSansBattle()
 {
-	BattleObject sansObject[1][3];
+	BattleObject sans[3];
 	patternIdx = 0;
     scriptIdx = -1;
 
 	// init battle
-	initSansPattern(sansObject);
-	initBattle(1, sansObject);
+	initSansPattern();
+	initSansObject(&sans);
+	initBattle(1, &sans);
 	// run intro phase
     sleep(1.0f);
     playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
@@ -32,26 +33,26 @@ void initSansBattle()
 void initSansObject(BattleObject** enemy)
 {
 	// init leg
-	enemy[0][_ENEMY_LEG_].x = 52;
-	enemy[0][_ENEMY_LEG_].y = 13;
-	enemy[0][_ENEMY_LEG_].data = AssetFile[_SANS_LEG_NORMAL_];
-	enemy[0][_ENEMY_LEG_].tColor = _WHITE_;
-	enemy[0][_ENEMY_LEG_].bColor = _BLACK_;
-	enemy[0][_ENEMY_LEG_].isActive = 1;
+	(*enemy)[_ENEMY_LEG_].x = 52;
+	(*enemy)[_ENEMY_LEG_].y = 13;
+	(*enemy)[_ENEMY_LEG_].data = AssetFile[_SANS_LEG_NORMAL_];
+	(*enemy)[_ENEMY_LEG_].tColor = _WHITE_;
+	(*enemy)[_ENEMY_LEG_].bColor = _BLACK_;
+	(*enemy)[_ENEMY_LEG_].isActive = 1;
 	// init body
-	enemy[0][_ENEMY_BODY_].x = 50;
-	enemy[0][_ENEMY_BODY_].y = 9;
-	enemy[0][_ENEMY_BODY_].data = AssetFile[_SANS_BODY_NORMAL_];
-	enemy[0][_ENEMY_BODY_].tColor = _WHITE_;
-	enemy[0][_ENEMY_BODY_].bColor = _BLACK_;
-	enemy[0][_ENEMY_BODY_].isActive = 1;
+	(*enemy)[_ENEMY_BODY_].x = 50;
+	(*enemy)[_ENEMY_BODY_].y = 9;
+	(*enemy)[_ENEMY_BODY_].data = AssetFile[_SANS_BODY_NORMAL_];
+	(*enemy)[_ENEMY_BODY_].tColor = _WHITE_;
+	(*enemy)[_ENEMY_BODY_].bColor = _BLACK_;
+	(*enemy)[_ENEMY_BODY_].isActive = 1;
 	// init face
-	enemy[0][_ENEMY_FACE_].x = 51;
-	enemy[0][_ENEMY_FACE_].y = 0;
-	enemy[0][_ENEMY_FACE_].data = AssetFile[_SANS_FACE_NORMAL_A_];
-	enemy[0][_ENEMY_FACE_].tColor = _WHITE_;
-	enemy[0][_ENEMY_FACE_].bColor = _BLACK_;
-	enemy[0][_ENEMY_FACE_].isActive = 1;
+	(*enemy)[_ENEMY_FACE_].x = 51;
+	(*enemy)[_ENEMY_FACE_].y = 0;
+	(*enemy)[_ENEMY_FACE_].data = AssetFile[_SANS_FACE_NORMAL_A_];
+	(*enemy)[_ENEMY_FACE_].tColor = _WHITE_;
+	(*enemy)[_ENEMY_FACE_].bColor = _BLACK_;
+	(*enemy)[_ENEMY_FACE_].isActive = 1;
 }
 
 void initSansPattern()

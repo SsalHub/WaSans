@@ -25,7 +25,6 @@ void fadeOut()
 		}
 		waitForFrame();
 	}
-	setSceneRenderer(NULL);
 }
 
 void fadeIn(Renderer* nextRenderer)

@@ -30,9 +30,6 @@ void initScreen()
 //			strcat(ScreenBuffer, " ");	
 //		strcat(ScreenBuffer, "\n");
 //	}
-	
-	FPS = 0;
-	oldFPS = -1;
 	setSceneRenderer(NULL);
 }
 
@@ -181,25 +178,13 @@ Renderer* getSceneRenderer()
 	return sceneRenderer;
 }
 
-void checkFPS()
-{
-	static int oldTime = -1000;
-	int currTime;
-	FPS++;
-	currTime = clock();
-	if (1000 <= currTime - oldTime)
-	{
-		oldTime = currTime;
-		oldFPS = FPS;
-		FPS = 0;
-	}	
-}
-
 void printFPS()
 {
-	char fps_text[30], itoa_text[10];
+	char fps_text[30], itoa_text[10] = "";
+	
+	checkFPS();
 	strcpy(fps_text, "FPS : ");
-	itoa(oldFPS, itoa_text, 10);
+	itoa(FPS, itoa_text, 10);
 	strcat(fps_text, itoa_text);
 	printLine(ScreenWidth - 12, _ALIGN_TOP_, fps_text, _WHITE_, _BLACK_);
 }
@@ -217,7 +202,8 @@ unsigned __stdcall renderThread()
 		clearScreen();
 		if (sceneRenderer != NULL)
 			(*sceneRenderer)();
-		checkFPS();
+		else
+			fillColorToScreen(_BLACK_, _BLACK_);
 		printFPS();
 		flipScreen();
 		waitForFrame();

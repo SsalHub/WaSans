@@ -26,7 +26,7 @@ void renderBattleScene()
 
 
 /* Init Functions */
-void initBattle(int len, BattleObject enemy[][3])
+void initBattle(int len, BattleObject** enemy)
 {
 	battlePhase = _INTRO_PHASE_;
 	battleTurn = 0;
@@ -90,7 +90,7 @@ void initPlayerPhaseBox()
     }
 }
 
-void initEnemyInfo(int len, BattleObject enemy[][3])
+void initEnemyInfo(int len, BattleObject** enemy)
 {
 	int i;
 	enemyLen = len;

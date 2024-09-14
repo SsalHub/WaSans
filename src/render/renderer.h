@@ -32,7 +32,7 @@ typedef enum TextAlign
 extern int ScreenIndex;
 extern HANDLE ScreenHandle[2];
 
-static int bRender, FPS, oldFPS;
+static int bRender;
 static Renderer* sceneRenderer;
 static int bRenderThread;
 static unsigned int pRenderThread;
@@ -49,7 +49,6 @@ void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColo
 void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor);
 void setSceneRenderer(Renderer* renderer);
 Renderer* getSceneRenderer();
-void checkFPS();
 void printFPS();
 void waitForFrame();
 void beginRenderThread();

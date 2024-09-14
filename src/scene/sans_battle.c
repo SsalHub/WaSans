@@ -1,14 +1,5 @@
 #include "sans_battle.h"
 
-//void Start()
-//{
-//	initSansBattle();
-//}
-//
-//void Update()
-//{
-//	runSansBattle();
-//}
 
 /* Main func in sans battle */
 void initSansBattle()
@@ -21,16 +12,15 @@ void initSansBattle()
 	initSansPattern();
 	initSansObject(&sans);
 	initBattle(1, &sans);
-	// run intro phase
-    sleep(1.0f);
-    playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
-    fadeIn(renderBattleScene);
-    introPhase();
-    enemyPhase();
-	gotoNextPhase();
+	
+	SpeechBubble[_ENEMY_SANS_].x = 74;
+	SpeechBubble[_ENEMY_SANS_].y = 2;
+	SpeechBubble[_ENEMY_SANS_].data = NULL;
+	SpeechBubble[_ENEMY_SANS_].tColor = _BLACK_;
+	SpeechBubble[_ENEMY_SANS_].bColor = _WHITE_;
 }
 
-void initSansObject(BattleObject** enemy)
+void initSansObject(BattleObject (*enemy)[3])
 {
 	// init leg
 	(*enemy)[_ENEMY_LEG_].x = 52;
@@ -75,6 +65,16 @@ void initSansPattern()
 
 void runSansBattle()
 {
+    sleep(1.0f);
+	// run intro phase
+    playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
+    fadeIn(renderBattleScene);
+    setSceneRenderer(renderBattleScene);
+    introPhase();
+    enemyPhase();
+	gotoNextPhase();
+	
+	// main phase
 	while (10 < battleTurn)
 	{
 	    playerPhase();
@@ -89,15 +89,21 @@ void runSansBattle()
 /* Each Phase Func */
 static void introPhase()
 {
-    // const int introScriptLen = 3;
+     const int introScriptLen = 3;
 	
 	setSansFace(_SANS_FACE_NORMAL_A_);
-    sleep(2.0f);
+	while (scriptIdx < introScriptLen)
+	{
+		setSpeechBubble(scripts[scriptIdx], _WHITE_, 1);
+    	sleep(0.05f);
+	}
     scriptIdx = 0;
 	
 	/* if one script all read, wait 2.0sec */
 	sleep(2.0f);
 	scriptIdx++;
+	
+	// end intro phase
     playBGM(_BGM_BIRDNOISE_, _SOUND_PAUSE_);
     gotoNextPhase();	// goto enemy phase
 }
@@ -329,69 +335,62 @@ void renderSans(AssetFileType face)
     }
 }
 
-//int renderSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
-//{
-//    int x = 74, y = 2, w = 24, h = 6, i, j, currTime;
-//    static int currLen = 0, oldTime = 0;
-//    static const char *pScript;
-//    char buffer[ScreenWidth * 2], ch[3], *copy, tmp, input;
-//
-//    if (pScript != script)
-//    {
-//        currLen = 0;
-//        pScript = script;
-//    }
-//    if (kbhit())
-//    {
-//        input = getch();
-//        if (input == _SPACE_ || input == _CARRIAGE_RETURN_)
-//            currLen = strlen(script);
-//    }
-//    else
-//    {
-//        if (!oldTime)
-//            oldTime = clock();
-//        currTime = clock();
-//        if (120 < currTime - oldTime)
-//        {
-//            currLen = strlen(script) < currLen + 1 ? currLen : currLen + 1;
-//            oldTime = currTime;
-//        }
-//    }
-//    // print bubble box
-//    buffer[0] = '\0';
-//    for (j = 0; j < w; j++)
-//        strcat(buffer, " ");
-//    for (i = 0; i < h; i++)
-//        printLine(x, y + i, buffer, _WHITE_, _WHITE_);
-//    strcat(buffer, " ");
-//    printLine(x - 1, y + (h / 2 - 1), buffer, _WHITE_, _WHITE_);
-//
-//    // print script until currLen
-//    x += 1;
-//    y += 1;
-//    copy = (char *)malloc(sizeof(char) * strlen(script) + 1);
-//    strcpy(copy, script);
-//    copy[currLen] = '\0';
-//    i = 0;
-//    while (strlen(copy) / (w - 2))
-//    {
-//        tmp = copy[w - 2];
-//        copy[w - 2] = '\0';
-//        printLine(x, y + i, copy, tColor, _WHITE_);
-//        copy[w - 2] = tmp;
-//        strcpy(copy, copy + (w - 2));
-//        i++;
-//    }
-//    printLine(x, y + i, copy, tColor, _WHITE_);
-//    free(copy);
-//
-//    if (strlen(script) <= currLen)
-//        return -1;
-//    if (bVoice && 0 < currLen && script[currLen - 1] != ' ')
-//    	playVoice(_VOICE_SANS_);
-//    return currLen;
-//}
+int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
+{
+    int x = 74, y = 2;
+    static int currLen = 0, oldTime = 0;
+    static const char *pScript;
+    char buffer[ScreenWidth * 2], ch[3], *copy, tmp, input;
+	int i, j, currTime;
+
+    if (pScript != script)
+    {
+        currLen = 0;
+        pScript = script;
+    }
+    if (kbhit())
+    {
+        input = getch();
+        if (input == _SPACE_ || input == _CARRIAGE_RETURN_)
+            currLen = strlen(script);
+    }
+    else
+    {
+        if (!oldTime)
+            oldTime = clock();
+        currTime = clock();
+        if (120 < currTime - oldTime)
+        {
+            currLen = strlen(script) < currLen + 1 ? currLen : currLen + 1;
+            oldTime = currTime;
+        }
+    }
+    
+    // write script until currLen
+    x += 1;
+    y += 1;
+    copy = (char *)malloc(sizeof(char) * strlen(script) + 1);
+    strcpy(copy, script);
+    copy[currLen] = '\0';
+    i = 0;
+    while (strlen(copy) / (w - 2))
+    {
+        tmp = copy[w - 2];
+        copy[w - 2] = '\0';
+        printLine(x, y + i, copy, tColor, _WHITE_);
+        copy[w - 2] = tmp;
+        strcpy(copy, copy + (w - 2));
+        i++;
+    }
+    printLine(x, y + i, copy, tColor, _WHITE_);
+    free(copy);
+
+    if (strlen(script) <= currLen)
+        return -1;
+    if (bVoice && 0 < currLen && script[currLen - 1] != ' ')
+    	playVoice(_VOICE_SANS_);
+    return currLen;
+}
 
 //void renderBossPhaseBox()
 //{

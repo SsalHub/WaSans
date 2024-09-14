@@ -4,10 +4,6 @@
 #include "../../utils.h"
 #include "../../render/renderer.h"
 
-#define _ENEMY_LEG_		0
-#define _ENEMY_BODY_	1
-#define _ENEMY_FACE_	2
-
 
 typedef unsigned __stdcall (*Pattern)(void*);
 
@@ -17,6 +13,13 @@ typedef enum BattlePhase
 	_PLAYER_PHASE_	= 0,
 	_ENEMY_PHASE_,
 } BattlePhase;
+
+typedef enum EnemyPart
+{
+	_ENEMY_LEG_		= 0,
+	_ENEMY_BODY_, 
+	_ENEMY_FACE_, 
+} EnemyPart;
 
 typedef struct BattleObject
 {
@@ -29,6 +32,7 @@ typedef struct BattleObject
 	int height;
 	int isActive;
 } BattleObject;
+
 
 typedef struct PatternInfo
 {
@@ -56,10 +60,10 @@ static int enemyLen;
 void renderBattleScene();
 
 /* Init Functions */
-void initBattle(int len, BattleObject** enemy);
+void initBattle(int len, BattleObject (*enemy)[3]);
 void initEnemyPhaseBox();
 void initPlayerPhaseBox();
-void initEnemyInfo(int len, BattleObject** enemy);
+void initEnemyInfo(int len, BattleObject (*enemy)[3]);
 void initSpeechBubble();
 
 /* Util Func */

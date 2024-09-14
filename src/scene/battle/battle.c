@@ -26,7 +26,7 @@ void renderBattleScene()
 
 
 /* Init Functions */
-void initBattle(int len, BattleObject** enemy)
+void initBattle(int len, BattleObject (*enemy)[3])
 {
 	battlePhase = _INTRO_PHASE_;
 	battleTurn = 0;
@@ -90,13 +90,14 @@ void initPlayerPhaseBox()
     }
 }
 
-void initEnemyInfo(int len, BattleObject** enemy)
+void initEnemyInfo(int len, BattleObject (*enemy)[3])
 {
 	int i;
 	enemyLen = len;
-	EnemyInfo = (BattleObject**)malloc(sizeof(BattleObject) * 3 * len);
+	EnemyInfo = (BattleObject**)malloc(sizeof(BattleObject*) * len);
 	for (i = 0; i < len; i++)
 	{
+		EnemyInfo[i] = (BattleObject*)malloc(sizeof(BattleObject) * 3);
 		EnemyInfo[i][_ENEMY_LEG_] = enemy[i][_ENEMY_LEG_];
 		EnemyInfo[i][_ENEMY_BODY_] = enemy[i][_ENEMY_BODY_];
 		EnemyInfo[i][_ENEMY_FACE_] = enemy[i][_ENEMY_FACE_];
@@ -306,7 +307,7 @@ void renderSpeechBubble()
 	    strcat(buffer, " ");
 	    printLine(SpeechBubble[i].x - 1, SpeechBubble[i].y + (bubbleHeight / 2 - 1), buffer, _WHITE_, _WHITE_);
 	    // render text
-    	printLine(SpeechBubble[i].x, SpeechBubble[i].y, SpeechBubble[i].data, SpeechBubble[i].tColor, _WHITE_);
+    	printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1, SpeechBubble[i].data, SpeechBubble[i].tColor, _WHITE_);
 	}
 }
 
@@ -320,6 +321,7 @@ void releaseBattleAssets()
 	{
 		free(EnemyInfo[i]);
 	}
+	free(EnemyInfo);
 	free(SpeechBubble);
 	free(EnemyPhaseBox.data);
 	free(PlayerPhaseBox.data);

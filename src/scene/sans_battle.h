@@ -34,6 +34,11 @@ typedef enum BlastAngle
 //	_BLAST_MID_CENTER_,
 } BlastAngle;
 
+enum _SansBattle_EnemyType
+{
+	_ENEMY_SANS_ 			= 0,
+};
+
 static int patternIdx, scriptIdx;
 static const char scripts[_SANS_SCRIPT_LEN_][64] = {
 				    "it's a beautiful day outside.",
@@ -47,7 +52,7 @@ static PatternInfo sansPattern[_SANS_PATTERN_LEN_];
 //void Update();
 /* Main func in sans battle */
 void initSansBattle();
-void initSansObject(BattleObject** enemy);
+void initSansObject(BattleObject (*enemy)[3]);
 void initSansPattern();
 void runSansBattle();
 
@@ -64,7 +69,7 @@ static void enemyPhase();
 
 /* Sub Renderer */
 void renderSans(AssetFileType face);
-//int renderSpeechBubble(const char* script, ConsoleColor tColor, int bVoice);
+int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice);
 //void renderBossPhaseBox();
 //void renderPlayerPhaseBox();
 //void renderPlayerInfo();

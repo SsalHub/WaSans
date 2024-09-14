@@ -31,13 +31,13 @@ typedef enum TextAlign
 
 extern int ScreenIndex;
 extern HANDLE ScreenHandle[2];
-extern char* ScreenBuffer;
 
 static int bRender, FPS, oldFPS;
 static Renderer* sceneRenderer;
 static int bRenderThread;
 static unsigned int pRenderThread;
 static HANDLE hRenderThread;
+static char* lineBuffer;
 
 void initScreen();
 void setWindowInfo(int w, int h);

@@ -5,7 +5,6 @@ HANDLE RendererThread;
 unsigned int RendererThreadAddr;
 int ScreenIndex;
 HANDLE ScreenHandle[2];
-char* ScreenBuffer;
 
 void initScreen()
 {
@@ -23,14 +22,14 @@ void initScreen()
 	
 	setWindowInfo(ScreenWidth, ScreenHeight);
 	
-	ScreenBuffer = (char*)malloc((ScreenWidth + 1) * ScreenHeight + 1);
-	ScreenBuffer[0] = '\0';
-	for (i = 0; i < ScreenHeight; i++)
-	{
-		for (j = 0; j < ScreenWidth; j++)
-			strcat(ScreenBuffer, " ");	
-		strcat(ScreenBuffer, "\n");
-	}
+	lineBuffer = (char*)malloc(sizeof(char) * (ScreenWidth + 1));
+//	ScreenBuffer[0] = '\0';
+//	for (i = 0; i < ScreenHeight; i++)
+//	{
+//		for (j = 0; j < ScreenWidth; j++)
+//			strcat(ScreenBuffer, " ");	
+//		strcat(ScreenBuffer, "\n");
+//	}
 	
 	FPS = 0;
 	oldFPS = -1;
@@ -129,6 +128,7 @@ void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColo
 	COORD pos = { x, y };
 	DWORD dw;
 	char *beg, *end;
+	int len;
 	
 	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
 	end = str;
@@ -140,19 +140,24 @@ void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColo
 			end++;
 			continue;
 		}
-		*end = '\0';
+//		*end = '\0';
 		// print this line
+		len = end - beg;
+		memcpy(lineBuffer, beg, sizeof(char) * len);
+		lineBuffer[len] = '\0';
 		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
-		WriteFile(ScreenHandle[ScreenIndex], beg, strlen(beg), &dw, NULL);
+		WriteFile(ScreenHandle[ScreenIndex], lineBuffer, strlen(lineBuffer), &dw, NULL);
 		pos.Y++;
-		*end = '\n';
 		end++;
 		beg = end;
 	}
 	if (*beg)
 	{
+		len = end - beg;
+		memcpy(lineBuffer, beg, sizeof(char) * len);
+		lineBuffer[len] = '\0';
 		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
-		WriteFile(ScreenHandle[ScreenIndex], beg, strlen(beg), &dw, NULL);
+		WriteFile(ScreenHandle[ScreenIndex], lineBuffer, strlen(lineBuffer), &dw, NULL);
 	}
 }
 
@@ -226,5 +231,5 @@ void releaseScreen()
 	CloseHandle(hRenderThread);
 	CloseHandle(ScreenHandle[0]);
 	CloseHandle(ScreenHandle[1]);
-	free(ScreenBuffer);
+	free(lineBuffer);
 }

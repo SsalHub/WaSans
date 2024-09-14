@@ -57,7 +57,7 @@ void runMainmenu()
 
 void renderMainmenu()
 {
-	static ConsoleColor tSelect[2] = { _WHITE_, _WHITE_ };
+	ConsoleColor tSelect[2] = { _WHITE_, _WHITE_ };
 	// render logo
 	printLines(6, 5, AssetFile[_LOGO_UNDERTALE_], _WHITE_, _BLACK_);	
 	printLine(61, 7, "####", _HOTPINK_, _BLACK_);

@@ -17,8 +17,9 @@
 #define _SANS_SCRIPT_LEN_ 	4
 #define _BLAST_ANGLE_LEN_ 	7
 #define _SANS_PATTERN_LEN_ 	2
+#define _PATTERN_CONTINUE_	-1
 
-typedef enum BlastAngle
+typedef enum BlasterAngle
 {
 	_BLAST_TOP_CENTER_		= 0,	// vertical
 	_BLAST_TOP_RIGHT_		= 45,	// diagonal
@@ -32,24 +33,33 @@ typedef enum BlastAngle
 	_BLAST_TOP_LEFT_		= 270,
 	_BLAST_MID_LEFT_		= 315,
 //	_BLAST_MID_CENTER_,
-} BlastAngle;
+} BlasterAngle;
 
 enum _SansBattle_EnemyType
 {
 	_ENEMY_SANS_ 			= 0,
 };
 
+typedef struct _PatternArgs_Blaster
+{
+	unsigned int patternId;
+	BlasterAngle blasterAngle;
+} PatternArgs_Blaster;
+
 
 
 static int patternIdx, scriptIdx;
+static PatternInfo sansPattern[_SANS_PATTERN_LEN_];
 static const char scripts[_SANS_SCRIPT_LEN_][64] = {
 				    "it's a beautiful day outside.",
 				    "birds are singing. flowers are blooming.",
 				    "on days like these, kids like you...",
 				    "Should be burning in hell.",
 				};
-static PatternInfo sansPattern[_SANS_PATTERN_LEN_];
-
+static PatternArgs_Blaster gasterBlasterPatternInfo[_SANS_PATTERN_LEN_] = {
+					{ 0, _BLAST_MID_RIGHT_ },
+					{ 1, _BLAST_MID_LEFT_ },
+				};
 
 /* Main func in sans battle */
 void initSansBattle();
@@ -81,13 +91,13 @@ int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice);
 void movePlayer();
 unsigned __stdcall fireBlastToCenter(void* args);
 unsigned __stdcall fireBlastToPlayer(void* args);
-AssetType getBlastType(BlastAngle blastAngle);
-char* fixBlastAngle(char* dst, size_t dstSize, BlastAngle blastAngle);
-int getLastPatternIdx();
+AssetType getBlastType(BlasterAngle blasterAngle);
+char* fixBlastAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle);
+void runSansPattern(int pid);
 
 /* etc */
 void setSansFace(AssetType facetype);
 
 /* Terminate Func */
-void releasePattern();
+void releasePatterns();
 #endif

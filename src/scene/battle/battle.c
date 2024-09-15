@@ -14,16 +14,19 @@ void renderBattleScene()
     renderEnemy();
     renderPlayerInfo();
     renderSpeechBubble();
-	switch (battlePhase)
+    if (battlePhase == _ENEMY_PHASE_)
+    {
+		renderEnemyPhaseBox();
+		renderPattern();
+	}
+	else
 	{
-		case _ENEMY_PHASE_:
-    		renderEnemyPhaseBox();
-    		renderPattern();
-    		break;
-    	case _PLAYER_PHASE_:
+		if (battlePhase == _PLAYER_PHASE_)
+		{
     		renderPlayerPhaseBox();
     		renderSelectBox();
-    		break;
+			
+		}
 	}
 }
 
@@ -303,38 +306,38 @@ void renderSpeechBubble()
 	static int bubbleWidth = 0;
 	static char line[1024];
 	char buffer[ScreenWidth * 2];
-	int i, j, len;
+	int i, j, slen;
 	
 	for (i = 0; i < enemyLen; i++)
 	{
-		if (!SpeechBubble[i].isActive)
-			continue;
-		
-		// render bubble box
-		if (SpeechBubble[i].width != bubbleWidth)
+		slen = strlen(SpeechBubble[i].data);
+		if (SpeechBubble[i].isActive)
 		{
-		    bubbleWidth = SpeechBubble[i].width;
-			for (j = 0; j < bubbleWidth; j++)
-		        line[j] = ' ';
-		    line[bubbleWidth] = '\0';
+			// render bubble box
+			if (SpeechBubble[i].width != bubbleWidth)
+			{
+			    bubbleWidth = SpeechBubble[i].width;
+				for (j = 0; j < bubbleWidth; j++)
+			        line[j] = ' ';
+			    line[bubbleWidth] = '\0';
+			}
+		    for (j = 0; j < SpeechBubble[i].height; j++)
+		        printLine(SpeechBubble[i].x, SpeechBubble[i].y + j, line, _WHITE_, _WHITE_);
+		    printLine(SpeechBubble[i].x - 1, SpeechBubble[i].y + (SpeechBubble[i].height / 2 - 1), line, _WHITE_, _WHITE_);
+		    
+		    // render text
+		    j = 0;
+		    while (slen / (SpeechBubble[i].width - 1))
+		    {
+		    	memcpy(buffer, SpeechBubble[i].data + ((SpeechBubble[i].width - 2) * j), SpeechBubble[i].width - 2);
+		    	buffer[SpeechBubble[i].width - 2] = '\0';
+	    		printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
+	    		j++;
+	    		slen -= (SpeechBubble[i].width - 2);
+			}
+			strcpy(buffer, SpeechBubble[i].data + ((SpeechBubble[i].width - 2) * j));
+	    	printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
 		}
-	    for (j = 0; j < SpeechBubble[i].height; j++)
-	        printLine(SpeechBubble[i].x, SpeechBubble[i].y + j, line, _WHITE_, _WHITE_);
-	    printLine(SpeechBubble[i].x - 1, SpeechBubble[i].y + (SpeechBubble[i].height / 2 - 1), line, _WHITE_, _WHITE_);
-	    
-	    // render text
-	    len = strlen(SpeechBubble[i].data);
-	    j = 0;
-	    while (len / (SpeechBubble[i].width - 1))
-	    {
-	    	memcpy(buffer, SpeechBubble[i].data + ((SpeechBubble[i].width - 2) * j), SpeechBubble[i].width - 2);
-	    	buffer[SpeechBubble[i].width - 2] = '\0';
-    		printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
-    		j++;
-    		len -= (SpeechBubble[i].width - 2);
-		}
-		strcpy(buffer, SpeechBubble[i].data + ((SpeechBubble[i].width - 2) * j));
-    	printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
 	}
 }
 
@@ -343,10 +346,12 @@ void renderPattern()
 	int i, j;
 	for (i = 0; i < patternLen; i++)
 	{
-		if (!Patterns[i].isActive)
+		if (Patterns[i].isActive != STILL_ACTIVE)
 			continue;
 		for (j = 0; j < Patterns[i].renderInfoLen; j++)
 		{
+			if (Patterns[i].renderInfo[j].s == NULL)
+				continue;
 			printLines(
 				Patterns[i].renderInfo[j].x,
 				Patterns[i].renderInfo[j].y,

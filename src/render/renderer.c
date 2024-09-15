@@ -57,6 +57,7 @@ void clearScreen()
 	DWORD dw;
 //	printLines(x, y, ScreenBuffer, _BLACK_, _BLACK_);
 	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
+	FillConsoleOutputAttribute(ScreenHandle[ScreenIndex], 0, ScreenWidth * ScreenHeight, pos, &dw);
 }
 
 void fillColorToScreen(ConsoleColor tColor, ConsoleColor bColor)

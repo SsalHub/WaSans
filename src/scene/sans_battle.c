@@ -60,26 +60,24 @@ void initSansPattern()
 	}
 	// init detail info
 	sansPattern[0].pattern = (unsigned __stdcall (*)(void*))fireBlastToCenter;
-	sansPattern[0].data = (int)_BLAST_MID_RIGHT_;
-	
+	sansPattern[0].data = &(gasterBlasterPatternInfo[0]);
 	sansPattern[1].pattern = (unsigned __stdcall (*)(void*))fireBlastToCenter;
-	sansPattern[1].data = (int)_BLAST_MID_LEFT_;
+	sansPattern[1].data = &(gasterBlasterPatternInfo[1]);
 }
 
 void runSansBattle()
 {
     introPhase();
     enemyPhase();
-	
 	// main phase
-	while (10 < battleTurn)
+	while (battleTurn < 10)
 	{
 	    playerPhase();
 	    enemyPhase();
 	}
 	
 	// exit battle scene
-	releasePattern();
+	releasePatterns();
 	releaseBattleAssets();
 	gotoNextScene(_SCENE_MAINMENU_);
 }
@@ -103,9 +101,9 @@ static void introPhase()
 	while (scriptIdx < introScriptLen)
 	{
 		speechFlag = writeSpeechBubble(scripts[scriptIdx], _BLACK_, 1);
+    	waitForFrame();
 		if (speechFlag < 0)
 			scriptIdx++;
-    	waitForFrame();
 	}
 	SpeechBubble[_ENEMY_SANS_].isActive = 0;
 	
@@ -119,6 +117,10 @@ static void playerPhase()
 	{
 		case 0:
 			playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
+			while (1)
+			{
+				sleep(1);
+			}
 			break;
 		case 1:
 			break;
@@ -128,7 +130,7 @@ static void playerPhase()
 
 static void enemyPhase()
 {
-	const int introScriptLen = 4;
+	const int introScriptIdx = 3;
 	int i, speechFlag = 0;
     PlayerPos.X = 59;
     PlayerPos.Y = 19;
@@ -144,26 +146,19 @@ static void enemyPhase()
 	    	
 	    	// run script
 	    	sleep(1.0f);
-			while (scriptIdx < introScriptLen)
+			while (scriptIdx == introScriptIdx)
 			{
 				speechFlag = writeSpeechBubble(scripts[scriptIdx], _RED_, 0);
+    			waitForFrame();
 				if (speechFlag < 0)
 					scriptIdx++;
-    			sleep(0.05f);
 			}
+			sleep(0.1f);
 			SpeechBubble[_ENEMY_SANS_].isActive = 0;
 	    	
         	// run boss pattern
-			sansPattern[0].hThread = startPattern(
-				sansPattern[0].pattern,
-				&(sansPattern[0].data),
-				&(sansPattern[0].threadID)
-			);
-			sansPattern[1].hThread = startPattern(
-				sansPattern[1].pattern,
-				&(sansPattern[1].data),
-				&(sansPattern[1].threadID)
-			);
+			runSansPattern(0);
+			runSansPattern(1);
 			// wait until all pattern completed
 	        while (1)
 	        {
@@ -173,13 +168,14 @@ static void enemyPhase()
 	            	if (sansPattern[i].isActive == STILL_ACTIVE)
 	            		break;
 				}
-				if (patternIdx != 0 && _SANS_PATTERN_LEN_ <= i)
+				if (patternIdx && _SANS_PATTERN_LEN_ <= i)
 					break;
 					
 	        	movePlayer();
 	        	sleep(0.05f);
 	        }
-	        
+	        CloseHandle(sansPattern[0].hThread);
+	        CloseHandle(sansPattern[1].hThread);
 	        break;
 	        
 	    case 1:
@@ -189,7 +185,6 @@ static void enemyPhase()
 //	        	movePlayer();
 //	            renderCustom(renderBossPhase);
 //	        }
-			setRenderer(renderBattleScene);
 	        break;
     }
 	gotoNextPhase();
@@ -574,17 +569,17 @@ void movePlayer()
 
 unsigned __stdcall fireBlastToCenter(void* args)
 {
-	int pId = getLastPatternIdx();
-	if (pId < 0)
-		return 1;
-		
-	BlastAngle blastAngle = *((BlastAngle*)args);
-	AssetType blastType = getBlastType(blastAngle);
+	// receive args
+	PatternArgs_Blaster *data = (PatternArgs_Blaster*)args;
+	int pId = data->patternId;
+	BlasterAngle blasterAngle = data->blasterAngle;
+	// other vars
+	AssetType blasterType = getBlastType(blasterAngle);
 	int targetX, targetY, beginX, beginY;
-	int x, y, oldTime, renderInfoIdx = 0, blastId = 0;
+	int oldTime, renderInfoIdx = 0, blastId = 0;
 	float t;
 	
-	switch (blastAngle)
+	switch (blasterAngle)
 	{
 		case _BLAST_TOP_CENTER_:
 			targetX = EnemyPhaseBox.x + (EnemyPhaseBox.width / 2) - 5;
@@ -634,16 +629,16 @@ unsigned __stdcall fireBlastToCenter(void* args)
 	}
 	
 	sansPattern[pId].renderInfoLen = 1;
+	
 	oldTime = clock();
 	setRenderInfo(
 		&(sansPattern[pId].renderInfo[renderInfoIdx]), 
 		beginX,
 		beginY,
-		AssetFile[blastType],
+		AssetFile[blasterType],
 		_WHITE_,
 		_BLACK_
 	);
-	sansPattern[pId].isActive = 1;
 	playSFXOnThread(_SFX_GASTERBLASTER_);
 	while (t < 1)
 	{
@@ -656,28 +651,28 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			&(sansPattern[pId].renderInfo[renderInfoIdx]), 
 			(int)lerp(beginX, targetX, t),
 			(int)lerp(beginY, targetY, t),
-			AssetFile[blastType + blastId],
+			AssetFile[blasterType + blastId],
 			_WHITE_,
 			_BLACK_
 		);
 		sleep(0.05f);
 	}
-	sleep(1.0f);
-	sansPattern[pId].isActive = 0;
+	sleep(2.0f);
 }
 
 unsigned __stdcall fireBlastToPlayer(void* args)
 {
-	int pId = getLastPatternIdx();
-	if (pId < 0)
-		return 1;
-	BlastAngle blastAngle = *((BlastAngle*)args);
+	// receive args
+	PatternArgs_Blaster *data = (PatternArgs_Blaster*)args;
+	int pId = data->patternId;
+	BlasterAngle blasterAngle = data->blasterAngle;
+	// other vars
 	int playerX = PlayerPos.X, playerY = PlayerPos.Y;
 }
 
-AssetType getBlastType(BlastAngle blastAngle)
+AssetType getBlastType(BlasterAngle blasterAngle)
 {
-	switch (blastAngle)
+	switch (blasterAngle)
 	{
 		case _BLAST_TOP_CENTER_:
 			return _SANS_BLASTER_VERT_0A_;
@@ -700,20 +695,29 @@ AssetType getBlastType(BlastAngle blastAngle)
 	return -1;
 }
 
-char* fixBlastAngle(char* dst, size_t dstSize, BlastAngle blastAngle)
+char* fixBlastAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle)
 {
-	AssetType blastType = getBlastType(blastAngle);
-	dst = AssetFile[blastType];
+	AssetType blasterType = getBlastType(blasterAngle);
+	dst = AssetFile[blasterType];
 	
 	// string rotation 
 	return dst;
 }
 
-int getLastPatternIdx()
+void runSansPattern(int pid)
 {
-	static int idx = 0;
-	return idx++;
+	static int patternId = 0;
+	patternId = pid < 0 ? patternId : pid;
+	sansPattern[patternId].hThread = startPattern(
+			sansPattern[patternId].pattern,
+			sansPattern[patternId].data,
+			&(sansPattern[patternId].threadID));
+			
+	GetExitCodeThread(sansPattern[patternId].hThread, &(sansPattern[patternId].isActive));
+	patternId++;
 }
+
+
 
 /* etc */
 void setSansFace(AssetType facetype)
@@ -722,7 +726,7 @@ void setSansFace(AssetType facetype)
 }
 
 /* Terminate Func */
-void releasePattern()
+void releasePatterns()
 {
 	int i;
 	for (i = 0; i < _SANS_PATTERN_LEN_; i++)

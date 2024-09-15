@@ -36,11 +36,14 @@ typedef struct BattleObject
 
 typedef struct PatternInfo
 {
+	// basic pattern info
 	Pattern pattern;
-	int data;
+	void* data;
+	// thread info
 	HANDLE hThread;
 	DWORD isActive;
 	unsigned int threadID;
+	// render info
 	int renderInfoLen;
 	RenderInfo renderInfo[10];
 } PatternInfo;

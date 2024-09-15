@@ -1,5 +1,7 @@
 #ifndef __BATTLE__
 #define __BATTLE__
+#include <Windows.h>
+#include <conio.h>
 #include "../../settings.h"
 #include "../../utils.h"
 #include "../../render/renderer.h"
@@ -55,7 +57,6 @@ extern BattleObject EnemyPhaseBox, PlayerPhaseBox;
 extern PatternInfo *Patterns;
 
 
-
 static int battleTurn, battleSelect, battlePhase, playerHP;
 static int enemyLen, patternLen;
 
@@ -77,6 +78,9 @@ void 		gotoNextTurn();
 BattlePhase getBattlePhase();
 int 		getBattleTurn();
 HANDLE 		startPattern(Pattern pattern, void* args, unsigned int* threadID);
+void 		movePlayerPos();
+int 		movePlayerSelectBox();
+int 		getPlayerDamage(int damage);
 
 /* Sub Renderer */
 void renderEnemy();

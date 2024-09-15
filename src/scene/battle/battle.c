@@ -18,15 +18,13 @@ void renderBattleScene()
     {
 		renderEnemyPhaseBox();
 		renderPattern();
+		return;
 	}
-	else
+	if (battlePhase == _PLAYER_PHASE_)
 	{
-		if (battlePhase == _PLAYER_PHASE_)
-		{
-    		renderPlayerPhaseBox();
-    		renderSelectBox();
-			
-		}
+		renderPlayerPhaseBox();
+		renderSelectBox();
+		return;
 	}
 }
 
@@ -162,6 +160,98 @@ HANDLE startPattern(Pattern pattern, void* args, unsigned int* threadID)
 	return (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)pattern, args, 0, threadID);
 }
 
+void movePlayerPos()
+{
+	static int playerSpeed = 1, oldTime;
+	if (playerSpeed == 0)
+	{
+		if (oldTime == 0)
+		{
+			oldTime = clock();
+		}
+		else if (50 < clock() - oldTime)
+		{
+			playerSpeed = 1;
+			oldTime = 0;
+		}
+	}
+	else
+	{
+		// key input
+		if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
+		{
+			PlayerPos.X -= playerSpeed;
+			playerSpeed = 0;
+		}
+		else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
+		{
+			PlayerPos.X += playerSpeed;
+			playerSpeed = 0;
+		}
+		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
+		{
+			PlayerPos.Y -= playerSpeed;
+			playerSpeed = 0;
+		}
+		else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
+		{
+			PlayerPos.Y += playerSpeed;
+			playerSpeed = 0;
+		}
+	}
+}
+
+int movePlayerSelectBox()
+{
+	static int oldTime = -1000;
+	int currTime;
+	
+	// if not enough input cooltime passed
+	currTime = clock();
+	if (currTime - oldTime < 30)
+		return -1;
+	oldTime = currTime;
+	
+	if (kbhit())
+	{
+		char input = getch();
+		
+		switch (input)
+		{
+			case 'A':
+			case 'a':
+			case _LEFT_:
+				if (0 < battleSelect)
+					battleSelect--;
+				break;
+				
+			case 'D':
+			case 'd':
+			case _RIGHT_:
+				if (battleSelect < 3)
+					battleSelect++;
+				break;
+				
+			case _SPACE_:
+			case _CARRIAGE_RETURN_:
+				return battleSelect;
+				
+			default:
+				break;
+		}
+	}
+	return -1;
+}
+
+// if player died return 0. or return 1.
+int getPlayerDamage(int damage)
+{
+	playerHP -= damage;
+	if (playerHP <= 0)
+		return 0;
+	return 1;
+}
+
 
 
 /* Sub Renderer */
@@ -224,79 +314,88 @@ void renderPlayerPos()
 
 void renderPlayerPhaseBox()
 {
-	int x = 6, y = 16, w = 103, h = 8, i, j;
-    char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[3];
+	const int w = 103, h = 8;
+    static char buffer[1024];
+	char ch[3];
+	int i, j;
 
-    buffer[0] = '\0';
-    for (i = 0; i < h; i++)
-    {
-        strcat(buffer, ":=");
-        if (i == 0 || i == h - 1)
-            strcpy(ch, "=");
-        else
-            strcpy(ch, " ");
-        for (j = 0; j < w; j++)
-            strcat(buffer, ch);
-        strcat(buffer, "=: \n");
-    }
-    printLines(x, y, buffer, _WHITE_, _BLACK_);
+	if (strlen(buffer) < 1)
+	{
+	    buffer[0] = '\0';
+	    for (i = 0; i < h; i++)
+	    {
+	        strcat(buffer, ":=");
+	        if (i == 0 || i == h - 1)
+	            strcpy(ch, "=");
+	        else
+	            strcpy(ch, " ");
+	        for (j = 0; j < w; j++)
+	            strcat(buffer, ch);
+	        strcat(buffer, "=: \n");
+	    }
+	}
+    printLines(6, 16, buffer, _WHITE_, _BLACK_);
 }
 
 void renderPlayerInfo()
 {
 	static const int y = 24;
     int x = 11, i, damaged;
-    char temp_str[11], itoa_str[8];
+    char itoa_str[8], level_str[8], hp_str[12], hp_bar[12];
 //	char playerInfo[ScreenWidth];
     int idx = 0;
     
     // player name
     printLine(12, y, PlayerName, _WHITE_, _BLACK_);
     // player level
-	strcpy(temp_str, "LV ");
-    itoa(PlayerLevel, itoa_str, 10);
-	strcat(temp_str, itoa_str);
-    printLine(26, y, temp_str, _WHITE_, _BLACK_);
+    if (strlen(level_str) < 1)
+    {
+		strcpy(level_str, "LV ");
+	    itoa(PlayerLevel, itoa_str, 10);
+		strcat(level_str, itoa_str);
+	}
+    printLine(26, y, level_str, _WHITE_, _BLACK_);
     // player hp
     printLine(44, y, "HP", _WHITE_, _BLACK_);
-    itoa(playerHP, temp_str, 10);
-    strcat(temp_str, " / ");
+    itoa(playerHP, hp_str, 10);
+    strcat(hp_str, " / ");
     itoa(MaxHP, itoa_str, 10);
-    strcat(temp_str, itoa_str);
-    printLine(62, y, temp_str, _WHITE_, _BLACK_);
+    strcat(hp_str, itoa_str);
+    printLine(60, y, hp_str, _WHITE_, _BLACK_);
     
 	// set string that HP info
     for (int i = 0; i < 10; i++)
-        temp_str[i] = '@';
-    temp_str[10] = '\0';
-    printLine(48, y, temp_str, _YELLOW_, _BLACK_);
+        hp_bar[i] = '@';
+    hp_bar[10] = '\0';
+    printLine(48, y, hp_bar, _YELLOW_, _BLACK_);
+    // calculate current damage
     damaged = (MaxHP - playerHP) / 10;
     if (damaged <= 0)
     	return;
     // set current player HP info
     for (i = 0; i < damaged; i++)
-        temp_str[i] = '#';
-    temp_str[damaged] = '\0';
-    printLine(58 - damaged, y, temp_str, _RED_, _BLACK_);
+        hp_bar[i] = '#';
+    hp_bar[damaged] = '\0';
+    printLine(58 - damaged, y, hp_bar, _RED_, _BLACK_);
 }
     
 void renderSelectBox()
 {
-	int x, y = 25;
+	const int y = 25;
     ConsoleColor tSelect[4] = {_YELLOW_, _YELLOW_, _YELLOW_, _YELLOW_};
     tSelect[battleSelect] = _LIGHT_YELLOW_;
-    x = 7;
-    printLines(x, y, AssetFile[_SELECT_BOX_], tSelect[0], _BLACK_);
-    printLine(x + 8, y + 2, "FIGHT", tSelect[0], _BLACK_);
-    x += 27;
+    // FIGHT 
+    printLines(7, y, AssetFile[_SELECT_BOX_], tSelect[0], _BLACK_);
+    printLine(7 + 8, y + 2, "FIGHT", tSelect[0], _BLACK_);
+    // ACT
     printLines(35, y, AssetFile[_SELECT_BOX_], tSelect[1], _BLACK_);
-    printLine(x + 11, y + 2, "ACT", tSelect[1], _BLACK_);
-    x += 27;
+    printLine(34 + 11, y + 2, "ACT", tSelect[1], _BLACK_);
+    // ITEM
     printLines(63, y, AssetFile[_SELECT_BOX_], tSelect[2], _BLACK_);
-    printLine(x + 11, y + 2, "ITEM", tSelect[2], _BLACK_);
-    x += 27;
+    printLine(61 + 11, y + 2, "ITEM", tSelect[2], _BLACK_);
+    // MERCY
     printLines(91, y, AssetFile[_SELECT_BOX_], tSelect[3], _BLACK_);
-    printLine(x + 11, y + 2, "MERCY", tSelect[3], _BLACK_);
+    printLine(88 + 11, y + 2, "MERCY", tSelect[3], _BLACK_);
 }
 
 void renderSpeechBubble()
@@ -304,39 +403,33 @@ void renderSpeechBubble()
 	if (SpeechBubble == NULL)
 		return;
 	static int bubbleWidth = 0;
-	static char line[1024];
 	char buffer[ScreenWidth * 2];
-	int i, j, slen;
+	int i, j, slen, x, y, w, h;
 	
 	for (i = 0; i < enemyLen; i++)
 	{
-		slen = strlen(SpeechBubble[i].data);
 		if (SpeechBubble[i].isActive)
 		{
+			x = SpeechBubble[i].x;	
+			y = SpeechBubble[i].y;
+			w = SpeechBubble[i].width;
+			h = SpeechBubble[i].height;
 			// render bubble box
-			if (SpeechBubble[i].width != bubbleWidth)
-			{
-			    bubbleWidth = SpeechBubble[i].width;
-				for (j = 0; j < bubbleWidth; j++)
-			        line[j] = ' ';
-			    line[bubbleWidth] = '\0';
-			}
-		    for (j = 0; j < SpeechBubble[i].height; j++)
-		        printLine(SpeechBubble[i].x, SpeechBubble[i].y + j, line, _WHITE_, _WHITE_);
-		    printLine(SpeechBubble[i].x - 1, SpeechBubble[i].y + (SpeechBubble[i].height / 2 - 1), line, _WHITE_, _WHITE_);
-		    
+			fillColorInRange(x, y, x + w, y + h, _WHITE_);
+			fillColorInRange(x - 1, y + 3, x - 1, y + 3, _WHITE_);
 		    // render text
 		    j = 0;
-		    while (slen / (SpeechBubble[i].width - 1))
+			slen = strlen(SpeechBubble[i].data);
+		    while (w - 2 < slen)
 		    {
-		    	memcpy(buffer, SpeechBubble[i].data + ((SpeechBubble[i].width - 2) * j), SpeechBubble[i].width - 2);
-		    	buffer[SpeechBubble[i].width - 2] = '\0';
-	    		printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
+		    	memcpy(buffer, SpeechBubble[i].data + ((w - 2) * j), w - 2);
+		    	buffer[w - 2] = '\0';
+	    		printLine(x + 1, y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
 	    		j++;
-	    		slen -= (SpeechBubble[i].width - 2);
+	    		slen -= (w - 2);
 			}
-			strcpy(buffer, SpeechBubble[i].data + ((SpeechBubble[i].width - 2) * j));
-	    	printLine(SpeechBubble[i].x + 1, SpeechBubble[i].y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
+			strcpy(buffer, SpeechBubble[i].data + ((w - 2) * j));
+	    	printLine(x + 1, y + 1 + j, buffer, SpeechBubble[i].tColor, _WHITE_);
 		}
 	}
 }

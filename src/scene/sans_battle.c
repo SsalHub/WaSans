@@ -59,9 +59,9 @@ void initSansPattern()
 		sansPattern[i].renderInfoLen = 0;
 	}
 	// init detail info
-	sansPattern[0].pattern = (unsigned __stdcall (*)(void*))fireBlastToCenter;
+	sansPattern[0].pattern = (Pattern)fireBlastToCenter;
 	sansPattern[0].data = &(gasterBlasterPatternInfo[0]);
-	sansPattern[1].pattern = (unsigned __stdcall (*)(void*))fireBlastToCenter;
+	sansPattern[1].pattern = (Pattern)fireBlastToCenter;
 	sansPattern[1].data = &(gasterBlasterPatternInfo[1]);
 }
 
@@ -70,9 +70,11 @@ void runSansBattle()
     introPhase();
     enemyPhase();
 	// main phase
-	while (battleTurn < 10)
+	while (1)
 	{
 	    playerPhase();
+	    if (getCurrentScene() != _SCENE_SANS_BATTLE_)
+	    	break;
 	    enemyPhase();
 	}
 	
@@ -89,6 +91,7 @@ static void introPhase()
 {
     const int introScriptLen = 3;
     int speechFlag = 0;
+	scriptIdx = 0;
     
 	sleep(1.0f);
 	// run intro phase
@@ -97,7 +100,6 @@ static void introPhase()
     
 	setSansFace(_SANS_FACE_NORMAL_A_);
 	sleep(1.0f);
-	scriptIdx = 0;
 	while (scriptIdx < introScriptLen)
 	{
 		speechFlag = writeSpeechBubble(scripts[scriptIdx], _BLACK_, 1);
@@ -113,16 +115,44 @@ static void introPhase()
 
 static void playerPhase()
 {
-	switch (battleTurn)
+	int select = -1;
+	switch (getBattleTurn())
 	{
-		case 0:
+		case 1:
 			playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
+			sleep(0.8f);
+			
 			while (1)
 			{
-				sleep(1);
+				select = movePlayerSelectBox();
+				switch (select)
+				{
+					case -1:
+						break;
+						
+					case 0:
+						if (!getPlayerDamage(5))
+						{	
+							// game over
+							playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
+							gotoNextScene(_SCENE_MAINMENU_);
+							return;
+						}
+						break;
+					case 1:
+						break;
+					case 2:
+						break;
+					case 3:
+						// select mercy
+						playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
+						gotoNextScene(_SCENE_MAINMENU_);
+						return;	
+				}
+				waitForFrame();
 			}
 			break;
-		case 1:
+		case 2:
 			break;
 	}
 	gotoNextPhase();
@@ -149,6 +179,7 @@ static void enemyPhase()
 			while (scriptIdx == introScriptIdx)
 			{
 				speechFlag = writeSpeechBubble(scripts[scriptIdx], _RED_, 0);
+	        	movePlayerPos();
     			waitForFrame();
 				if (speechFlag < 0)
 					scriptIdx++;
@@ -168,23 +199,23 @@ static void enemyPhase()
 	            	if (sansPattern[i].isActive == STILL_ACTIVE)
 	            		break;
 				}
-				if (patternIdx && _SANS_PATTERN_LEN_ <= i)
+				if (_SANS_PATTERN_LEN_ <= i)
 					break;
-					
-	        	movePlayer();
-	        	sleep(0.05f);
+				
+	        	movePlayerPos();
+	        	waitForFrame();
 	        }
 	        CloseHandle(sansPattern[0].hThread);
 	        CloseHandle(sansPattern[1].hThread);
+	        sleep(2.0f);
 	        break;
-	        
+	    
 	    case 1:
 			setSansFace(_SANS_FACE_NORMAL_A_);
-//	        while (1)
-//	        {
-//	        	movePlayer();
-//	            renderCustom(renderBossPhase);
-//	        }
+	        while (1)
+	        {
+	        	movePlayerPos();
+	        }
 	        break;
     }
 	gotoNextPhase();
@@ -305,89 +336,107 @@ static void enemyPhase()
 
 
 /* Sub Renderer */
-void renderSans(AssetType face)
-{
-    const int MAX_TICK = 12;
-    static int tick, oldTime;
-    int face_move[12][2] = {{0, 0}, {1, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-        body_move[12][2] = {{1, 0}, {1, 0}, {1, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-        leg_move[12][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
-    int x = 50, y = 0, currTime;
-
-    // leg
-    //	printLines(x + 1 + leg_move[tick][0], y + 11 + leg_move[tick][1], AssetFile[_SANS_LEG_NORMAL_], _WHITE_);
-    printLines(x + 2, y + 13, AssetFile[_SANS_LEG_NORMAL_], _WHITE_, _BLACK_);
-    // body
-    //	printLines(x + body_move[tick][0], y + 7 + body_move[tick][1], AssetFile[_SANS_BODY_NORMAL_], _WHITE_);
-    printLines(x, y + 9, AssetFile[_SANS_BODY_NORMAL_], _WHITE_, _BLACK_);
-    // face
-    //	printLines(x + face_move[tick][0], y + face_move[tick][1], AssetFile[face], _WHITE_);
-    printLines(x + 1, y, AssetFile[face], _WHITE_, _BLACK_);
-
-    // set ticks based on current/old time
-    if (oldTime)
-    {
-        currTime = clock();
-        if (100 <= currTime - oldTime) // 100ms == 0.1sec
-        {
-            tick = MAX_TICK <= tick + 1 ? 0 : tick + 1;
-            oldTime = currTime;
-        }
-    }
-    else
-    {
-        oldTime = clock();
-    }
-}
+//void renderSans(AssetType face)
+//{
+//    const int MAX_TICK = 12;
+//    static int tick, oldTime;
+//    int face_move[12][2] = {{0, 0}, {1, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+//        body_move[12][2] = {{1, 0}, {1, 0}, {1, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
+//        leg_move[12][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
+//    int x = 50, y = 0, currTime;
+//
+//    // leg
+//    //	printLines(x + 1 + leg_move[tick][0], y + 11 + leg_move[tick][1], AssetFile[_SANS_LEG_NORMAL_], _WHITE_);
+//    printLines(x + 2, y + 13, AssetFile[_SANS_LEG_NORMAL_], _WHITE_, _BLACK_);
+//    // body
+//    //	printLines(x + body_move[tick][0], y + 7 + body_move[tick][1], AssetFile[_SANS_BODY_NORMAL_], _WHITE_);
+//    printLines(x, y + 9, AssetFile[_SANS_BODY_NORMAL_], _WHITE_, _BLACK_);
+//    // face
+//    //	printLines(x + face_move[tick][0], y + face_move[tick][1], AssetFile[face], _WHITE_);
+//    printLines(x + 1, y, AssetFile[face], _WHITE_, _BLACK_);
+//
+//    // set ticks based on current/old time
+//    if (oldTime)
+//    {
+//        currTime = clock();
+//        if (100 <= currTime - oldTime) // 100ms == 0.1sec
+//        {
+//            tick = MAX_TICK <= tick + 1 ? 0 : tick + 1;
+//            oldTime = currTime;
+//        }
+//    }
+//    else
+//    {
+//        oldTime = clock();
+//    }
+//}
 
 int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
 {
     static int currLen = 0, oldTime = 0, readOver = 0;
     static const char *pScript = NULL;
-    char ch[3], input;
+    char buffer[128], ch[3], input;
 	int i, j, currTime, slen = strlen(script);
 
+	// init data
     if (pScript != script)
     {
         pScript = script;
 		readOver = 0;
-        currLen = 0;
-        oldTime = clock();
+        currLen = 1;
+        oldTime = clock() - 1000;
 		SpeechBubble[_ENEMY_SANS_].isActive = 1;
 		SpeechBubble[_ENEMY_SANS_].tColor = tColor;
     }
+    
+    // if already script read fully
+	if (readOver)
+	{
+		if (readOver < clock())
+			return -1;
+		return currLen;
+	}
+	// if not enough time passed
+    currTime = clock();
+    if (currTime - oldTime < 120)
+    	return currLen;
+    	
+	// main action
     if (kbhit())
     {
         input = getch();
         if (input == _SPACE_ || input == _CARRIAGE_RETURN_)
-            currLen = slen;
+        {
+        	if (readOver)
+        		return -1;
+			currLen = slen;
+			readOver = clock() + 1500;
+		}
+		else
+		{
+			if (slen <= currLen)
+	    	{
+				readOver = currTime + 1500;
+				return currLen;
+			}
+			currLen++;
+	        oldTime = currTime;
+		}
     }
     else
     {
-    	if (readOver)
-		{
-			// end this script
-			if (readOver < clock())
-				return -1;	
+		if (slen <= currLen)
+    	{
+			readOver = currTime + 1500;
 			return currLen;
 		}
-        else
-        {
-			currTime = clock();
-	        if (120 < currTime - oldTime)
-	        {
-	        	if (slen <= currLen)
-	        		readOver = currTime + 1500;
-				else
-					currLen++;
-	//            currLen = slen < currLen + 1 ? currLen : currLen + 1;
-	            oldTime = currTime;
-	        }
-		}
-    }
+		currLen++;
+        oldTime = currTime;
+	}
     // write script on 'SpeechBubble' until currLen
-    memcpy(SpeechBubble[_ENEMY_SANS_].data, script, currLen);
-    (SpeechBubble[_ENEMY_SANS_].data)[currLen] = '\0';
+    memcpy(buffer, script, currLen);
+    buffer[currLen] = '\0';
+    memcpy(SpeechBubble[_ENEMY_SANS_].data, buffer, currLen + 1);
     if (bVoice)
 		playVoice(_VOICE_SANS_);
     return currLen;
@@ -526,47 +575,6 @@ int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
 
 
 /* Boss Phase func */
-void movePlayer()
-{
-	static int playerSpeed = 1, oldTime;
-	if (playerSpeed == 0)
-	{
-		if (oldTime == 0)
-		{
-			oldTime = clock();
-		}
-		else if (30 < clock() - oldTime)
-		{
-			playerSpeed = 1;
-			oldTime = 0;
-		}
-	}
-	else
-	{
-		// key input
-		if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
-		{
-			PlayerPos.X -= playerSpeed;
-			playerSpeed = 0;
-		}	
-		else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
-		{
-			PlayerPos.X += playerSpeed;
-			playerSpeed = 0;
-		}
-		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
-		{
-			PlayerPos.Y -= playerSpeed;
-			playerSpeed = 0;
-		}
-		else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
-		{
-			PlayerPos.Y += playerSpeed;
-			playerSpeed = 0;
-		}
-	}
-}
-
 unsigned __stdcall fireBlastToCenter(void* args)
 {
 	// receive args
@@ -581,6 +589,7 @@ unsigned __stdcall fireBlastToCenter(void* args)
 	
 	switch (blasterAngle)
 	{
+		// angle 0
 		case _BLAST_TOP_CENTER_:
 			targetX = EnemyPhaseBox.x + (EnemyPhaseBox.width / 2) - 5;
 			targetY = EnemyPhaseBox.y - 9;
@@ -592,8 +601,9 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			targetY = EnemyPhaseBox.y - 9;
 			break;
 			
+		// angle 90
 		case _BLAST_MID_RIGHT_:
-			targetX = EnemyPhaseBox.x + EnemyPhaseBox.width + 7;
+			targetX = EnemyPhaseBox.x + EnemyPhaseBox.width + 10;
 			targetY = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
 			beginX 	= targetX;
 			beginY 	= targetY - 5;
@@ -603,6 +613,7 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			targetY = EnemyPhaseBox.y + EnemyPhaseBox.height + 2;
 			break;
 			
+		// angle 180
 		case _BLAST_BOT_CENTER_:
 			targetX = EnemyPhaseBox.x + (EnemyPhaseBox.width / 2) - 5;
 			targetY = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
@@ -616,8 +627,9 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			beginY 	= targetY + 5;
 			break;
 			
+		// angle 270
 		case _BLAST_MID_LEFT_:
-			targetX = EnemyPhaseBox.x - 20;
+			targetX = EnemyPhaseBox.x - 23;
 			targetY = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
 			beginX 	= targetX;
 			beginY 	= targetY + 5;
@@ -627,7 +639,6 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			targetY = EnemyPhaseBox.y - 8;
 			break;
 	}
-	
 	sansPattern[pId].renderInfoLen = 1;
 	
 	oldTime = clock();
@@ -643,9 +654,7 @@ unsigned __stdcall fireBlastToCenter(void* args)
 	while (t < 1)
 	{
 		t = (clock() - oldTime) / 400.0f;
-		blastId = (int)(t / 0.18f);
-		if (5 < blastId)
-			blastId = 5;
+		blastId = (int)(t / 0.4f);
 			
 		setRenderInfo(
 			&(sansPattern[pId].renderInfo[renderInfoIdx]), 
@@ -655,9 +664,29 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			_WHITE_,
 			_BLACK_
 		);
-		sleep(0.05f);
+		waitForFrame();
 	}
-	sleep(2.0f);
+	sleep(0.2f);
+	blastId++;
+	setRenderInfo(
+		&(sansPattern[pId].renderInfo[renderInfoIdx]), 
+		targetX,
+		targetY,
+		AssetFile[blasterType + blastId],
+		_WHITE_,
+		_BLACK_
+	);
+	sleep(0.6f);
+	blastId++;
+	setRenderInfo(
+		&(sansPattern[pId].renderInfo[renderInfoIdx]), 
+		targetX,
+		targetY,
+		AssetFile[blasterType + blastId],
+		_WHITE_,
+		_BLACK_
+	);
+	sleep(3.0f);
 }
 
 unsigned __stdcall fireBlastToPlayer(void* args)

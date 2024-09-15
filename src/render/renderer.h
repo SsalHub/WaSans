@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include <process.h>
 #include "../settings.h"
 #include "../utils.h"
@@ -43,7 +44,8 @@ void initScreen();
 void setWindowInfo(int w, int h);
 void flipScreen();
 void clearScreen();
-void fillColorToScreen(ConsoleColor tColor, ConsoleColor bColor);
+void fillColorInRange(int begX, int begY, int endX, int endY, ConsoleColor bColor);
+void fillColorToScreen(ConsoleColor bColor);
 void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor);
 void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor);
 void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor);

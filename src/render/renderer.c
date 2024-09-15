@@ -55,29 +55,39 @@ void clearScreen()
 {
 	COORD pos = { 0, 0 };
 	DWORD dw;
-//	printLines(x, y, ScreenBuffer, _BLACK_, _BLACK_);
 	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
 	FillConsoleOutputAttribute(ScreenHandle[ScreenIndex], 0, ScreenWidth * ScreenHeight, pos, &dw);
+//	printLines(x, y, ScreenBuffer, _BLACK_, _BLACK_);
 }
 
-void fillColorToScreen(ConsoleColor tColor, ConsoleColor bColor)
+void fillColorInRange(int begX, int begY, int endX, int endY, ConsoleColor bColor)
+{
+	if (endY < begY)
+		return;
+	COORD pos = { begX, begY };
+	DWORD dw;
+	int w = endX - begX + 1, h = endY - begY + 1, targetY = pos.Y + h;
+	do
+	{
+		FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', w, pos, &dw);
+		FillConsoleOutputAttribute(ScreenHandle[ScreenIndex], 0 | (bColor << 4), w, pos, &dw);
+		pos.Y++;
+	} while (pos.Y < targetY);
+}
+
+void fillColorToScreen(ConsoleColor bColor)
 {
 	COORD pos = { 0, 0 };
 	DWORD dw;
-	int i;
-	
-//	for (i = 0; i < ScreenWidth; i++)
-//		lineBuffer[i] = ' ';
-//	lineBuffer[ScreenWidth] = '\0';
-	
-	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
-	for (i = 0; i < ScreenHeight; i++)
-	{
-		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
-		WriteFile(ScreenHandle[ScreenIndex], blankBuffer, strlen(blankBuffer), &dw, NULL);
-		pos.Y++;
-	}
-//	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
+	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
+	FillConsoleOutputAttribute(ScreenHandle[ScreenIndex], 0 | (bColor << 4), ScreenWidth * ScreenHeight, pos, &dw);
+//	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
+//	for (i = 0; i < ScreenHeight; i++)
+//	{
+//		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
+//		WriteFile(ScreenHandle[ScreenIndex], blankBuffer, strlen(blankBuffer), &dw, NULL);
+//		pos.Y++;
+//	}
 }
 
 void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)
@@ -211,7 +221,7 @@ unsigned __stdcall renderThread()
 		if (sceneRenderer != NULL)
 			(*sceneRenderer)();
 		else
-			fillColorToScreen(_BLACK_, _BLACK_);
+			fillColorToScreen(_BLACK_);
 		printFPS();
 		flipScreen();
 		waitForFrame();

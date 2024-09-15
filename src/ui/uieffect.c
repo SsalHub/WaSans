@@ -43,7 +43,7 @@ void fadeIn(Renderer* renderer)
 	fadeProgress = ScreenHeight;
 	currentRenderer = renderer;
 	setRenderer(renderFadeEffect);
-	while (1 < fadeProgress)
+	while (0 < fadeProgress)
 	{
 		currTime = clock();
 		if (fadeSpeed < currTime - oldTime)
@@ -53,14 +53,16 @@ void fadeIn(Renderer* renderer)
 		}
 		sleep(0.01f);
 	}
+	setRenderer(renderer);
 }
 
 void renderFadeEffect()
 {
-	int i;
 	currentRenderer();
-    for (i = 0; i < fadeProgress; i++)
-        printLine(0, i, buffer, _BLACK_, _BLACK_);
+    fillColorInRange(0, 0, ScreenWidth, fadeProgress, _BLACK_);
+//	int i;
+//    for (i = 0; i < fadeProgress; i++)
+//        printLine(0, i, buffer, _BLACK_, _BLACK_);
 }
 
 void blackScreenEffect(float t)
@@ -82,5 +84,5 @@ void blackScreenEffect(float t)
 
 void renderBlackScreenEffect()
 {
-	fillColorToScreen(_BLACK_, _BLACK_);
+	fillColorToScreen(_BLACK_);
 }

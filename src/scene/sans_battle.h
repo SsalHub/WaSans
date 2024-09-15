@@ -79,7 +79,7 @@ static void enemyPhase();
 //void renderPlayerPhase();
 
 /* Sub Renderer */
-void renderSans(AssetType face);
+//void renderSans(AssetType face);
 int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice);
 //void renderBossPhaseBox();
 //void renderPlayerPhaseBox();
@@ -88,7 +88,6 @@ int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice);
 //void renderPattern();
 
 /* Boss Phase func */
-void movePlayer();
 unsigned __stdcall fireBlastToCenter(void* args);
 unsigned __stdcall fireBlastToPlayer(void* args);
 AssetType getBlastType(BlasterAngle blasterAngle);

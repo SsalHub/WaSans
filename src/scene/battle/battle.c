@@ -446,41 +446,86 @@ void renderPattern()
 	COORD pos;
 	DWORD dw;
 	RenderInfo *render;
-	int i, j, k;
-	for (i = 0; i < patternLen; i++)
+	int i, j, k, layer;
+	
+	
+	for (layer = (_PATTERN_LAYER_LEN_ - 1); 0 <= layer; layer--)
 	{
-		if (Patterns[i].isActive != STILL_ACTIVE)
-			continue;
-		for (j = 0; j < Patterns[i].renderInfoLen; j++)
+		for (i = 0; i < patternLen; i++)
 		{
-			render = &(Patterns[i].renderInfo[j]);
-			if (Patterns[i].renderInfo[j].s != NULL)
+			if (Patterns[i].isActive != STILL_ACTIVE)
+			continue;
+			
+			for (j = (Patterns[i].renderInfoLen[layer] - 1);  0 <= j; j--)
 			{
-				printLines(
-					render->x,
-					render->y,
-					render->s,
-					render->tColor,
-					render->bColor
-				);
-			}
-			else
-			{
-				pos.X = render->x;
-				for (k = 0; k < render->height; k++)
+				render = &(Patterns[i].renderInfo[layer][j]);
+				if (render->s != NULL)
 				{
-					pos.Y = render->y + k;
-					FillConsoleOutputAttribute(
-						ScreenHandle[ScreenIndex], 
-						render->tColor | (render->bColor << 4), 
-						render->width,
-						pos, 
-						&dw
+					printLines(
+						render->x,
+						render->y,
+						render->s,
+						render->tColor,
+						render->bColor
 					);
+				}
+				else
+				{
+					pos.X = render->x;
+					for (k = 0; k < render->height; k++)
+					{
+						pos.Y = render->y + k;
+						FillConsoleOutputAttribute(
+							ScreenHandle[ScreenIndex], 
+							render->tColor | (render->bColor << 4), 
+							render->width,
+							pos, 
+							&dw
+						);
+					}
 				}
 			}
 		}
 	}
+	
+//	for (i = 0; i < patternLen; i++)
+//	{
+//		if (Patterns[i].isActive != STILL_ACTIVE)
+//			continue;
+//			
+//		for (j = (_PATTERN_LAYER_LEN_ - 1); 0 <= j; j--)
+//		{
+//			for (layer = (Patterns[i].renderInfoLen[j] - 1);  0 <= layer; layer--)
+//			{
+//				render = &(Patterns[i].renderInfo[j][layer]);
+//				if (render->s != NULL)
+//				{
+//					printLines(
+//						render->x,
+//						render->y,
+//						render->s,
+//						render->tColor,
+//						render->bColor
+//					);
+//				}
+//				else
+//				{
+//					pos.X = render->x;
+//					for (k = 0; k < render->height; k++)
+//					{
+//						pos.Y = render->y + k;
+//						FillConsoleOutputAttribute(
+//							ScreenHandle[ScreenIndex], 
+//							render->tColor | (render->bColor << 4), 
+//							render->width,
+//							pos, 
+//							&dw
+//						);
+//					}
+//				}
+//			}
+//		}
+//	}
 }
 
 

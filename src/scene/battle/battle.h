@@ -6,6 +6,8 @@
 #include "../../utils.h"
 #include "../../render/renderer.h"
 
+#define _PATTERN_LAYER_LEN_		3
+
 
 typedef unsigned __stdcall (*Pattern)(void*);
 
@@ -46,8 +48,8 @@ typedef struct PatternInfo
 	DWORD isActive;
 	unsigned int threadID;
 	// render info
-	int renderInfoLen;
-	RenderInfo renderInfo[10];
+	int renderInfoLen[_PATTERN_LAYER_LEN_];
+	RenderInfo renderInfo[_PATTERN_LAYER_LEN_][10];
 } PatternInfo;
 
 extern int MaxHP;

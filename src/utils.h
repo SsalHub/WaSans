@@ -1,11 +1,12 @@
 #ifndef __UTILS__
 #define __UTILS__
+#include <Windows.h>
+#include <conio.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 #include <process.h>
-#include <windows.h>
 #include "settings.h"
 
 #define _ASSET_LEN_ 54
@@ -187,4 +188,5 @@ int getRandomRange(int min, int max);
 //char* rotateString(char* dst, char* src, int angle);
 float lerp(float from, float to, float t);
 void fillSpaceChar(char* str, int begin, int end);
+void flushIstream();
 #endif

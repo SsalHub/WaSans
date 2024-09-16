@@ -172,3 +172,8 @@ void fillSpaceChar(char* str, int begin, int end)
 		str[i] = ' ';
 	}
 }
+
+void flushIstream()
+{
+	while (kbhit() && getch());
+}

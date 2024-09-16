@@ -6,6 +6,9 @@ unsigned int RendererThreadAddr;
 int ScreenIndex;
 HANDLE ScreenHandle[2];
 
+
+
+/*  */
 void initScreen()
 {
 	CONSOLE_CURSOR_INFO cinfo;
@@ -60,13 +63,13 @@ void clearScreen()
 //	printLines(x, y, ScreenBuffer, _BLACK_, _BLACK_);
 }
 
-void fillColorInRange(int begX, int begY, int endX, int endY, ConsoleColor bColor)
+void fillColorInRange(COORD begin, COORD end, ConsoleColor bColor)
 {
-	if (endY < begY)
+	if (end.Y < begin.Y)
 		return;
-	COORD pos = { begX, begY };
+	COORD pos = { begin.X, begin.Y };
 	DWORD dw;
-	int w = endX - begX + 1, h = endY - begY + 1, targetY = pos.Y + h;
+	int w = end.X - begin.X + 1, h = end.Y - begin.Y + 1, targetY = pos.Y + h;
 	do
 	{
 		FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', w, pos, &dw);
@@ -81,13 +84,6 @@ void fillColorToScreen(ConsoleColor bColor)
 	DWORD dw;
 	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
 	FillConsoleOutputAttribute(ScreenHandle[ScreenIndex], 0 | (bColor << 4), ScreenWidth * ScreenHeight, pos, &dw);
-//	SetConsoleTextAttribute(ScreenHandle[ScreenIndex], tColor | (bColor << 4));
-//	for (i = 0; i < ScreenHeight; i++)
-//	{
-//		SetConsoleCursorPosition(ScreenHandle[ScreenIndex], pos);
-//		WriteFile(ScreenHandle[ScreenIndex], blankBuffer, strlen(blankBuffer), &dw, NULL);
-//		pos.Y++;
-//	}
 }
 
 void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)
@@ -177,12 +173,26 @@ void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColo
 	}
 }
 
+
+
+/*  */
 void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor)
 {
 	if (s != NULL)
 		target->s = s;
 	target->x = x;
 	target->y = y;
+	target->tColor = tColor;
+	target->bColor = bColor;
+}
+
+void setRenderInfoAttr(RenderInfo* target, int x, int y, int w, int h, ConsoleColor tColor, ConsoleColor bColor)
+{
+	target->s = NULL;
+	target->x = x;
+	target->y = y;
+	target->width = w;
+	target->height = h;
 	target->tColor = tColor;
 	target->bColor = bColor;
 }
@@ -197,6 +207,9 @@ Renderer* getCurrentRenderer()
 	return sceneRenderer;
 }
 
+
+
+/*  */
 void printFPS()
 {
 	char fps_text[30], itoa_text[10];
@@ -213,6 +226,9 @@ void beginRenderThread()
 	hRenderThread = (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)renderThread, NULL, 0, &pRenderThread);
 }
 
+
+
+/*  */
 unsigned __stdcall renderThread()
 {
 	while (bRenderThread)
@@ -228,6 +244,9 @@ unsigned __stdcall renderThread()
 	}
 }
 
+
+
+/*  */
 void releaseScreen()
 {
 	bRenderThread = 0;

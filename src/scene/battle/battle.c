@@ -18,6 +18,7 @@ void renderBattleScene()
     {
 		renderEnemyPhaseBox();
 		renderPattern();
+		renderPlayerPos();
 		return;
 	}
 	if (battlePhase == _PLAYER_PHASE_)
@@ -292,7 +293,6 @@ void renderEnemy()
 void renderEnemyPhaseBox()
 {
     printLines(EnemyPhaseBox.x, EnemyPhaseBox.y, EnemyPhaseBox.data, _WHITE_, _BLACK_);
-    renderPlayerPos();
 }
 
 void renderPlayerPos()
@@ -404,6 +404,7 @@ void renderSpeechBubble()
 		return;
 	static int bubbleWidth = 0;
 	char buffer[ScreenWidth * 2];
+	COORD begin, end, pos;
 	int i, j, slen, x, y, w, h;
 	
 	for (i = 0; i < enemyLen; i++)
@@ -415,8 +416,14 @@ void renderSpeechBubble()
 			w = SpeechBubble[i].width;
 			h = SpeechBubble[i].height;
 			// render bubble box
-			fillColorInRange(x, y, x + w, y + h, _WHITE_);
-			fillColorInRange(x - 1, y + 3, x - 1, y + 3, _WHITE_);
+			begin.X = x;
+			begin.Y = y;
+			end.X = x + w;
+			end.Y = y + h;
+			fillColorInRange(begin, end, _WHITE_);
+			pos.X = x - 1;
+			pos.Y = y + 3;
+			fillColorInRange(pos, pos, _WHITE_);
 		    // render text
 		    j = 0;
 			slen = strlen(SpeechBubble[i].data);
@@ -436,22 +443,42 @@ void renderSpeechBubble()
 
 void renderPattern()
 {
-	int i, j;
+	COORD pos;
+	DWORD dw;
+	RenderInfo *render;
+	int i, j, k;
 	for (i = 0; i < patternLen; i++)
 	{
 		if (Patterns[i].isActive != STILL_ACTIVE)
 			continue;
 		for (j = 0; j < Patterns[i].renderInfoLen; j++)
 		{
-			if (Patterns[i].renderInfo[j].s == NULL)
-				continue;
-			printLines(
-				Patterns[i].renderInfo[j].x,
-				Patterns[i].renderInfo[j].y,
-				Patterns[i].renderInfo[j].s,
-				Patterns[i].renderInfo[j].tColor,
-				Patterns[i].renderInfo[j].bColor
-			);
+			render = &(Patterns[i].renderInfo[j]);
+			if (Patterns[i].renderInfo[j].s != NULL)
+			{
+				printLines(
+					render->x,
+					render->y,
+					render->s,
+					render->tColor,
+					render->bColor
+				);
+			}
+			else
+			{
+				pos.X = render->x;
+				for (k = 0; k < render->height; k++)
+				{
+					pos.Y = render->y + k;
+					FillConsoleOutputAttribute(
+						ScreenHandle[ScreenIndex], 
+						render->tColor | (render->bColor << 4), 
+						render->width,
+						pos, 
+						&dw
+					);
+				}
+			}
 		}
 	}
 }

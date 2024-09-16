@@ -58,8 +58,9 @@ void fadeIn(Renderer* renderer)
 
 void renderFadeEffect()
 {
+	COORD begin = { 0, 0 }, end = { ScreenWidth, fadeProgress };
 	currentRenderer();
-    fillColorInRange(0, 0, ScreenWidth, fadeProgress, _BLACK_);
+    fillColorInRange(begin, end, _BLACK_);
 //	int i;
 //    for (i = 0; i < fadeProgress; i++)
 //        printLine(0, i, buffer, _BLACK_, _BLACK_);

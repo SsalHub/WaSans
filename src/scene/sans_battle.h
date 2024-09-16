@@ -13,10 +13,10 @@
 #include "scenemanager.h"
 #include "battle/battle.h"
 
-#define _BATTLE_SELECT_LEN_	4
-#define _SANS_SCRIPT_LEN_ 	4
-#define _BLAST_ANGLE_LEN_ 	7
+#define _SANS_SCRIPT_LEN_ 	5
 #define _SANS_PATTERN_LEN_ 	2
+#define _BLAST_ANGLE_LEN_ 	6
+#define _BATTLE_SELECT_LEN_	4
 #define _PATTERN_CONTINUE_	-1
 
 typedef enum BlasterAngle
@@ -50,11 +50,14 @@ typedef struct _PatternArgs_Blaster
 
 static int patternIdx, scriptIdx;
 static PatternInfo sansPattern[_SANS_PATTERN_LEN_];
-static const char scripts[_SANS_SCRIPT_LEN_][64] = {
+static const char scripts[_SANS_SCRIPT_LEN_][128] = {
 				    "it's a beautiful day outside.",
 				    "birds are singing. flowers are blooming.",
 				    "on days like these, kids like you...",
 				    "Should be burning in hell.",
+//				    "huh.",
+//					"always wondered why people never use their strongest attack first.",
+				    "here we go.",
 				};
 static PatternArgs_Blaster gasterBlasterPatternInfo[_SANS_PATTERN_LEN_] = {
 					{ 0, _BLAST_MID_RIGHT_ },
@@ -92,7 +95,9 @@ unsigned __stdcall fireBlastToCenter(void* args);
 unsigned __stdcall fireBlastToPlayer(void* args);
 AssetType getBlastType(BlasterAngle blasterAngle);
 char* fixBlastAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle);
+int explodeBlaster(BlasterAngle angle, int pid, COORD begin, COORD end, ConsoleColor bColor);
 void runSansPattern(int pid);
+int isAnyPatternAlive();
 
 /* etc */
 void setSansFace(AssetType facetype);

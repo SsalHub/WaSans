@@ -19,6 +19,8 @@ typedef struct RenderInfo
 	char* s;
 	ConsoleColor tColor;
 	ConsoleColor bColor;
+	int width;
+	int height;
 } RenderInfo;
 
 typedef enum TextAlign
@@ -44,16 +46,21 @@ void initScreen();
 void setWindowInfo(int w, int h);
 void flipScreen();
 void clearScreen();
-void fillColorInRange(int begX, int begY, int endX, int endY, ConsoleColor bColor);
+void fillColorInRange(COORD begin, COORD end, ConsoleColor bColor);
 void fillColorToScreen(ConsoleColor bColor);
 void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor);
 void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor);
+
 void setRenderInfo(RenderInfo* target, int x, int y, char* s, ConsoleColor tColor, ConsoleColor bColor);
+void setRenderInfoAttr(RenderInfo* target, int x, int y, int w, int h, ConsoleColor tColor, ConsoleColor bColor);
 void setRenderer(Renderer* renderer);
 Renderer* getCurrentRenderer();
+
 void printFPS();
 void waitForFrame();
+
 void beginRenderThread();
 unsigned __stdcall renderThread();
+
 void releaseScreen();
 #endif

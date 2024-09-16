@@ -160,7 +160,7 @@ static void playerPhase()
 
 static void enemyPhase()
 {
-	const int introScriptIdx = 3;
+	const int introScriptIdx_A = 4, introScriptIdx_B = 5;
 	int i, speechFlag = 0;
     PlayerPos.X = 59;
     PlayerPos.Y = 19;
@@ -176,7 +176,7 @@ static void enemyPhase()
 	    	
 	    	// run script
 	    	sleep(1.0f);
-			while (scriptIdx == introScriptIdx)
+			while (scriptIdx < introScriptIdx_A)
 			{
 				speechFlag = writeSpeechBubble(scripts[scriptIdx], _RED_, 0);
 	        	movePlayerPos();
@@ -184,30 +184,32 @@ static void enemyPhase()
 				if (speechFlag < 0)
 					scriptIdx++;
 			}
-			sleep(0.1f);
 			SpeechBubble[_ENEMY_SANS_].isActive = 0;
+			sleep(0.1f);
 	    	
         	// run boss pattern
+			setSansFace(_SANS_FACE_NORMAL_A_);
 			runSansPattern(0);
 			runSansPattern(1);
 			// wait until all pattern completed
-	        while (1)
+	        while (isAnyPatternAlive())
 	        {
-	            for (i = 0; i < _SANS_PATTERN_LEN_; i++)
-	            {
-	            	GetExitCodeThread(sansPattern[i].hThread, &(sansPattern[i].isActive));
-	            	if (sansPattern[i].isActive == STILL_ACTIVE)
-	            		break;
-				}
-				if (_SANS_PATTERN_LEN_ <= i)
-					break;
-				
 	        	movePlayerPos();
 	        	waitForFrame();
 	        }
 	        CloseHandle(sansPattern[0].hThread);
 	        CloseHandle(sansPattern[1].hThread);
-	        sleep(2.0f);
+	        sleep(1.0f);
+			while (scriptIdx < introScriptIdx_B)
+			{
+				speechFlag = writeSpeechBubble(scripts[scriptIdx], _BLACK_, 0);
+	        	movePlayerPos();
+    			waitForFrame();
+				if (speechFlag < 0)
+					scriptIdx++;
+			}
+			SpeechBubble[_ENEMY_SANS_].isActive = 0;
+			sleep(0.1f);
 	        break;
 	    
 	    case 1:
@@ -583,110 +585,166 @@ unsigned __stdcall fireBlastToCenter(void* args)
 	BlasterAngle blasterAngle = data->blasterAngle;
 	// other vars
 	AssetType blasterType = getBlastType(blasterAngle);
-	int targetX, targetY, beginX, beginY;
 	int oldTime, renderInfoIdx = 0, blastId = 0;
+	char chargeBlaster[16];
+	COORD pos, begin, end;
 	float t;
+	
+	strcpy(chargeBlaster, "   \n   \n   ");
 	
 	switch (blasterAngle)
 	{
 		// angle 0
 		case _BLAST_TOP_CENTER_:
-			targetX = EnemyPhaseBox.x + (EnemyPhaseBox.width / 2) - 5;
-			targetY = EnemyPhaseBox.y - 9;
-			beginX 	= targetX - 18;
-			beginY 	= targetY;
+			end.X 		= EnemyPhaseBox.x + (EnemyPhaseBox.width / 2) - 5;
+			end.Y 		= EnemyPhaseBox.y - 9;
+			begin.X 	= end.X - 18;
+			begin.Y 	= end.Y;
 			break;
 		case _BLAST_TOP_RIGHT_:
-			targetX = EnemyPhaseBox.x + EnemyPhaseBox.width + 5;
-			targetY = EnemyPhaseBox.y - 9;
+			end.X = EnemyPhaseBox.x + EnemyPhaseBox.width + 5;
+			end.Y = EnemyPhaseBox.y - 9;
 			break;
 			
 		// angle 90
 		case _BLAST_MID_RIGHT_:
-			targetX = EnemyPhaseBox.x + EnemyPhaseBox.width + 10;
-			targetY = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
-			beginX 	= targetX;
-			beginY 	= targetY - 5;
+			end.X 		= EnemyPhaseBox.x + EnemyPhaseBox.width + 10;
+			end.Y 		= EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
+			begin.X 	= end.X;
+			begin.Y 	= end.Y - 5;
 			break;
 		case _BLAST_BOT_RIGHT_:
-			targetX = EnemyPhaseBox.x + EnemyPhaseBox.width + 5;
-			targetY = EnemyPhaseBox.y + EnemyPhaseBox.height + 2;
+			end.X = EnemyPhaseBox.x + EnemyPhaseBox.width + 5;
+			end.Y = EnemyPhaseBox.y + EnemyPhaseBox.height + 2;
 			break;
 			
 		// angle 180
 		case _BLAST_BOT_CENTER_:
-			targetX = EnemyPhaseBox.x + (EnemyPhaseBox.width / 2) - 5;
-			targetY = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
-			beginX 	= targetX + 18;
-			beginY 	= targetY;
+			end.X = EnemyPhaseBox.x + (EnemyPhaseBox.width / 2) - 5;
+			end.Y = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
+			begin.X 	= end.X + 18;
+			begin.Y 	= end.Y;
 			break;
 		case _BLAST_BOT_LEFT_:
-			targetX = EnemyPhaseBox.x - 20;
-			targetY = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 5;
-			beginX 	= targetX;
-			beginY 	= targetY + 5;
+			end.X = EnemyPhaseBox.x - 20;
+			end.Y = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 5;
+			begin.X 	= end.X;
+			begin.Y 	= end.Y + 5;
 			break;
 			
 		// angle 270
 		case _BLAST_MID_LEFT_:
-			targetX = EnemyPhaseBox.x - 23;
-			targetY = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
-			beginX 	= targetX;
-			beginY 	= targetY + 5;
+			end.X = EnemyPhaseBox.x - 23;
+			end.Y = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
+			begin.X 	= end.X;
+			begin.Y 	= end.Y + 5;
 			break;
 		case _BLAST_TOP_LEFT_:
-			targetX = EnemyPhaseBox.x - 20;
-			targetY = EnemyPhaseBox.y - 8;
+			end.X = EnemyPhaseBox.x - 20;
+			end.Y = EnemyPhaseBox.y - 8;
 			break;
 	}
-	sansPattern[pId].renderInfoLen = 1;
 	
 	oldTime = clock();
 	setRenderInfo(
 		&(sansPattern[pId].renderInfo[renderInfoIdx]), 
-		beginX,
-		beginY,
+		begin.X,
+		begin.Y,
 		AssetFile[blasterType],
 		_WHITE_,
 		_BLACK_
 	);
+	sansPattern[pId].renderInfoLen = 1;
 	playSFXOnThread(_SFX_GASTERBLASTER_);
+	
 	while (t < 1)
 	{
-		t = (clock() - oldTime) / 400.0f;
-		blastId = (int)(t / 0.4f);
+		t = (clock() - oldTime) / 3000.0f;
+		blastId = (int)(t / 0.05f);
+		if (4 < blastId)
+			blastId = 4;
 			
-		setRenderInfo(
-			&(sansPattern[pId].renderInfo[renderInfoIdx]), 
-			(int)lerp(beginX, targetX, t),
-			(int)lerp(beginY, targetY, t),
-			AssetFile[blasterType + blastId],
-			_WHITE_,
-			_BLACK_
-		);
+		if (t < 0.1f)
+		{
+			pos.X = (int)lerp(begin.X, end.X, t * 10);
+			pos.Y = (int)lerp(begin.Y, end.Y, t * 10);
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[renderInfoIdx]), 
+				pos.X,
+				pos.Y,
+				AssetFile[blasterType + blastId],
+				_WHITE_,
+				_BLACK_
+			);
+			sansPattern[pId].renderInfoLen = 1;
+			continue;
+		}
+		if (t < 0.2f)
+		{
+			renderInfoIdx = 0;
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[renderInfoIdx]), 
+				end.X,
+				end.Y,
+				AssetFile[blasterType + blastId],
+				_WHITE_,
+				_BLACK_
+			);
+			renderInfoIdx++;
+			setRenderInfoAttr(
+				&(sansPattern[pId].renderInfo[renderInfoIdx]), 
+				end.X + 5,
+				end.Y + 2,
+				8,
+				2,
+				_WHITE_,
+				_GRAY_
+			);
+			renderInfoIdx++;
+			sansPattern[pId].renderInfoLen = renderInfoIdx;
+			continue;
+		}
+		
 		waitForFrame();
 	}
-	sleep(0.2f);
-	blastId++;
-	setRenderInfo(
-		&(sansPattern[pId].renderInfo[renderInfoIdx]), 
-		targetX,
-		targetY,
-		AssetFile[blasterType + blastId],
-		_WHITE_,
-		_BLACK_
-	);
-	sleep(0.6f);
-	blastId++;
-	setRenderInfo(
-		&(sansPattern[pId].renderInfo[renderInfoIdx]), 
-		targetX,
-		targetY,
-		AssetFile[blasterType + blastId],
-		_WHITE_,
-		_BLACK_
-	);
-	sleep(3.0f);
+	return 0;
+	//
+//	while (t < 1)
+//	{
+//		t = (clock() - oldTime) / 400.0f;
+//		blastId = (int)(t / 0.4f);
+//		
+//		setRenderInfo(
+//			&(sansPattern[pId].renderInfo[renderInfoIdx]), 
+//			(int)lerp(beginX, targetX, t),
+//			(int)lerp(beginY, targetY, t),
+//			AssetFile[blasterType + blastId],
+//			_WHITE_,
+//			_BLACK_
+//		);
+//		waitForFrame();
+//	}
+//	sleep(0.2f);
+//	blastId = 3;
+//	setRenderInfo(
+//		&(sansPattern[pId].renderInfo[renderInfoIdx]), 
+//		targetX,
+//		targetY,
+//		AssetFile[blasterType + blastId],
+//		_WHITE_,
+//		_BLACK_
+//	);
+//	sleep(0.6f);
+//	blastId = 4;
+//	setRenderInfo(
+//		&(sansPattern[pId].renderInfo[renderInfoIdx]), 
+//		targetX,
+//		targetY,
+//		AssetFile[blasterType + blastId],
+//		_WHITE_,
+//		_BLACK_
+//	);
+//	sleep(3.0f);
 }
 
 unsigned __stdcall fireBlastToPlayer(void* args)
@@ -697,6 +755,93 @@ unsigned __stdcall fireBlastToPlayer(void* args)
 	BlasterAngle blasterAngle = data->blasterAngle;
 	// other vars
 	int playerX = PlayerPos.X, playerY = PlayerPos.Y;
+}
+
+int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleColor bColor)	
+{
+	if (end.X < begin.X)
+	{
+		COORD tmp = begin;
+		begin = end;
+		end = tmp;
+	}
+	const int blasterWidth = 3;
+	char line[ScreenWidth + 1], block[4];
+	int width, height;
+	int i = 0;
+	
+	if (strlen(block) < 1)
+		strcpy(block, "   ");
+	
+	switch (angle)
+	{
+		// vertical
+		case _BLAST_TOP_CENTER_:
+		case _BLAST_BOT_CENTER_:
+			width = blasterWidth;
+			height = (end.Y - begin.Y) + 1;
+			
+			for (i = 0; i < height; i++)
+			{
+				setRenderInfo(
+					&(sansPattern[pId].renderInfo[i]), 
+					begin.X,
+					begin.Y + i,
+					block,
+					_WHITE_,
+					bColor
+				);
+			}
+			sansPattern[pId].renderInfoLen = height;
+			break;
+		
+		// horizontal
+		case _BLAST_MID_RIGHT_:
+		case _BLAST_MID_LEFT_:
+			width = (end.X - begin.X) + 1;
+			height = blasterWidth;
+			
+			for (i = 0; i < width; i++)
+				line[i] = ' ';
+			line[width] = '\0';
+			for (i = 0; i < height; i++)
+			{
+				setRenderInfo(
+					&(sansPattern[pId].renderInfo[i]), 
+					begin.X,
+					begin.Y + i - 1,
+					line,
+					_WHITE_,
+					bColor
+				);
+			}
+			sansPattern[pId].renderInfoLen = height;
+			break;
+			
+		// diagonal
+		case _BLAST_TOP_RIGHT_:
+		case _BLAST_BOT_RIGHT_:
+		case _BLAST_BOT_LEFT_:
+		case _BLAST_TOP_LEFT_:
+			width = blasterWidth;
+			height = (end.Y - begin.Y) + 1;
+			
+			for (i = 0; i < height; i++)
+			{
+				setRenderInfo(
+					&(sansPattern[pId].renderInfo[i]), 
+					lerp(begin.X, end.X, i / (float)height),
+					begin.Y + i,
+					block,
+					_WHITE_,
+					bColor
+				);
+			}
+			sansPattern[pId].renderInfoLen = height;
+			break; 
+	}
+	sansPattern[pId].renderInfoLen = i;
+	return i;
 }
 
 AssetType getBlastType(BlasterAngle blasterAngle)
@@ -744,6 +889,18 @@ void runSansPattern(int pid)
 			
 	GetExitCodeThread(sansPattern[patternId].hThread, &(sansPattern[patternId].isActive));
 	patternId++;
+}
+
+int isAnyPatternAlive()
+{
+	int i;
+    for (i = 0; i < _SANS_PATTERN_LEN_; i++)
+    {
+    	GetExitCodeThread(sansPattern[i].hThread, &(sansPattern[i].isActive));
+    	if (sansPattern[i].isActive == STILL_ACTIVE)
+    		return 1;
+	}
+	return 0;
 }
 
 

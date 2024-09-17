@@ -97,11 +97,13 @@ AssetType getBlastType(BlasterAngle blasterAngle);
 char* fixBlastAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle);
 int explodeBlaster(BlasterAngle angle, int pid, COORD begin, COORD end, ConsoleColor bColor);
 void runSansPattern(int pid);
+void runSansPatternInRange(int begin, int end);
 int isAnyPatternAlive();
 
 /* etc */
 void setSansFace(AssetType facetype);
 
 /* Terminate Func */
+void releasePatternInRange(int begin, int end);
 void releasePatterns();
 #endif

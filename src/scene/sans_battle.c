@@ -101,14 +101,18 @@ static void introPhase()
     
 	setSansFace(_SANS_FACE_NORMAL_A_);
 	sleep(1.0f);
+	flushIstream();
 	while (scriptIdx < introScriptLen)
 	{
 		speechFlag = writeSpeechBubble(scripts[scriptIdx], _BLACK_, 1);
     	waitForFrame();
 		if (speechFlag < 0)
+		{
+			flushIstream();
 			scriptIdx++;
+		}
 	}
-	SpeechBubble[_ENEMY_SANS_].isActive = 0;
+//	SpeechBubble[_ENEMY_SANS_].isActive = 0;
 	
 	// end intro phase
     playBGM(_BGM_BIRDNOISE_, _SOUND_PAUSE_);
@@ -170,55 +174,62 @@ static void enemyPhase()
     switch (getBattleTurn())
     {
 	    case 0: // intro turn
-			setSansFace(_SANS_FACE_NORMAL_B_);
 			playSFX(_SFX_MOMENT_);
 			blackScreenEffect(1.0f);
+			setSansFace(_SANS_FACE_NORMAL_B_);
 	    	setBattlePhase(_ENEMY_PHASE_);
 	    	playSFX(_SFX_MOMENT_);
 	    	
 	    	// run script
 	    	sleep(1.0f);
+	    	flushIstream();
 			while (scriptIdx < introScriptIdx_A)
 			{
 				speechFlag = writeSpeechBubble(scripts[scriptIdx], _RED_, 0);
 	        	movePlayerPos();
     			waitForFrame();
 				if (speechFlag < 0)
+				{
+					flushIstream();
 					scriptIdx++;
+				}
 			}
-			SpeechBubble[_ENEMY_SANS_].isActive = 0;
-			sleep(0.1f);
+//			SpeechBubble[_ENEMY_SANS_].isActive = 0;
 	    	
         	// run boss pattern
 			setSansFace(_SANS_FACE_NORMAL_A_);
-			runSansPattern(0);
-			runSansPattern(1);
+			runSansPatternInRange(0, 1);
 			// wait until all pattern completed
+			flushIstream();
 	        while (isAnyPatternAlive())
 	        {
 	        	movePlayerPos();
 	        	waitForFrame();
 	        }
-	        CloseHandle(sansPattern[0].hThread);
-	        CloseHandle(sansPattern[1].hThread);
-	        sleep(1.0f);
+	        releasePatternInRange(0, 1);
+	        flushIstream();
 			while (scriptIdx < introScriptIdx_B)
 			{
 				speechFlag = writeSpeechBubble(scripts[scriptIdx], _BLACK_, 0);
 	        	movePlayerPos();
     			waitForFrame();
 				if (speechFlag < 0)
+				{
+					flushIstream();
 					scriptIdx++;
+				}
 			}
-			SpeechBubble[_ENEMY_SANS_].isActive = 0;
+//			SpeechBubble[_ENEMY_SANS_].isActive = 0;
 			sleep(0.1f);
 	        break;
 	    
 	    case 1:
 			setSansFace(_SANS_FACE_NORMAL_A_);
+			flushIstream();
 	        while (1)
 	        {
 	        	movePlayerPos();
+	        	waitForFrame();
 	        }
 	        break;
     }
@@ -397,7 +408,10 @@ int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
 	if (readOver)
 	{
 		if (readOver < clock())
+		{
+			SpeechBubble[_ENEMY_SANS_].isActive = 0;
 			return -1;
+		}
 		return currLen;
 	}
 	// if not enough time passed
@@ -585,7 +599,8 @@ unsigned __stdcall fireBlastToCenter(void* args)
 	// other vars
 	AssetType blasterType = getBlastType(blasterAngle);
 	int oldTime, renderInfoIdx = 0, blastId = 0;
-	COORD pos, begin, end, explode, expl_target;
+	COORD pos, begin, end, exit, explode, expl_target;
+	ConsoleColor tColor;
 	float t;
 	
 	switch (blasterAngle)
@@ -596,6 +611,8 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			end.Y 		= EnemyPhaseBox.y - 9;
 			begin.X 	= end.X - 18;
 			begin.Y 	= end.Y;
+			exit.X 		= end.X + 18;
+			exit.Y 		= end.Y;
 			expl_target.X = 0;
 			expl_target.Y = end.Y;
 			break;
@@ -612,6 +629,8 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			end.Y 		= EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y - 5;
+			exit.X 		= end.X;
+			exit.Y 		= end.Y + 5;
 			explode.X 	= end.X + 1;
 			explode.Y 	= end.Y + 2;
 			expl_target.X = 0;
@@ -622,6 +641,8 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			end.Y = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y + 5;
+			exit.X 		= end.X;
+			exit.Y 		= end.Y - 5;
 			explode.X 	= end.X + 13;
 			explode.Y 	= end.Y + 2;
 			expl_target.X = ScreenWidth;
@@ -655,83 +676,119 @@ unsigned __stdcall fireBlastToCenter(void* args)
 		begin.X,
 		begin.Y,
 		AssetFile[blasterType],
-		_WHITE_,
+		_GRAY_,
 		_BLACK_
 	);
 	sansPattern[pId].renderInfoLen[0] = 1;
 	playSFXOnThread(_SFX_GASTERBLASTER_);
 	// Main Loop
+	t = 0;
+	oldTime = clock();
+	// appearance loop
 	while (t < 1)
 	{
-		t = (clock() - oldTime) / 3000.0f;
-		blastId = (int)(t / 0.05f);
+		t = (clock() - oldTime) / 400.0f;
+		blastId = (int)(t / 0.15f);
 		if (4 < blastId)
 			blastId = 4;
+		// set color
+		if (t < 0.4f)
+			tColor = _GRAY_;
+		else if (t < 0.7f)
+			tColor = _BRIGHT_GRAY_;
+		else
+			tColor = _WHITE_;
 			
-		if (t < 0.1f)
+		// render GasterBlaster
+		pos.X = (int)lerp(begin.X, end.X, t);
+		pos.Y = (int)lerp(begin.Y, end.Y, t);
+		setRenderInfo(
+			&(sansPattern[pId].renderInfo[0][0]), 
+			pos.X,
+			pos.Y,
+			AssetFile[blasterType + blastId],
+			tColor,
+			_BLACK_
+		);
+		sansPattern[pId].renderInfoLen[0] = 1;
+		waitForFrame();
+	}
+	t = 0;
+	oldTime = clock();
+	// exploding loop
+	while (t < 1)
+	{
+		t = (clock() - oldTime) / 1500.0f;
+		// render GasterBlaster
+		setRenderInfo(
+			&(sansPattern[pId].renderInfo[0][0]), 
+			end.X,
+			end.Y,
+			AssetFile[blasterType + 4],
+			_WHITE_,
+			_BLACK_
+		);
+		sansPattern[pId].renderInfoLen[0] = 1;
+		// explode
+		if (t < 0.4f)
 		{
-			// render GasterBlaster
-			pos.X = (int)lerp(begin.X, end.X, t * 10);
-			pos.Y = (int)lerp(begin.Y, end.Y, t * 10);
-			setRenderInfo(
-				&(sansPattern[pId].renderInfo[0][0]), 
-				pos.X,
-				pos.Y,
-				AssetFile[blasterType + blastId],
-				_WHITE_,
-				_BLACK_
-			);
-			sansPattern[pId].renderInfoLen[0] = 1;
-			continue;
-		}
-		if (t < 0.2f)
-		{
-			// render GasterBlaster
-			setRenderInfo(
-				&(sansPattern[pId].renderInfo[0][0]), 
-				end.X,
-				end.Y,
-				AssetFile[blasterType + blastId],
-				_WHITE_,
-				_BLACK_
-			);
-			sansPattern[pId].renderInfoLen[0] = 1;
-			// render exploding blaster
+			// render exploding blaster (charging ver)
 			setRenderInfoAttr(
 				&(sansPattern[pId].renderInfo[1][0]), 
 				explode.X,
 				explode.Y,
 				4,
 				2,
-				_WHITE_,
+				_BRIGHT_GRAY_,
 				_WHITE_
 			);
 			sansPattern[pId].renderInfoLen[1] = 1;
-			continue;
 		}
-		if (t < 0.33f)
+		else 
 		{
-			// render GasterBlaster
-			setRenderInfo(
-				&(sansPattern[pId].renderInfo[0][0]), 
-				end.X,
-				end.Y,
-				AssetFile[blasterType + blastId],
-				_WHITE_,
-				_BLACK_
-			);
-			sansPattern[pId].renderInfoLen[0] = 1;
 			// render exploding blaster
-			pos.X = lerp(explode.X, expl_target.X, t / 0.26f);
-			pos.Y = lerp(explode.Y, expl_target.Y, t / 0.26f);
+			pos.X = lerp(explode.X, expl_target.X, (t - 0.3f) * 3.5f);
+			pos.Y = lerp(explode.Y, expl_target.Y, (t - 0.3f) * 3.5f);
 			sansPattern[pId].renderInfoLen[1] = explodeBlaster(blasterAngle, pId, explode, pos, _WHITE_);
-			continue;
 		}
-		
+		waitForFrame();
+	}
+	// release rendering exlode
+	sleep(1.0f);
+	sansPattern[pId].renderInfoLen[1] = 0;
+	//
+	t = 0;
+	oldTime = clock();
+	// explode complete, exit loop
+	while (t < 1)
+	{
+		t = (clock() - oldTime) / 400.0f;
+		blastId = 4 - (int)(t / 0.15f);
+		if (blastId < 0)
+			blastId = 0;
+		// set color
+		if (t < 0.4f)
+			tColor = _WHITE_;
+		else if (t < 0.7f)
+			tColor = _BRIGHT_GRAY_;
+		else
+			tColor = _GRAY_;
+			
+		// render GasterBlaster
+		pos.X = (int)lerp(end.X, exit.X, t);
+		pos.Y = (int)lerp(end.Y, exit.Y, t);
+		setRenderInfo(
+			&(sansPattern[pId].renderInfo[0][0]), 
+			pos.X,
+			pos.Y,
+			AssetFile[blasterType + blastId],
+			tColor,
+			_BLACK_
+		);
+		sansPattern[pId].renderInfoLen[0] = 1;
 		waitForFrame();
 	}
 	sansPattern[pId].renderInfoLen[0] = 0;
-	sansPattern[pId].renderInfoLen[1] = 0;
 }
 
 unsigned __stdcall fireBlastToPlayer(void* args)
@@ -854,15 +911,30 @@ char* fixBlastAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle)
 
 void runSansPattern(int pid)
 {
-	static int patternId = 0;
-	patternId = pid < 0 ? patternId : pid;
-	sansPattern[patternId].hThread = startPattern(
-			sansPattern[patternId].pattern,
-			sansPattern[patternId].data,
-			&(sansPattern[patternId].threadID));
+	if (pid < 0)
+		return;
+	sansPattern[pid].hThread = startPattern(
+			sansPattern[pid].pattern,
+			sansPattern[pid].data,
+			&(sansPattern[pid].threadID));
 			
-	GetExitCodeThread(sansPattern[patternId].hThread, &(sansPattern[patternId].isActive));
-	patternId++;
+	GetExitCodeThread(sansPattern[pid].hThread, &(sansPattern[pid].isActive));
+}
+
+void runSansPatternInRange(int begin, int end)
+{
+	if (begin < 0 || end < begin)
+		return;
+	int pid;
+	for (pid = begin; pid <= end; pid++)
+	{
+		sansPattern[pid].hThread = startPattern(
+			sansPattern[pid].pattern,
+			sansPattern[pid].data,
+			&(sansPattern[pid].threadID));
+			
+		GetExitCodeThread(sansPattern[pid].hThread, &(sansPattern[pid].isActive));
+	}
 }
 
 int isAnyPatternAlive()
@@ -886,11 +958,16 @@ void setSansFace(AssetType facetype)
 }
 
 /* Terminate Func */
+void releasePatternInRange(int begin, int end)
+{
+	int pid;
+	for (pid = begin; pid <= end; pid++)
+		CloseHandle(sansPattern[pid].hThread);
+}
+
 void releasePatterns()
 {
 	int i;
 	for (i = 0; i < _SANS_PATTERN_LEN_; i++)
-	{
 		CloseHandle(sansPattern[i].hThread);
-	}
 }

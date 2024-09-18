@@ -14,7 +14,7 @@
 #include "battle/battle.h"
 
 #define _SANS_SCRIPT_LEN_ 	5
-#define _SANS_PATTERN_LEN_ 	2
+#define _SANS_PATTERN_LEN_ 	4
 #define _BLAST_ANGLE_LEN_ 	6
 #define _BATTLE_SELECT_LEN_	4
 #define _PATTERN_CONTINUE_	-1
@@ -62,6 +62,8 @@ static const char scripts[_SANS_SCRIPT_LEN_][128] = {
 static PatternArgs_Blaster gasterBlasterPatternInfo[_SANS_PATTERN_LEN_] = {
 					{ 0, _BLAST_MID_RIGHT_ },
 					{ 1, _BLAST_MID_LEFT_ },
+					{ 2, _BLAST_TOP_CENTER_ },
+					{ 3, _BLAST_BOT_CENTER_ },
 				};
 
 /* Main func in sans battle */
@@ -75,21 +77,6 @@ static void introPhase();
 static void playerPhase();
 static void enemyPhase();
 
-/* Main Renderer */
-//void renderSansBattle();
-//void renderIntroPhase();
-//void renderBossPhase();
-//void renderPlayerPhase();
-
-/* Sub Renderer */
-//void renderSans(AssetType face);
-int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice);
-//void renderBossPhaseBox();
-//void renderPlayerPhaseBox();
-//void renderPlayerInfo();
-//void renderSelectBox();
-//void renderPattern();
-
 /* Boss Phase func */
 unsigned __stdcall fireBlastToCenter(void* args);
 unsigned __stdcall fireBlastToPlayer(void* args);
@@ -99,8 +86,10 @@ int explodeBlaster(BlasterAngle angle, int pid, COORD begin, COORD end, ConsoleC
 void runSansPattern(int pid);
 void runSansPatternInRange(int begin, int end);
 int isAnyPatternAlive();
+void movePlayerPos();
 
 /* etc */
+int writeSpeechBubble(unsigned int scriptIdx, ConsoleColor tColor, int bVoice);
 void setSansFace(AssetType facetype);
 
 /* Terminate Func */

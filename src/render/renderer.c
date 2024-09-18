@@ -135,7 +135,7 @@ void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor
 	WriteFile(ScreenHandle[ScreenIndex], str, strlen(str), &dw, NULL);
 }
 
-void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)
+void printLines(int x, int y, char *str, ConsoleColor tColor, ConsoleColor bColor)
 {
 	COORD pos = { x, y };
 	DWORD dw;
@@ -152,7 +152,6 @@ void printLines(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColo
 			end++;
 			continue;
 		}
-//		*end = '\0';
 		// print this line
 		len = end - beg;
 		memcpy(lineBuffer, beg, sizeof(char) * len);

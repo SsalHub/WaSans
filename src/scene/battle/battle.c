@@ -1,9 +1,8 @@
 #include "battle.h"
 
 int MaxHP = 100;
-COORD PlayerPos;
-BattleObject **EnemyInfo, *SpeechBubble;
-BattleObject EnemyPhaseBox, PlayerPhaseBox;
+BattleObject **EnemyInfo = NULL, *SpeechBubble;
+BattleObject Player, EnemyPhaseBox, PlayerPhaseBox;
 PatternInfo *Patterns;
 
 
@@ -11,21 +10,19 @@ PatternInfo *Patterns;
 /* Main Renderer */
 void renderBattleScene()
 {
-    renderEnemy();
     renderPlayerInfo();
     renderSpeechBubble();
+    renderEnemy();
     if (battlePhase == _ENEMY_PHASE_)
     {
 		renderEnemyPhaseBox();
 		renderPattern();
 		renderPlayerPos();
-		return;
 	}
-	if (battlePhase == _PLAYER_PHASE_)
+	else if (battlePhase == _PLAYER_PHASE_)
 	{
 		renderPlayerPhaseBox();
 		renderSelectBox();
-		return;
 	}
 }
 
@@ -36,13 +33,25 @@ void initBattle(int elen, BattleObject (*enemy)[3], int plen, PatternInfo* patte
 {
 	battlePhase = _INTRO_PHASE_;
 	battleTurn = 0;
-	playerHP = MaxHP;
+	Player.HP = MaxHP;
 	battleSelect = 0;
 	
+	initPlayer();
 	initEnemyPhaseBox();
 	initPlayerPhaseBox();
 	initEnemyInfo(elen, enemy);
 	initPatternInfo(plen, pattern);
+}
+
+void initPlayer()
+{
+	Player.x = 0;
+	Player.y = 0;
+	Player.data = (char*)malloc(sizeof(char) * 8);
+	strcpy(Player.data, "O");
+	Player.isActive = 0;
+	Player.tColor = _HOTPINK_;
+	Player.bColor = _BLACK_;
 }
 
 void initEnemyPhaseBox()
@@ -51,7 +60,7 @@ void initEnemyPhaseBox()
 	int i, j;
 	
 	EnemyPhaseBox.x = 49;
-	EnemyPhaseBox.y = 16;
+	EnemyPhaseBox.y = 15;
 	EnemyPhaseBox.width = 18;
 	EnemyPhaseBox.height = 8;
 	EnemyPhaseBox.data = (char*)malloc(sizeof(char) * ((ScreenWidth + 1) * (ScreenHeight / 2)));
@@ -77,7 +86,7 @@ void initPlayerPhaseBox()
 	int i, j;
 
 	PlayerPhaseBox.x = 6;
-	PlayerPhaseBox.y = 16;
+	PlayerPhaseBox.y = 15;
 	PlayerPhaseBox.width = 103;
 	PlayerPhaseBox.height = 8;
 	PlayerPhaseBox.data = (char*)malloc(sizeof(char) * ((ScreenWidth + 1) * (ScreenHeight / 2)));
@@ -161,47 +170,6 @@ HANDLE startPattern(Pattern pattern, void* args, unsigned int* threadID)
 	return (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)pattern, args, 0, threadID);
 }
 
-void movePlayerPos()
-{
-	static int playerSpeed = 1, oldTime;
-	if (playerSpeed == 0)
-	{
-		if (oldTime == 0)
-		{
-			oldTime = clock();
-		}
-		else if (50 < clock() - oldTime)
-		{
-			playerSpeed = 1;
-			oldTime = 0;
-		}
-	}
-	else
-	{
-		// key input
-		if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
-		{
-			PlayerPos.X -= playerSpeed;
-			playerSpeed = 0;
-		}
-		else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
-		{
-			PlayerPos.X += playerSpeed;
-			playerSpeed = 0;
-		}
-		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
-		{
-			PlayerPos.Y -= playerSpeed;
-			playerSpeed = 0;
-		}
-		else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
-		{
-			PlayerPos.Y += playerSpeed;
-			playerSpeed = 0;
-		}
-	}
-}
-
 int movePlayerSelectBox()
 {
 	static int oldTime = -1000;
@@ -247,22 +215,40 @@ int movePlayerSelectBox()
 // if player died return 0. or return 1.
 int getPlayerDamage(int damage)
 {
-	playerHP -= damage;
-	if (playerHP <= 0)
+	Player.HP -= damage;
+	if (Player.HP <= 0)
 		return 0;
 	return 1;
 }
+
+int playerCollider(COORD pos)
+{
+	if (Player.x == pos.X && Player.y == pos.Y)
+		return 1;
+	return 0;
+}
+
+int playerColliderInRange(COORD begin, COORD end)
+{
+	int bCollision = (begin.X <= Player.x && Player.x <= end.X) && (begin.Y <= Player.y && Player.y <= end.Y);
+	if (bCollision)
+		return 1;
+	return 0;
+}
+
 
 
 
 /* Sub Renderer */
 void renderEnemy()
 {
+	if (EnemyInfo == NULL)
+		return;
 	int i;
 	for (i = 0; i < enemyLen; i++)
 	{
-		if (!EnemyInfo[i][_ENEMY_BODY_].isActive)
-			continue;
+//		if (!EnemyInfo[i][_ENEMY_FACE_].isActive)
+//			continue;
 		// render leg
 		printLines(
 				EnemyInfo[i][_ENEMY_LEG_].x, 
@@ -297,19 +283,18 @@ void renderEnemyPhaseBox()
 
 void renderPlayerPos()
 {
-    char ch[8] = "O";
     // fix player x pos
-    if (PlayerPos.X <= EnemyPhaseBox.x + 2)
-        PlayerPos.X = EnemyPhaseBox.x + 2;
-    else if (EnemyPhaseBox.x + 1 + EnemyPhaseBox.width <= PlayerPos.X)
-        PlayerPos.X = EnemyPhaseBox.x + 1 + EnemyPhaseBox.width;
+    if (Player.x <= EnemyPhaseBox.x + 2)
+        Player.x = EnemyPhaseBox.x + 2;
+    else if (EnemyPhaseBox.x + 1 + EnemyPhaseBox.width <= Player.x)
+        Player.x = EnemyPhaseBox.x + 1 + EnemyPhaseBox.width;
     // fix player y pos
-    if (PlayerPos.Y <= EnemyPhaseBox.y)
-        PlayerPos.Y = EnemyPhaseBox.y + 1;
-    else if (EnemyPhaseBox.y + EnemyPhaseBox.height - 2 <= PlayerPos.Y)
-        PlayerPos.Y = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
+    if (Player.y <= EnemyPhaseBox.y)
+        Player.y = EnemyPhaseBox.y + 1;
+    else if (EnemyPhaseBox.y + EnemyPhaseBox.height - 2 <= Player.y)
+        Player.y = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
     // render   
-    printLine(PlayerPos.X, PlayerPos.Y, ch, _HOTPINK_, _BLACK_);
+    printLine(Player.x, Player.y, Player.data, Player.tColor, Player.bColor);
 }
 
 void renderPlayerPhaseBox()
@@ -357,7 +342,7 @@ void renderPlayerInfo()
     printLine(26, y, level_str, _WHITE_, _BLACK_);
     // player hp
     printLine(44, y, "HP", _WHITE_, _BLACK_);
-    itoa(playerHP, hp_str, 10);
+    itoa(Player.HP, hp_str, 10);
     strcat(hp_str, " / ");
     itoa(MaxHP, itoa_str, 10);
     strcat(hp_str, itoa_str);
@@ -369,7 +354,7 @@ void renderPlayerInfo()
     hp_bar[10] = '\0';
     printLine(48, y, hp_bar, _YELLOW_, _BLACK_);
     // calculate current damage
-    damaged = (MaxHP - playerHP) / 10;
+    damaged = (MaxHP - Player.HP) / 10;
     if (damaged <= 0)
     	return;
     // set current player HP info
@@ -487,45 +472,6 @@ void renderPattern()
 			}
 		}
 	}
-	
-//	for (i = 0; i < patternLen; i++)
-//	{
-//		if (Patterns[i].isActive != STILL_ACTIVE)
-//			continue;
-//			
-//		for (j = (_PATTERN_LAYER_LEN_ - 1); 0 <= j; j--)
-//		{
-//			for (layer = (Patterns[i].renderInfoLen[j] - 1);  0 <= layer; layer--)
-//			{
-//				render = &(Patterns[i].renderInfo[j][layer]);
-//				if (render->s != NULL)
-//				{
-//					printLines(
-//						render->x,
-//						render->y,
-//						render->s,
-//						render->tColor,
-//						render->bColor
-//					);
-//				}
-//				else
-//				{
-//					pos.X = render->x;
-//					for (k = 0; k < render->height; k++)
-//					{
-//						pos.Y = render->y + k;
-//						FillConsoleOutputAttribute(
-//							ScreenHandle[ScreenIndex], 
-//							render->tColor | (render->bColor << 4), 
-//							render->width,
-//							pos, 
-//							&dw
-//						);
-//					}
-//				}
-//			}
-//		}
-//	}
 }
 
 
@@ -543,4 +489,5 @@ void releaseBattleAssets()
 	free(SpeechBubble);
 	free(EnemyPhaseBox.data);
 	free(PlayerPhaseBox.data);
+	free(Player.data);
 }

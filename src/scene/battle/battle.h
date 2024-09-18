@@ -35,6 +35,8 @@ typedef struct BattleObject
 	int width;
 	int height;
 	int isActive;
+	int HP;
+	int mode;
 } BattleObject;
 
 
@@ -49,17 +51,16 @@ typedef struct PatternInfo
 	unsigned int threadID;
 	// render info
 	int renderInfoLen[_PATTERN_LAYER_LEN_];
-	RenderInfo renderInfo[_PATTERN_LAYER_LEN_][10];
+	RenderInfo renderInfo[_PATTERN_LAYER_LEN_][30];
 } PatternInfo;
 
 extern int MaxHP;
-extern COORD PlayerPos;
 extern BattleObject **EnemyInfo, *SpeechBubble;
-extern BattleObject EnemyPhaseBox, PlayerPhaseBox;
+extern BattleObject Player, EnemyPhaseBox, PlayerPhaseBox;
 extern PatternInfo *Patterns;
 
 
-static int battleTurn, battleSelect, battlePhase, playerHP;
+static int battleTurn, battleSelect, battlePhase;
 static int enemyLen, patternLen;
 
 
@@ -68,6 +69,7 @@ void renderBattleScene();
 
 /* Init Functions */
 void initBattle(int elen, BattleObject (*enemy)[3], int plen, PatternInfo* pattern);
+void initPlayer();
 void initEnemyPhaseBox();
 void initPlayerPhaseBox();
 void initEnemyInfo(int len, BattleObject (*enemy)[3]);
@@ -80,9 +82,11 @@ void 		gotoNextTurn();
 BattlePhase getBattlePhase();
 int 		getBattleTurn();
 HANDLE 		startPattern(Pattern pattern, void* args, unsigned int* threadID);
-void 		movePlayerPos();
 int 		movePlayerSelectBox();
 int 		getPlayerDamage(int damage);
+/* Collider */
+int 		playerCollider(COORD pos);
+int 		playerColliderInRange(COORD begin, COORD end);
 
 /* Sub Renderer */
 void renderEnemy();

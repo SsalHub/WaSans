@@ -24,26 +24,31 @@ void initSansBattle()
 
 void initSansObject(BattleObject (*enemy)[3])
 {
+	(*enemy)[_ENEMY_LEG_].isActive 	= 0;
+	(*enemy)[_ENEMY_BODY_].isActive = 0;
+	(*enemy)[_ENEMY_FACE_].isActive = 0;
+	
 	// init leg
-	(*enemy)[_ENEMY_LEG_].x = 52;
-	(*enemy)[_ENEMY_LEG_].y = 13;
+	(*enemy)[_ENEMY_LEG_].x = 51;
+	(*enemy)[_ENEMY_LEG_].y = 11;
 	(*enemy)[_ENEMY_LEG_].data = AssetFile[_SANS_LEG_NORMAL_];
 	(*enemy)[_ENEMY_LEG_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_LEG_].bColor = _BLACK_;
-	(*enemy)[_ENEMY_LEG_].isActive = 1;
 	// init body
 	(*enemy)[_ENEMY_BODY_].x = 50;
-	(*enemy)[_ENEMY_BODY_].y = 9;
+	(*enemy)[_ENEMY_BODY_].y = 7;
 	(*enemy)[_ENEMY_BODY_].data = AssetFile[_SANS_BODY_NORMAL_];
 	(*enemy)[_ENEMY_BODY_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_BODY_].bColor = _BLACK_;
-	(*enemy)[_ENEMY_BODY_].isActive = 1;
 	// init face
 	(*enemy)[_ENEMY_FACE_].x = 51;
 	(*enemy)[_ENEMY_FACE_].y = 0;
 	(*enemy)[_ENEMY_FACE_].data = AssetFile[_SANS_FACE_NORMAL_A_];
 	(*enemy)[_ENEMY_FACE_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_FACE_].bColor = _BLACK_;
+	
+	(*enemy)[_ENEMY_LEG_].isActive 	= 1;
+	(*enemy)[_ENEMY_BODY_].isActive = 1;
 	(*enemy)[_ENEMY_FACE_].isActive = 1;
 }
 
@@ -56,14 +61,15 @@ void initSansPattern()
 		sansPattern[i].hThread = NULL;
 		sansPattern[i].threadID = 0;
 		sansPattern[i].isActive = 0;
+		sansPattern[i].data = &(gasterBlasterPatternInfo[i]);
 		for (j = 0; j < _PATTERN_LAYER_LEN_; j++)
 			sansPattern[i].renderInfoLen[j] = 0;
 	}
 	// init detail info
 	sansPattern[0].pattern = (Pattern)fireBlastToCenter;
-	sansPattern[0].data = &(gasterBlasterPatternInfo[0]);
 	sansPattern[1].pattern = (Pattern)fireBlastToCenter;
-	sansPattern[1].data = &(gasterBlasterPatternInfo[1]);
+	sansPattern[2].pattern = (Pattern)fireBlastToCenter;
+	sansPattern[3].pattern = (Pattern)fireBlastToCenter;
 }
 
 void runSansBattle()
@@ -104,15 +110,9 @@ static void introPhase()
 	flushIstream();
 	while (scriptIdx < introScriptLen)
 	{
-		speechFlag = writeSpeechBubble(scripts[scriptIdx], _BLACK_, 1);
+		scriptIdx = writeSpeechBubble(scriptIdx, _BLACK_, 1);
     	waitForFrame();
-		if (speechFlag < 0)
-		{
-			flushIstream();
-			scriptIdx++;
-		}
 	}
-//	SpeechBubble[_ENEMY_SANS_].isActive = 0;
 	
 	// end intro phase
     playBGM(_BGM_BIRDNOISE_, _SOUND_PAUSE_);
@@ -168,8 +168,8 @@ static void enemyPhase()
 {
 	const int introScriptIdx_A = 4, introScriptIdx_B = 5;
 	int i, speechFlag = 0;
-    PlayerPos.X = 59;
-    PlayerPos.Y = 19;
+    Player.x = 59;
+    Player.y = 19;
     
     switch (getBattleTurn())
     {
@@ -183,22 +183,17 @@ static void enemyPhase()
 	    	// run script
 	    	sleep(1.0f);
 	    	flushIstream();
+	    		// Player.isActive = 1;
 			while (scriptIdx < introScriptIdx_A)
 			{
-				speechFlag = writeSpeechBubble(scripts[scriptIdx], _RED_, 0);
+				scriptIdx = writeSpeechBubble(scriptIdx, _RED_, 0);
 	        	movePlayerPos();
     			waitForFrame();
-				if (speechFlag < 0)
-				{
-					flushIstream();
-					scriptIdx++;
-				}
 			}
-//			SpeechBubble[_ENEMY_SANS_].isActive = 0;
 	    	
         	// run boss pattern
 			setSansFace(_SANS_FACE_NORMAL_A_);
-			runSansPatternInRange(0, 1);
+			runSansPatternInRange(0, 3);
 			// wait until all pattern completed
 			flushIstream();
 	        while (isAnyPatternAlive())
@@ -206,20 +201,14 @@ static void enemyPhase()
 	        	movePlayerPos();
 	        	waitForFrame();
 	        }
-	        releasePatternInRange(0, 1);
+	        releasePatternInRange(0, 3);
 	        flushIstream();
 			while (scriptIdx < introScriptIdx_B)
 			{
-				speechFlag = writeSpeechBubble(scripts[scriptIdx], _BLACK_, 0);
+				scriptIdx = writeSpeechBubble(scriptIdx, _BLACK_, 0);
 	        	movePlayerPos();
     			waitForFrame();
-				if (speechFlag < 0)
-				{
-					flushIstream();
-					scriptIdx++;
-				}
 			}
-//			SpeechBubble[_ENEMY_SANS_].isActive = 0;
 			sleep(0.1f);
 	        break;
 	    
@@ -235,357 +224,6 @@ static void enemyPhase()
     }
 	gotoNextPhase();
 }
-
-
-
-/* Main Renderer */
-//void renderSansBattle()
-//{
-//    renderSans(_SANS_FACE_NORMAL_A_);
-//
-//    //	renderBossPhaseBox();
-////    renderPlayerPhaseBox();
-//
-//    renderPlayerInfo();
-////    renderSelectBox();
-//}
-
-//void renderIntroPhase()
-//{
-//    static int oldTime = 0;
-//    int flag;
-//
-//    renderSans(_SANS_FACE_NORMAL_A_);
-//    renderPlayerInfo();
-//    // render speech bubble
-//    if (scriptIdx < 0) // waiting script before speech
-//    {
-//        if (oldTime == 0)
-//        {
-//            oldTime = clock();
-//        }
-//        else if (2000 < clock() - oldTime)
-//        {
-//			scriptIdx = 0;
-//	        oldTime = 0;
-//        }
-//    }
-//    else
-//    {
-//	    flag = renderSpeechBubble();
-//	    if (flag < 0)
-//	    {
-//	        if (!oldTime)
-//	        {
-//	            oldTime = clock();
-//	        }
-//	        else if (2000 < clock() - oldTime)
-//	        {
-//	            scriptIdx++;
-//	            oldTime = 0;
-//	        }
-//	    }
-//	}
-//}
-
-//void renderBossPhase()
-//{
-//    static int oldTime = 0, bWait = 1;
-//	const int introScriptLen = 4;
-//	int flag;
-//	
-//	// render sans face
-//	if (battleTurn == -1)
-//	{
-//		renderSans(_SANS_FACE_NORMAL_B_);
-//	}
-//	else
-//	{
-//		renderSans(_SANS_FACE_NORMAL_A_);
-//	}
-//    renderBossPhaseBox();
-//    renderPlayerInfo();
-//    // render speech bubble
-//	if (battleTurn == -1)
-//	{
-//		if (bWait)	// wait before rendering speech bubble
-//		{
-//	        if (oldTime == 0)
-//	        {
-//	            oldTime = clock();
-//	        }
-//	        else if (1000 < clock() - oldTime)
-//	        {
-//	        	bWait = 0;
-//	        	oldTime = 0;
-//	        }
-//		}
-//		else if (scriptIdx < introScriptLen)
-//		{
-//			flag = renderSpeechBubble(scripts[scriptIdx], _RED_, 0);
-//			if (flag < 0)
-//		    {
-//		        if (oldTime == 0)
-//		        {
-//		            oldTime = clock();
-//		        }
-//		        else if (2000 < clock() - oldTime)
-//		        {
-//		            scriptIdx++;
-//		            oldTime = 0;
-//		        }
-//		    }
-//		}
-//	}
-//	renderPattern();
-//}
-
-//void renderPlayerPhase()
-//{
-//    renderSans(_SANS_FACE_NORMAL_A_);
-//    renderPlayerPhaseBox();
-//    renderPlayerInfo();
-//    renderSelectBox();
-//}
-
-
-
-/* Sub Renderer */
-//void renderSans(AssetType face)
-//{
-//    const int MAX_TICK = 12;
-//    static int tick, oldTime;
-//    int face_move[12][2] = {{0, 0}, {1, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-//        body_move[12][2] = {{1, 0}, {1, 0}, {1, 0}, {1, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}},
-//        leg_move[12][2] = {{0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}, {0, 0}};
-//    int x = 50, y = 0, currTime;
-//
-//    // leg
-//    //	printLines(x + 1 + leg_move[tick][0], y + 11 + leg_move[tick][1], AssetFile[_SANS_LEG_NORMAL_], _WHITE_);
-//    printLines(x + 2, y + 13, AssetFile[_SANS_LEG_NORMAL_], _WHITE_, _BLACK_);
-//    // body
-//    //	printLines(x + body_move[tick][0], y + 7 + body_move[tick][1], AssetFile[_SANS_BODY_NORMAL_], _WHITE_);
-//    printLines(x, y + 9, AssetFile[_SANS_BODY_NORMAL_], _WHITE_, _BLACK_);
-//    // face
-//    //	printLines(x + face_move[tick][0], y + face_move[tick][1], AssetFile[face], _WHITE_);
-//    printLines(x + 1, y, AssetFile[face], _WHITE_, _BLACK_);
-//
-//    // set ticks based on current/old time
-//    if (oldTime)
-//    {
-//        currTime = clock();
-//        if (100 <= currTime - oldTime) // 100ms == 0.1sec
-//        {
-//            tick = MAX_TICK <= tick + 1 ? 0 : tick + 1;
-//            oldTime = currTime;
-//        }
-//    }
-//    else
-//    {
-//        oldTime = clock();
-//    }
-//}
-
-int writeSpeechBubble(const char* script, ConsoleColor tColor, int bVoice)
-{
-    static int currLen = 0, oldTime = 0, readOver = 0;
-    static const char *pScript = NULL;
-    char buffer[128], ch[3], input;
-	int i, j, currTime, slen = strlen(script);
-
-	// init data
-    if (pScript != script)
-    {
-        pScript = script;
-		readOver = 0;
-        currLen = 1;
-        oldTime = clock() - 1000;
-		SpeechBubble[_ENEMY_SANS_].isActive = 1;
-		SpeechBubble[_ENEMY_SANS_].tColor = tColor;
-    }
-    
-    // if already script read fully
-	if (readOver)
-	{
-		if (readOver < clock())
-		{
-			SpeechBubble[_ENEMY_SANS_].isActive = 0;
-			return -1;
-		}
-		return currLen;
-	}
-	// if not enough time passed
-	currTime = clock();
-    if (currTime - oldTime < 120)
-    	return currLen;
-	// main action
-    if (kbhit())
-    {
-        input = getch();
-        if (input == _SPACE_ || input == _CARRIAGE_RETURN_)
-        {
-			currLen = slen;
-			readOver = clock() + 1500;
-		}
-		else
-		{
-			if (slen <= currLen)
-	    	{
-				readOver = clock() + 1500;
-				return currLen;
-			}
-			currLen++;
-	        oldTime = currTime;
-		}
-    }
-    else
-    {
-		if (slen <= currLen)
-    	{
-			readOver = clock() + 1500;
-			return currLen;
-		}
-		currLen++;
-        oldTime = currTime;
-	}
-    // write script on 'SpeechBubble' until currLen
-    memcpy(buffer, script, currLen);
-    buffer[currLen] = '\0';
-    memcpy(SpeechBubble[_ENEMY_SANS_].data, buffer, currLen + 1);
-    if (bVoice)
-		playVoice(_VOICE_SANS_);
-    return currLen;
-}
-
-//void renderBossPhaseBox()
-//{
-//    int i, j;
-//    char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[8];
-//
-//    // print boss phase box
-//    buffer[0] = '\0';
-//    for (i = 0; i < EnemyPhaseBox.height; i++)
-//    {
-//        strcat(buffer, ":=");
-//        if (i == 0 || i == EnemyPhaseBox.height - 1)
-//            strcpy(ch, "=");
-//        else
-//            strcpy(ch, " ");
-//        for (j = 0; j < EnemyPhaseBox.width; j++)
-//            strcat(buffer, ch);
-//        strcat(buffer, "=: \n");
-//    }
-//    printLines(EnemyPhaseBox.x, EnemyPhaseBox.y, buffer, _WHITE_, _BLACK_);
-//
-//    // print player
-//    // fix player x pos
-//    if (PlayerPos.X <= EnemyPhaseBox.x + 2)
-//        PlayerPos.X = EnemyPhaseBox.x + 2;
-//    else if (EnemyPhaseBox.x + 1 + EnemyPhaseBox.width <= PlayerPos.X)
-//        PlayerPos.X = EnemyPhaseBox.x + 1 + EnemyPhaseBox.width;
-//    // fix player y pos
-//    if (PlayerPos.Y <= EnemyPhaseBox.y)
-//        PlayerPos.Y = EnemyPhaseBox.y + 1;
-//    else if (EnemyPhaseBox.y + EnemyPhaseBox.height - 2 <= PlayerPos.Y)
-//        PlayerPos.Y = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
-//    strcpy(ch, "♥");
-//    printLine(PlayerPos.X, PlayerPos.Y, ch, _HOTPINK_, _BLACK_);
-//}
-
-//void renderPlayerPhaseBox()
-//{
-//    int x = 6, y = 16, w = 103, h = 8, i, j;
-//    char buffer[(ScreenWidth + 1) * (ScreenHeight / 2)], ch[3];
-//
-//    buffer[0] = '\0';
-//    for (i = 0; i < h; i++)
-//    {
-//        strcat(buffer, ":=");
-//        if (i == 0 || i == h - 1)
-//            strcpy(ch, "=");
-//        else
-//            strcpy(ch, " ");
-//        for (j = 0; j < w; j++)
-//            strcat(buffer, ch);
-//        strcat(buffer, "=: \n");
-//    }
-//    printLines(x, y, buffer, _WHITE_, _BLACK_);
-//}
-
-//void renderPlayerInfo()
-//{
-//    int x, y = 24, i, damaged;
-//    char hpText[11];
-//
-//    // render player info
-//    x = 12;
-//    printLine(x, y, PlayerName, _WHITE_, _BLACK_);
-//    x = 26;
-//    printLine(x, y, "LV 1", _WHITE_, _BLACK_);
-//
-//    // render HP info
-//    // set max HP text
-//    for (int i = 0; i < 10; i++)
-//        hpText[i] = '@';
-//    hpText[10] = '\0';
-//    x = 43;
-//    printLine(x, y, "HP", _WHITE_, _BLACK_);
-//    x += 3;
-//    printLine(x, y, hpText, _YELLOW_, _BLACK_);
-//    damaged = (MaxHP - playerHP) / 10;
-//    // set player HP info
-//    for (i = 0; i < damaged; i++)
-//        hpText[i] = '#';
-//    hpText[damaged] = '\0';
-//    printLine(x + 10 - damaged, y, hpText, _RED_, _BLACK_);
-//
-//    // render numeric HP info
-//    x += 12;
-//    itoa(playerHP, hpText, 10);
-//    printLine(x, y, hpText, _WHITE_, _BLACK_);
-//    x += strlen(hpText);
-//    printLine(x, y, " / ", _WHITE_, _BLACK_);
-//    x += 3;
-//    itoa(MaxHP, hpText, 10);
-//    printLine(x, y, hpText, _WHITE_, _BLACK_);
-//}
-
-//void renderSelectBox()
-//{
-//    int x, y = 25;
-//    ConsoleColor tSelect[4] = {_YELLOW_, _YELLOW_, _YELLOW_, _YELLOW_};
-//    tSelect[battleSelect] = _LIGHT_YELLOW_;
-//    x = 7;
-//    printLines(x, y, AssetFile[_SELECT_BOX_], tSelect[0], _BLACK_);
-//    printLine(x + 8, y + 2, "FIGHT", tSelect[0], _BLACK_);
-//    x += 27;
-//    printLines(35, y, AssetFile[_SELECT_BOX_], tSelect[1], _BLACK_);
-//    printLine(x + 11, y + 2, "ACT", tSelect[1], _BLACK_);
-//    x += 27;
-//    printLines(63, y, AssetFile[_SELECT_BOX_], tSelect[2], _BLACK_);
-//    printLine(x + 11, y + 2, "ITEM", tSelect[2], _BLACK_);
-//    x += 27;
-//    printLines(91, y, AssetFile[_SELECT_BOX_], tSelect[3], _BLACK_);
-//    printLine(x + 11, y + 2, "MERCY", tSelect[3], _BLACK_);
-//}
-
-//void renderPattern()
-//{
-//	int i, j;
-//	for (i = 0; i < patternIdx; i++)
-//	{
-//		for (j = 0; j < sansPattern[i].renderInfoLen; j++)
-//		{
-//			printLines(
-//				sansPattern[i].renderInfo[j].x,
-//				sansPattern[i].renderInfo[j].y,
-//				sansPattern[i].renderInfo[j].s,
-//				sansPattern[i].renderInfo[j].tColor,
-//				sansPattern[i].renderInfo[j].bColor
-//			);
-//		}
-//	}
-//}
 
 
 
@@ -607,20 +245,28 @@ unsigned __stdcall fireBlastToCenter(void* args)
 	{
 		// vertical
 		case _BLAST_TOP_CENTER_:
-			end.X 		= EnemyPhaseBox.x + (EnemyPhaseBox.width / 2) - 5;
-			end.Y 		= EnemyPhaseBox.y - 9;
-			begin.X 	= end.X - 18;
+			end.X 		= EnemyPhaseBox.x + (EnemyPhaseBox.width * 0.5f) - 3;
+			end.Y 		= EnemyPhaseBox.y - 7;
+			begin.X 	= end.X - 14;
 			begin.Y 	= end.Y;
-			exit.X 		= end.X + 18;
+			exit.X 		= end.X + 14;
 			exit.Y 		= end.Y;
-			expl_target.X = 0;
-			expl_target.Y = end.Y;
+			explode.X 	= end.X + 4;
+			explode.Y 	= end.Y + 6;
+			expl_target.X = explode.X;
+			expl_target.Y = ScreenHeight;
 			break;
 		case _BLAST_BOT_CENTER_:
-			end.X = EnemyPhaseBox.x + (EnemyPhaseBox.width / 2) - 5;
-			end.Y = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
-			begin.X 	= end.X + 18;
+			end.X 		= EnemyPhaseBox.x + (EnemyPhaseBox.width * 0.5f) - 3;
+			end.Y 		= EnemyPhaseBox.y + EnemyPhaseBox.height + 1;
+			begin.X 	= end.X + 14;
 			begin.Y 	= end.Y;
+			exit.X 		= end.X - 14;
+			exit.Y 		= end.Y;
+			explode.X 	= end.X + 4;
+			explode.Y 	= end.Y - 1;
+			expl_target.X = explode.X;
+			expl_target.Y = 0;
 			break;
 			
 		// horizontal
@@ -631,7 +277,7 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			begin.Y 	= end.Y - 5;
 			exit.X 		= end.X;
 			exit.Y 		= end.Y + 5;
-			explode.X 	= end.X + 1;
+			explode.X 	= end.X - 1;
 			explode.Y 	= end.Y + 2;
 			expl_target.X = 0;
 			expl_target.Y = explode.Y;
@@ -643,7 +289,7 @@ unsigned __stdcall fireBlastToCenter(void* args)
 			begin.Y 	= end.Y + 5;
 			exit.X 		= end.X;
 			exit.Y 		= end.Y - 5;
-			explode.X 	= end.X + 13;
+			explode.X 	= end.X + 14;
 			explode.Y 	= end.Y + 2;
 			expl_target.X = ScreenWidth;
 			expl_target.Y = explode.Y;
@@ -730,25 +376,11 @@ unsigned __stdcall fireBlastToCenter(void* args)
 		);
 		sansPattern[pId].renderInfoLen[0] = 1;
 		// explode
-		if (t < 0.4f)
-		{
-			// render exploding blaster (charging ver)
-			setRenderInfoAttr(
-				&(sansPattern[pId].renderInfo[1][0]), 
-				explode.X,
-				explode.Y,
-				4,
-				2,
-				_BRIGHT_GRAY_,
-				_WHITE_
-			);
-			sansPattern[pId].renderInfoLen[1] = 1;
-		}
-		else 
+		if (0.4f < t)
 		{
 			// render exploding blaster
-			pos.X = lerp(explode.X, expl_target.X, (t - 0.3f) * 3.5f);
-			pos.Y = lerp(explode.Y, expl_target.Y, (t - 0.3f) * 3.5f);
+			pos.X = lerp(explode.X, expl_target.X, (t - 0.5f) * 4.0f);
+			pos.Y = lerp(explode.Y, expl_target.Y, (t - 0.5f) * 4.0f);
 			sansPattern[pId].renderInfoLen[1] = explodeBlaster(blasterAngle, pId, explode, pos, _WHITE_);
 		}
 		waitForFrame();
@@ -789,6 +421,7 @@ unsigned __stdcall fireBlastToCenter(void* args)
 		waitForFrame();
 	}
 	sansPattern[pId].renderInfoLen[0] = 0;
+	sleep(1.0f);
 }
 
 unsigned __stdcall fireBlastToPlayer(void* args)
@@ -798,7 +431,7 @@ unsigned __stdcall fireBlastToPlayer(void* args)
 	int pId = data->patternId;
 	BlasterAngle blasterAngle = data->blasterAngle;
 	// other vars
-	int playerX = PlayerPos.X, playerY = PlayerPos.Y;
+	int playerX = Player.x, playerY = Player.y;
 }
 
 int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleColor bColor)	
@@ -826,7 +459,7 @@ int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleC
 					&(sansPattern[pId].renderInfo[1][i]), 
 					begin.X,
 					begin.Y + i,
-					width,
+					width * 2,
 					height,
 					_WHITE_,
 					bColor
@@ -864,7 +497,7 @@ int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleC
 					&(sansPattern[pId].renderInfo[1][i]), 
 					lerp(begin.X, end.X, i / (float)height),
 					begin.Y + i,
-					width,
+					width * 2,
 					height,
 					_WHITE_,
 					bColor
@@ -949,13 +582,133 @@ int isAnyPatternAlive()
 	return 0;
 }
 
+void movePlayerPos()
+{
+	static int playerSpeed = 1, oldTime = 0;
+	if (playerSpeed)
+	{
+		// key input
+		if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
+		{
+			Player.x -= playerSpeed;
+		}
+		else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
+		{
+			Player.x += playerSpeed;
+		}
+		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
+		{
+			Player.y -= playerSpeed;
+		}
+		else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
+		{
+			Player.y += playerSpeed;
+		}
+		playerSpeed = 0;
+	    // fix player pos
+		if (Player.x <= EnemyPhaseBox.x + 2)
+	        Player.x = EnemyPhaseBox.x + 2;
+	    else if (EnemyPhaseBox.x + 1 + EnemyPhaseBox.width <= Player.x)
+	        Player.x = EnemyPhaseBox.x + 1 + EnemyPhaseBox.width;
+	    if (Player.y <= EnemyPhaseBox.y)
+	        Player.y = EnemyPhaseBox.y + 1;
+	    else if (EnemyPhaseBox.y + EnemyPhaseBox.height - 2 <= Player.y)
+	        Player.y = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
+	    // set clock (oldTime)
+		oldTime = clock();
+	}
+	else
+	{
+		int currTime = clock();
+		if (50 < currTime - oldTime)
+		{
+			playerSpeed = 1;
+			oldTime = currTime;
+		}
+	}
+}
+
 
 
 /* etc */
+int writeSpeechBubble(unsigned int idx, ConsoleColor tColor, int bVoice)
+{
+    static int currLen = 0, oldTime = 0, readOver = 0;
+    static const char *pScript = NULL;
+    char buffer[128], input;
+	int i, j, currTime, slen;
+
+	// init data
+    if (pScript != scripts[idx])
+    {
+        pScript = scripts[idx];
+		readOver = 0;
+        currLen = 1;
+        oldTime = clock() - 1000;
+		SpeechBubble[_ENEMY_SANS_].isActive = 1;
+		SpeechBubble[_ENEMY_SANS_].tColor = tColor;
+    }
+    slen = strlen(pScript);
+    
+    // if already script read fully
+	if (readOver)
+	{
+		if (readOver < clock())
+		{
+			SpeechBubble[_ENEMY_SANS_].isActive = 0;
+			return idx + 1;
+		}
+		return idx;
+	}
+	// if not enough time passed
+	currTime = clock();
+    if (currTime - oldTime < 120)
+    	return idx;
+	// main action
+    if (kbhit())
+    {
+        input = getch();
+        if (input == _SPACE_ || input == _CARRIAGE_RETURN_)
+        {
+			currLen = slen;
+			readOver = clock() + 1500;
+		}
+		else
+		{
+			if (slen <= currLen)
+	    	{
+				readOver = clock() + 1500;
+				return idx;
+			}
+			currLen++;
+	        oldTime = currTime;
+		}
+    }
+    else
+    {
+		if (slen <= currLen)
+    	{
+			readOver = clock() + 1500;
+			return idx;
+		}
+		currLen++;
+        oldTime = currTime;
+	}
+    // write script on 'SpeechBubble' until currLen
+    memcpy(buffer, pScript, currLen);
+    buffer[currLen] = '\0';
+    memcpy(SpeechBubble[_ENEMY_SANS_].data, buffer, currLen + 1);
+    if (bVoice)
+		playVoice(_VOICE_SANS_);
+    return idx;
+}
+
 void setSansFace(AssetType facetype)
 {
 	EnemyInfo[0][_ENEMY_FACE_].data = AssetFile[facetype];
 }
+
+
 
 /* Terminate Func */
 void releasePatternInRange(int begin, int end)

@@ -78,18 +78,21 @@ static void playerPhase();
 static void enemyPhase();
 
 /* Boss Phase func */
-unsigned __stdcall fireBlastToCenter(void* args);
-unsigned __stdcall fireBlastToPlayer(void* args);
-AssetType getBlastType(BlasterAngle blasterAngle);
-char* fixBlastAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle);
+unsigned __stdcall explodeBlasterToCenter(void* args);
+unsigned __stdcall explodeBlasterToPlayer(void* args);
+AssetType getBlasterType(BlasterAngle blasterAngle);
+char* fixBlasterAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle);
 int explodeBlaster(BlasterAngle angle, int pid, COORD begin, COORD end, ConsoleColor bColor);
 void runSansPattern(int pid);
 void runSansPatternInRange(int begin, int end);
 int isAnyPatternAlive();
-void movePlayerPos();
+/* Pattern Collider */
+void SansPatternCollider_Basic();
+void SansPatternCollider_IsStop();
 
 /* etc */
 int writeSpeechBubble(unsigned int scriptIdx, ConsoleColor tColor, int bVoice);
+void movePlayerPos();
 void setSansFace(AssetType facetype);
 
 /* Terminate Func */

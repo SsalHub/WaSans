@@ -66,10 +66,14 @@ void initSansPattern()
 			sansPattern[i].renderInfoLen[j] = 0;
 	}
 	// init detail info
-	sansPattern[0].pattern = (Pattern)fireBlastToCenter;
-	sansPattern[1].pattern = (Pattern)fireBlastToCenter;
-	sansPattern[2].pattern = (Pattern)fireBlastToCenter;
-	sansPattern[3].pattern = (Pattern)fireBlastToCenter;
+	sansPattern[0].pattern = (Pattern)explodeBlasterToCenter;
+	sansPattern[0].collider = SansPatternCollider_Basic;
+	sansPattern[1].pattern = (Pattern)explodeBlasterToCenter;
+	sansPattern[1].collider = SansPatternCollider_Basic;
+	sansPattern[2].pattern = (Pattern)explodeBlasterToCenter;
+	sansPattern[2].collider = SansPatternCollider_Basic;
+	sansPattern[3].pattern = (Pattern)explodeBlasterToCenter;
+	sansPattern[3].collider = SansPatternCollider_Basic;
 }
 
 void runSansBattle()
@@ -228,14 +232,14 @@ static void enemyPhase()
 
 
 /* Boss Phase func */
-unsigned __stdcall fireBlastToCenter(void* args)
+unsigned __stdcall explodeBlasterToCenter(void* args)
 {
 	// receive args
 	PatternArgs_Blaster *data = (PatternArgs_Blaster*)args;
 	int pId = data->patternId;
 	BlasterAngle blasterAngle = data->blasterAngle;
 	// other vars
-	AssetType blasterType = getBlastType(blasterAngle);
+	AssetType blasterType = getBlasterType(blasterAngle);
 	int oldTime, renderInfoIdx = 0, blastId = 0;
 	COORD pos, begin, end, exit, explode, expl_target;
 	ConsoleColor tColor;
@@ -424,7 +428,7 @@ unsigned __stdcall fireBlastToCenter(void* args)
 	sleep(1.0f);
 }
 
-unsigned __stdcall fireBlastToPlayer(void* args)
+unsigned __stdcall explodeBlasterToPlayer(void* args)
 {
 	// receive args
 	PatternArgs_Blaster *data = (PatternArgs_Blaster*)args;
@@ -508,7 +512,7 @@ int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleC
 	return i;
 }
 
-AssetType getBlastType(BlasterAngle blasterAngle)
+AssetType getBlasterType(BlasterAngle blasterAngle)
 {
 	switch (blasterAngle)
 	{
@@ -533,9 +537,9 @@ AssetType getBlastType(BlasterAngle blasterAngle)
 	return -1;
 }
 
-char* fixBlastAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle)
+char* fixBlasterAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle)
 {
-	AssetType blasterType = getBlastType(blasterAngle);
+	AssetType blasterType = getBlasterType(blasterAngle);
 	dst = AssetFile[blasterType];
 	
 	// string rotation 
@@ -582,50 +586,22 @@ int isAnyPatternAlive()
 	return 0;
 }
 
-void movePlayerPos()
+/* Pattern Collider */
+void SansPatternCollider_Basic()
 {
-	static int playerSpeed = 1, oldTime = 0;
-	if (playerSpeed)
-	{
-		// key input
-		if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
-		{
-			Player.x -= playerSpeed;
-		}
-		else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
-		{
-			Player.x += playerSpeed;
-		}
-		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
-		{
-			Player.y -= playerSpeed;
-		}
-		else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
-		{
-			Player.y += playerSpeed;
-		}
-		playerSpeed = 0;
-	    // fix player pos
-		if (Player.x <= EnemyPhaseBox.x + 2)
-	        Player.x = EnemyPhaseBox.x + 2;
-	    else if (EnemyPhaseBox.x + 1 + EnemyPhaseBox.width <= Player.x)
-	        Player.x = EnemyPhaseBox.x + 1 + EnemyPhaseBox.width;
-	    if (Player.y <= EnemyPhaseBox.y)
-	        Player.y = EnemyPhaseBox.y + 1;
-	    else if (EnemyPhaseBox.y + EnemyPhaseBox.height - 2 <= Player.y)
-	        Player.y = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
-	    // set clock (oldTime)
-		oldTime = clock();
-	}
-	else
-	{
-		int currTime = clock();
-		if (50 < currTime - oldTime)
-		{
-			playerSpeed = 1;
-			oldTime = currTime;
-		}
-	}
+	int isAlive = getPlayerDamage(1);
+	if (!isAlive)
+		Player.isActive = 0;
+}
+
+void SansPatternCollider_IsStop()
+{
+	if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41) 
+			|| GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
+		return;
+	int isAlive = getPlayerDamage(1);
+	if (!isAlive)
+		Player.isActive = 0;
 }
 
 
@@ -706,6 +682,52 @@ int writeSpeechBubble(unsigned int idx, ConsoleColor tColor, int bVoice)
 void setSansFace(AssetType facetype)
 {
 	EnemyInfo[0][_ENEMY_FACE_].data = AssetFile[facetype];
+}
+
+void movePlayerPos()
+{
+	static int playerSpeed = 1, oldTime = 0;
+	if (playerSpeed)
+	{
+		// key input
+		if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
+		{
+			Player.x -= playerSpeed;
+		}
+		else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
+		{
+			Player.x += playerSpeed;
+		}
+		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
+		{
+			Player.y -= playerSpeed;
+		}
+		else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
+		{
+			Player.y += playerSpeed;
+		}
+		playerSpeed = 0;
+	    // fix player pos
+		if (Player.x <= EnemyPhaseBox.x + 2)
+	        Player.x = EnemyPhaseBox.x + 2;
+	    else if (EnemyPhaseBox.x + 1 + EnemyPhaseBox.width <= Player.x)
+	        Player.x = EnemyPhaseBox.x + 1 + EnemyPhaseBox.width;
+	    if (Player.y <= EnemyPhaseBox.y)
+	        Player.y = EnemyPhaseBox.y + 1;
+	    else if (EnemyPhaseBox.y + EnemyPhaseBox.height - 2 <= Player.y)
+	        Player.y = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
+	    // set clock (oldTime)
+		oldTime = clock();
+	}
+	else
+	{
+		int currTime = clock();
+		if (50 < currTime - oldTime)
+		{
+			playerSpeed = 1;
+			oldTime = currTime;
+		}
+	}
 }
 
 

@@ -10,6 +10,7 @@
 
 
 typedef unsigned __stdcall (*Pattern)(void*);
+typedef void Collider(void);
 
 typedef enum BattlePhase
 {
@@ -29,7 +30,7 @@ typedef struct BattleObject
 {
 	int x;
 	int y;
-	char* data;
+	char *data;
 	ConsoleColor tColor;
 	ConsoleColor bColor;
 	int width;
@@ -52,6 +53,7 @@ typedef struct PatternInfo
 	// render info
 	int renderInfoLen[_PATTERN_LAYER_LEN_];
 	RenderInfo renderInfo[_PATTERN_LAYER_LEN_][30];
+	Collider *collider;
 } PatternInfo;
 
 extern int MaxHP;

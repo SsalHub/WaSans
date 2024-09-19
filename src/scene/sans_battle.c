@@ -13,8 +13,7 @@ void initSansBattle()
 	initSansObject(&sans);
 	initBattle(1, &sans, _SANS_PATTERN_LEN_, sansPattern);
 	// init speech bubble
-	SpeechBubble[_ENEMY_SANS_].pos.X = 74;
-	SpeechBubble[_ENEMY_SANS_].pos.Y = 2;
+	setCOORD(&(SpeechBubble[_ENEMY_SANS_].pos), 74, 2);
 	SpeechBubble[_ENEMY_SANS_].tColor = _BLACK_;
 	SpeechBubble[_ENEMY_SANS_].bColor = _WHITE_;
 	SpeechBubble[_ENEMY_SANS_].width = 24;
@@ -29,20 +28,17 @@ void initSansObject(BattleObject (*enemy)[3])
 	(*enemy)[_ENEMY_FACE_].isActive = 0;
 	
 	// init leg
-	(*enemy)[_ENEMY_LEG_].pos.X = 51;
-	(*enemy)[_ENEMY_LEG_].pos.Y = 11;
+	setCOORD(&((*enemy)[_ENEMY_LEG_].pos), 51, 11);
 	(*enemy)[_ENEMY_LEG_].data = AssetFile[_SANS_LEG_NORMAL_];
 	(*enemy)[_ENEMY_LEG_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_LEG_].bColor = _BLACK_;
 	// init body
-	(*enemy)[_ENEMY_BODY_].pos.X = 50;
-	(*enemy)[_ENEMY_BODY_].pos.Y = 7;
+	setCOORD(&((*enemy)[_ENEMY_BODY_].pos), 50, 7);
 	(*enemy)[_ENEMY_BODY_].data = AssetFile[_SANS_BODY_NORMAL_];
 	(*enemy)[_ENEMY_BODY_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_BODY_].bColor = _BLACK_;
 	// init face
-	(*enemy)[_ENEMY_FACE_].pos.X = 51;
-	(*enemy)[_ENEMY_FACE_].pos.Y = 0;
+	setCOORD(&((*enemy)[_ENEMY_FACE_].pos), 51, 0);
 	(*enemy)[_ENEMY_FACE_].data = AssetFile[_SANS_FACE_NORMAL_A_];
 	(*enemy)[_ENEMY_FACE_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_FACE_].bColor = _BLACK_;
@@ -592,19 +588,36 @@ int isAnyPatternAlive()
 /* Pattern Collider */
 void SansPatternCollider_Basic()
 {
+	static int oldTime = -1000;
+	int currTime = clock();
+	if (currTime - oldTime < 20)
+	{
+		Player.isActive = _PLAYER_ALIVE_;
+		return;
+	}
+	oldTime = currTime;
 	int isAlive = getPlayerDamage(1);
+	Player.isActive = _PLAYER_SANS_POISON_;
 	if (!isAlive)
-		Player.isActive = 0;
+		Player.isActive = _PLAYER_DIED_;
 }
 
 void SansPatternCollider_IsStop()
 {
+	int currTime = clock();
+	if (currTime - oldTime < 20)
+	{
+		Player.isActive = _PLAYER_ALIVE_;
+		return;
+	}
+	oldTime = currTime;
 	if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41) 
 			|| GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
 		return;
 	int isAlive = getPlayerDamage(1);
+	Player.isActive = _PLAYER_SANS_POISON_;
 	if (!isAlive)
-		Player.isActive = 0;
+		Player.isActive = _PLAYER_DIED_;
 }
 
 
@@ -699,7 +712,7 @@ void movePlayerPos()
 		}
 		else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
 		{
-			Player.pos.Y += playerSpeed;
+			Player.pos.X += playerSpeed;
 		}
 		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
 		{

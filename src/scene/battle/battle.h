@@ -8,7 +8,6 @@
 
 #define _PATTERN_LAYER_LEN_		3
 
-
 typedef unsigned __stdcall (*Pattern)(void*);
 typedef void Collider(void);
 
@@ -26,6 +25,14 @@ typedef enum EnemyPart
 	_ENEMY_FACE_, 
 } EnemyPart;
 
+typedef enum PlayerState
+{
+	_PLAYER_DIED_ 	= 0,
+	_PLAYER_ALIVE_,
+	_PLAYER_IMMUNE_,
+	_PLAYER_SANS_POISON_,
+} PlayerState;
+
 typedef struct BattleObject
 {
 	COORD pos;
@@ -38,7 +45,6 @@ typedef struct BattleObject
 	int HP;
 	int mode;
 } BattleObject;
-
 
 typedef struct PatternInfo
 {
@@ -69,12 +75,12 @@ static int enemyLen, patternLen;
 void renderBattleScene();
 
 /* Init Functions */
-void initBattle(int elen, BattleObject (*enemy)[3], int plen, PatternInfo* pattern);
+void initBattle(int elen, BattleObject (*enemy)[3], int plen, PatternInfo *pattern);
 void initPlayer();
 void initEnemyPhaseBox();
 void initPlayerPhaseBox();
 void initEnemyInfo(int len, BattleObject (*enemy)[3]);
-void initPatternInfo(int plen, PatternInfo* pattern);
+void initPatternInfo(int plen, PatternInfo *pattern);
 
 /* Util Func */
 void 		setBattlePhase(BattlePhase phase);
@@ -82,7 +88,7 @@ void 		gotoNextPhase();
 void 		gotoNextTurn();
 BattlePhase getBattlePhase();
 int 		getBattleTurn();
-HANDLE 		startPattern(Pattern pattern, void* args, unsigned int* threadID);
+HANDLE 		startPattern(Pattern pattern, void *args, unsigned int *threadID);
 int 		movePlayerSelectBox();
 int 		getPlayerDamage(int damage);
 /* Collider */

@@ -29,7 +29,7 @@ void renderBattleScene()
 
 
 /* Init Functions */
-void initBattle(int elen, BattleObject (*enemy)[3], int plen, PatternInfo* pattern)
+void initBattle(int elen, BattleObject (*enemy)[3], int plen, PatternInfo *pattern)
 {
 	battlePhase = _INTRO_PHASE_;
 	battleTurn = 0;
@@ -120,7 +120,7 @@ void initEnemyInfo(int elen, BattleObject (*enemy)[3])
 	}
 }
 
-void initPatternInfo(int plen, PatternInfo* pattern)
+void initPatternInfo(int plen, PatternInfo *pattern)
 {
 	patternLen = plen;
 	Patterns = pattern;
@@ -351,16 +351,29 @@ void renderPlayerInfo()
     hp_bar[10] = '\0';
     printLine(48, y, hp_bar, _YELLOW_, _BLACK_);
     // calculate current damage
-    damaged = (MaxHP - Player.HP) / 10;
-    if (damaged <= 0)
-    	return;
     // set current player HP info
-    for (i = 0; i < damaged; i++)
-        hp_bar[i] = '#';
-    hp_bar[damaged] = '\0';
-    printLine(58 - damaged, y, hp_bar, _RED_, _BLACK_);
+    if (Player.isActive == _PLAYER_SANS_POISON_)
+    {
+		damaged = (MaxHP - Player.HP) / 10;
+	    for (i = 0; i < damaged; i++)
+	        hp_bar[i] = '#';
+	    if (Player.HP % 10)
+    		hp_bar[damaged++] = '#';
+	    hp_bar[damaged] = '\0';
+	    printLine(58 - damaged, y, hp_bar, _BLUE_, _BLACK_);
+	}
+	else
+	{
+		damaged = (MaxHP - Player.HP) / 10;
+	    if (damaged <= 0)
+	    	return;
+	    for (i = 0; i < damaged; i++)
+	        hp_bar[i] = '#';
+	    hp_bar[damaged] = '\0';
+	    printLine(58 - damaged, y, hp_bar, _RED_, _BLACK_);
+	}
 }
-    
+
 void renderSelectBox()
 {
 	const int y = 25;
@@ -466,7 +479,8 @@ void renderPattern()
 							&dw
 						);
 						cpyCOORD(&begin, &(render->pos));
-						setCOORD(&(end), 
+						setCOORD(
+							&(end),
 							render->pos.X + render->width, 
 							render->pos.Y + render->height
 						);

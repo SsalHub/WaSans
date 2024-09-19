@@ -13,8 +13,8 @@ void initSansBattle()
 	initSansObject(&sans);
 	initBattle(1, &sans, _SANS_PATTERN_LEN_, sansPattern);
 	// init speech bubble
-	SpeechBubble[_ENEMY_SANS_].x = 74;
-	SpeechBubble[_ENEMY_SANS_].y = 2;
+	SpeechBubble[_ENEMY_SANS_].pos.X = 74;
+	SpeechBubble[_ENEMY_SANS_].pos.Y = 2;
 	SpeechBubble[_ENEMY_SANS_].tColor = _BLACK_;
 	SpeechBubble[_ENEMY_SANS_].bColor = _WHITE_;
 	SpeechBubble[_ENEMY_SANS_].width = 24;
@@ -29,20 +29,20 @@ void initSansObject(BattleObject (*enemy)[3])
 	(*enemy)[_ENEMY_FACE_].isActive = 0;
 	
 	// init leg
-	(*enemy)[_ENEMY_LEG_].x = 51;
-	(*enemy)[_ENEMY_LEG_].y = 11;
+	(*enemy)[_ENEMY_LEG_].pos.X = 51;
+	(*enemy)[_ENEMY_LEG_].pos.Y = 11;
 	(*enemy)[_ENEMY_LEG_].data = AssetFile[_SANS_LEG_NORMAL_];
 	(*enemy)[_ENEMY_LEG_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_LEG_].bColor = _BLACK_;
 	// init body
-	(*enemy)[_ENEMY_BODY_].x = 50;
-	(*enemy)[_ENEMY_BODY_].y = 7;
+	(*enemy)[_ENEMY_BODY_].pos.X = 50;
+	(*enemy)[_ENEMY_BODY_].pos.Y = 7;
 	(*enemy)[_ENEMY_BODY_].data = AssetFile[_SANS_BODY_NORMAL_];
 	(*enemy)[_ENEMY_BODY_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_BODY_].bColor = _BLACK_;
 	// init face
-	(*enemy)[_ENEMY_FACE_].x = 51;
-	(*enemy)[_ENEMY_FACE_].y = 0;
+	(*enemy)[_ENEMY_FACE_].pos.X = 51;
+	(*enemy)[_ENEMY_FACE_].pos.Y = 0;
 	(*enemy)[_ENEMY_FACE_].data = AssetFile[_SANS_FACE_NORMAL_A_];
 	(*enemy)[_ENEMY_FACE_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_FACE_].bColor = _BLACK_;
@@ -172,8 +172,7 @@ static void enemyPhase()
 {
 	const int introScriptIdx_A = 4, introScriptIdx_B = 5;
 	int i, speechFlag = 0;
-    Player.x = 59;
-    Player.y = 19;
+	setCOORD(&(Player.pos), 59, 19);
     
     switch (getBattleTurn())
     {
@@ -249,8 +248,8 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 	{
 		// vertical
 		case _BLAST_TOP_CENTER_:
-			end.X 		= EnemyPhaseBox.x + (EnemyPhaseBox.width * 0.5f) - 3;
-			end.Y 		= EnemyPhaseBox.y - 7;
+			end.X 		= EnemyPhaseBox.pos.X + (EnemyPhaseBox.width * 0.5f) - 3;
+			end.Y 		= EnemyPhaseBox.pos.Y - 7;
 			begin.X 	= end.X - 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X + 14;
@@ -261,8 +260,8 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 			expl_target.Y = ScreenHeight;
 			break;
 		case _BLAST_BOT_CENTER_:
-			end.X 		= EnemyPhaseBox.x + (EnemyPhaseBox.width * 0.5f) - 3;
-			end.Y 		= EnemyPhaseBox.y + EnemyPhaseBox.height + 1;
+			end.X 		= EnemyPhaseBox.pos.X + (EnemyPhaseBox.width * 0.5f) - 3;
+			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height + 1;
 			begin.X 	= end.X + 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X - 14;
@@ -275,8 +274,8 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 			
 		// horizontal
 		case _BLAST_MID_RIGHT_:
-			end.X 		= EnemyPhaseBox.x + EnemyPhaseBox.width + 10;
-			end.Y 		= EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
+			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width + 10;
+			end.Y 		= EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 3;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y - 5;
 			exit.X 		= end.X;
@@ -287,8 +286,8 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 			expl_target.Y = explode.Y;
 			break;
 		case _BLAST_MID_LEFT_:
-			end.X = EnemyPhaseBox.x - 23;
-			end.Y = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 3;
+			end.X = EnemyPhaseBox.pos.X - 23;
+			end.Y = EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 3;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y + 5;
 			exit.X 		= end.X;
@@ -301,30 +300,29 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 			
 		// diagonal
 		case _BLAST_TOP_RIGHT_:
-			end.X = EnemyPhaseBox.x + EnemyPhaseBox.width + 5;
-			end.Y = EnemyPhaseBox.y - 9;
+			end.X = EnemyPhaseBox.pos.X + EnemyPhaseBox.width + 5;
+			end.Y = EnemyPhaseBox.pos.Y - 9;
 			break;
 		case _BLAST_BOT_RIGHT_:
-			end.X = EnemyPhaseBox.x + EnemyPhaseBox.width + 5;
-			end.Y = EnemyPhaseBox.y + EnemyPhaseBox.height + 2;
+			end.X = EnemyPhaseBox.pos.X + EnemyPhaseBox.width + 5;
+			end.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height + 2;
 			break;
 		case _BLAST_BOT_LEFT_:
-			end.X = EnemyPhaseBox.x - 20;
-			end.Y = EnemyPhaseBox.y + (EnemyPhaseBox.height / 2) - 5;
+			end.X = EnemyPhaseBox.pos.X - 20;
+			end.Y = EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 5;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y + 5;
 			break;
 		case _BLAST_TOP_LEFT_:
-			end.X = EnemyPhaseBox.x - 20;
-			end.Y = EnemyPhaseBox.y - 8;
+			end.X = EnemyPhaseBox.pos.X - 20;
+			end.Y = EnemyPhaseBox.pos.Y - 8;
 			break;
 	}
 	
 	oldTime = clock();
 	setRenderInfo(
 		&(sansPattern[pId].renderInfo[0][0]), 
-		begin.X,
-		begin.Y,
+		begin,
 		AssetFile[blasterType],
 		_GRAY_,
 		_BLACK_
@@ -354,8 +352,7 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 		pos.Y = (int)lerp(begin.Y, end.Y, t);
 		setRenderInfo(
 			&(sansPattern[pId].renderInfo[0][0]), 
-			pos.X,
-			pos.Y,
+			pos,
 			AssetFile[blasterType + blastId],
 			tColor,
 			_BLACK_
@@ -372,8 +369,7 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 		// render GasterBlaster
 		setRenderInfo(
 			&(sansPattern[pId].renderInfo[0][0]), 
-			end.X,
-			end.Y,
+			end,
 			AssetFile[blasterType + 4],
 			_WHITE_,
 			_BLACK_
@@ -415,8 +411,7 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 		pos.Y = (int)lerp(end.Y, exit.Y, t);
 		setRenderInfo(
 			&(sansPattern[pId].renderInfo[0][0]), 
-			pos.X,
-			pos.Y,
+			pos,
 			AssetFile[blasterType + blastId],
 			tColor,
 			_BLACK_
@@ -435,7 +430,7 @@ unsigned __stdcall explodeBlasterToPlayer(void* args)
 	int pId = data->patternId;
 	BlasterAngle blasterAngle = data->blasterAngle;
 	// other vars
-	int playerX = Player.x, playerY = Player.y;
+//	int playerX = Player.x, playerY = Player.y;
 }
 
 int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleColor bColor)	
@@ -447,6 +442,7 @@ int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleC
 		end = tmp;
 	}
 	const int blasterWidth = 2;
+	COORD pos;
 	int width, height;
 	int i = 0;
 	
@@ -457,17 +453,19 @@ int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleC
 		case _BLAST_BOT_CENTER_:
 			width = blasterWidth;
 			height = (end.Y - begin.Y) + 1;
+			pos.X = begin.X;
+			pos.Y = begin.Y;
 			for (i = 0; i < height; i++)
 			{
 				setRenderInfoAttr(
 					&(sansPattern[pId].renderInfo[1][i]), 
-					begin.X,
-					begin.Y + i,
+					pos,
 					width * 2,
 					height,
 					_WHITE_,
 					bColor
 				);
+				pos.Y++;
 			}
 			break;
 		// horizontal
@@ -475,17 +473,19 @@ int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleC
 		case _BLAST_MID_LEFT_:
 			width = (end.X - begin.X) + 1;
 			height = blasterWidth;
+			pos.X = begin.X;
+			pos.Y = begin.Y;
 			for (i = 0; i < height; i++)
 			{
 				setRenderInfoAttr(
 					&(sansPattern[pId].renderInfo[1][i]), 
-					begin.X,
-					begin.Y + i,
+					pos,
 					width,
 					height,
 					_WHITE_,
 					bColor
 				);
+				pos.Y++;
 			}
 			break;
 		// diagonal
@@ -495,17 +495,20 @@ int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleC
 		case _BLAST_TOP_LEFT_:
 			width = blasterWidth;
 			height = (end.Y - begin.Y) + 1;
+			pos.X = begin.X;
+			pos.Y = begin.Y;
 			for (i = 0; i < height; i++)
 			{
+				pos.X = lerp(begin.X, end.X, i / (float)height);
 				setRenderInfoAttr(
 					&(sansPattern[pId].renderInfo[1][i]), 
-					lerp(begin.X, end.X, i / (float)height),
-					begin.Y + i,
+					pos,
 					width * 2,
 					height,
 					_WHITE_,
 					bColor
 				);
+				pos.Y++;
 			}
 			break; 
 	}
@@ -692,30 +695,30 @@ void movePlayerPos()
 		// key input
 		if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
 		{
-			Player.x -= playerSpeed;
+			Player.pos.X -= playerSpeed;
 		}
 		else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
 		{
-			Player.x += playerSpeed;
+			Player.pos.Y += playerSpeed;
 		}
 		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
 		{
-			Player.y -= playerSpeed;
+			Player.pos.Y -= playerSpeed;
 		}
 		else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
 		{
-			Player.y += playerSpeed;
+			Player.pos.Y += playerSpeed;
 		}
 		playerSpeed = 0;
 	    // fix player pos
-		if (Player.x <= EnemyPhaseBox.x + 2)
-	        Player.x = EnemyPhaseBox.x + 2;
-	    else if (EnemyPhaseBox.x + 1 + EnemyPhaseBox.width <= Player.x)
-	        Player.x = EnemyPhaseBox.x + 1 + EnemyPhaseBox.width;
-	    if (Player.y <= EnemyPhaseBox.y)
-	        Player.y = EnemyPhaseBox.y + 1;
-	    else if (EnemyPhaseBox.y + EnemyPhaseBox.height - 2 <= Player.y)
-	        Player.y = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
+		if (Player.pos.X <= EnemyPhaseBox.pos.X + 2)
+	        Player.pos.X = EnemyPhaseBox.pos.X + 2;
+	    else if (EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width <= Player.pos.X)
+	        Player.pos.X = EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width;
+	    if (Player.pos.Y <= EnemyPhaseBox.pos.Y)
+	        Player.pos.Y = EnemyPhaseBox.pos.Y + 1;
+	    else if (EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 <= Player.pos.Y)
+	        Player.pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2;
 	    // set clock (oldTime)
 		oldTime = clock();
 	}

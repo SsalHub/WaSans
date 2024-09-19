@@ -14,8 +14,7 @@ typedef void (Renderer)(void);
 
 typedef struct RenderInfo
 {
-	int x;
-	int y;
+	COORD pos;
 	char* s;
 	ConsoleColor tColor;
 	ConsoleColor bColor;
@@ -51,8 +50,8 @@ void fillColorToScreen(ConsoleColor bColor);
 void printLine(int x, int y, char *str, ConsoleColor tColor, ConsoleColor bColor);
 void printLines(int x, int y, char *str, ConsoleColor tColor, ConsoleColor bColor);
 
-void setRenderInfo(RenderInfo *target, int x, int y, char *s, ConsoleColor tColor, ConsoleColor bColor);
-void setRenderInfoAttr(RenderInfo *target, int x, int y, int w, int h, ConsoleColor tColor, ConsoleColor bColor);
+void setRenderInfo(RenderInfo *target, COORD pos, char *s, ConsoleColor tColor, ConsoleColor bColor);
+void setRenderInfoAttr(RenderInfo *target, COORD pos, int w, int h, ConsoleColor tColor, ConsoleColor bColor);
 void setRenderer(Renderer* renderer);
 Renderer* getCurrentRenderer();
 

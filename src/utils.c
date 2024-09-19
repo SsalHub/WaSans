@@ -177,3 +177,26 @@ void flushIstream()
 {
 	while (kbhit() && getch());
 }
+
+
+
+/* COORD Util Func */
+COORD* setCOORD(COORD *dst, int x, int y)
+{
+	dst->X = x;
+	dst->Y = y;
+	return dst;
+}
+
+COORD* cpyCOORD(COORD *dst, COORD *src)
+{
+	dst->X = src->X;
+	dst->Y = src->Y;
+	return dst;
+}
+
+COORD addCOORD(COORD a, COORD b)
+{
+	COORD result = { a.X + b.X, a.Y + b.Y };
+	return result;
+}

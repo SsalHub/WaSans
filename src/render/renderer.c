@@ -175,21 +175,19 @@ void printLines(int x, int y, char *str, ConsoleColor tColor, ConsoleColor bColo
 
 
 /*  */
-void setRenderInfo(RenderInfo *target, int x, int y, char *s, ConsoleColor tColor, ConsoleColor bColor)
+void setRenderInfo(RenderInfo *target, COORD pos, char *s, ConsoleColor tColor, ConsoleColor bColor)
 {
 	if (s != NULL)
 		target->s = s;
-	target->x = x;
-	target->y = y;
+	target->pos = pos;
 	target->tColor = tColor;
 	target->bColor = bColor;
 }
 
-void setRenderInfoAttr(RenderInfo *target, int x, int y, int w, int h, ConsoleColor tColor, ConsoleColor bColor)
+void setRenderInfoAttr(RenderInfo *target, COORD pos, int w, int h, ConsoleColor tColor, ConsoleColor bColor)
 {
 	target->s = NULL;
-	target->x = x;
-	target->y = y;
+	target->pos = pos;
 	target->width = w;
 	target->height = h;
 	target->tColor = tColor;

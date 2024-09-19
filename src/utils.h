@@ -189,4 +189,9 @@ int getRandomRange(int min, int max);
 float lerp(float from, float to, float t);
 void fillSpaceChar(char* str, int begin, int end);
 void flushIstream();
+
+/* COORD Util Func */
+COORD* setCOORD(COORD *dst, int x, int y);
+COORD* cpyCOORD(COORD *dst, COORD *src);
+COORD addCOORD(COORD a, COORD b);
 #endif

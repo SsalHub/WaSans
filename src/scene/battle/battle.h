@@ -28,8 +28,7 @@ typedef enum EnemyPart
 
 typedef struct BattleObject
 {
-	int x;
-	int y;
+	COORD pos;
 	char *data;
 	ConsoleColor tColor;
 	ConsoleColor bColor;

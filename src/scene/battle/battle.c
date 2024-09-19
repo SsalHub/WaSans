@@ -45,8 +45,7 @@ void initBattle(int elen, BattleObject (*enemy)[3], int plen, PatternInfo* patte
 
 void initPlayer()
 {
-	Player.x = 0;
-	Player.y = 0;
+	setCOORD(&(Player.pos), 0, 0);
 	Player.data = (char*)malloc(sizeof(char) * 8);
 	strcpy(Player.data, "O");
 	Player.isActive = 0;
@@ -59,8 +58,7 @@ void initEnemyPhaseBox()
 	char ch[8];
 	int i, j;
 	
-	EnemyPhaseBox.x = 49;
-	EnemyPhaseBox.y = 15;
+	setCOORD(&(EnemyPhaseBox.pos), 49, 15);
 	EnemyPhaseBox.width = 18;
 	EnemyPhaseBox.height = 8;
 	EnemyPhaseBox.data = (char*)malloc(sizeof(char) * ((ScreenWidth + 1) * (ScreenHeight / 2)));
@@ -85,8 +83,7 @@ void initPlayerPhaseBox()
 	char ch[3];
 	int i, j;
 
-	PlayerPhaseBox.x = 6;
-	PlayerPhaseBox.y = 15;
+	setCOORD(&(PlayerPhaseBox.pos), 6, 15);
 	PlayerPhaseBox.width = 103;
 	PlayerPhaseBox.height = 8;
 	PlayerPhaseBox.data = (char*)malloc(sizeof(char) * ((ScreenWidth + 1) * (ScreenHeight / 2)));
@@ -251,24 +248,24 @@ void renderEnemy()
 //			continue;
 		// render leg
 		printLines(
-				EnemyInfo[i][_ENEMY_LEG_].x, 
-				EnemyInfo[i][_ENEMY_LEG_].y, 
+				EnemyInfo[i][_ENEMY_LEG_].pos.X, 
+				EnemyInfo[i][_ENEMY_LEG_].pos.Y, 
 				EnemyInfo[i][_ENEMY_LEG_].data, 
 				EnemyInfo[i][_ENEMY_LEG_].tColor, 
 				EnemyInfo[i][_ENEMY_LEG_].bColor
 		);
 		// render body
 		printLines(
-				EnemyInfo[i][_ENEMY_BODY_].x, 
-				EnemyInfo[i][_ENEMY_BODY_].y, 
+				EnemyInfo[i][_ENEMY_BODY_].pos.X, 
+				EnemyInfo[i][_ENEMY_BODY_].pos.Y, 
 				EnemyInfo[i][_ENEMY_BODY_].data, 
 				EnemyInfo[i][_ENEMY_BODY_].tColor, 
 				EnemyInfo[i][_ENEMY_BODY_].bColor
 		);
 		// render face
 		printLines(
-				EnemyInfo[i][_ENEMY_FACE_].x, 
-				EnemyInfo[i][_ENEMY_FACE_].y, 
+				EnemyInfo[i][_ENEMY_FACE_].pos.X, 
+				EnemyInfo[i][_ENEMY_FACE_].pos.Y, 
 				EnemyInfo[i][_ENEMY_FACE_].data, 
 				EnemyInfo[i][_ENEMY_FACE_].tColor, 
 				EnemyInfo[i][_ENEMY_FACE_].bColor
@@ -278,23 +275,23 @@ void renderEnemy()
 
 void renderEnemyPhaseBox()
 {
-    printLines(EnemyPhaseBox.x, EnemyPhaseBox.y, EnemyPhaseBox.data, _WHITE_, _BLACK_);
+    printLines(EnemyPhaseBox.pos.X, EnemyPhaseBox.pos.Y, EnemyPhaseBox.data, _WHITE_, _BLACK_);
 }
 
 void renderPlayerPos()
 {
     // fix player x pos
-    if (Player.x <= EnemyPhaseBox.x + 2)
-        Player.x = EnemyPhaseBox.x + 2;
-    else if (EnemyPhaseBox.x + 1 + EnemyPhaseBox.width <= Player.x)
-        Player.x = EnemyPhaseBox.x + 1 + EnemyPhaseBox.width;
+    if (Player.pos.X <= EnemyPhaseBox.pos.X + 2)
+        Player.pos.X = EnemyPhaseBox.pos.X + 2;
+    else if (EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width <= Player.pos.X)
+        Player.pos.X = EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width;
     // fix player y pos
-    if (Player.y <= EnemyPhaseBox.y)
-        Player.y = EnemyPhaseBox.y + 1;
-    else if (EnemyPhaseBox.y + EnemyPhaseBox.height - 2 <= Player.y)
-        Player.y = EnemyPhaseBox.y + EnemyPhaseBox.height - 2;
+    if (Player.pos.Y <= EnemyPhaseBox.pos.Y)
+        Player.pos.Y = EnemyPhaseBox.pos.Y + 1;
+    else if (EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 <= Player.pos.Y)
+        Player.pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2;
     // render   
-    printLine(Player.x, Player.y, Player.data, Player.tColor, Player.bColor);
+    printLine(Player.pos.X, Player.pos.Y, Player.data, Player.tColor, Player.bColor);
 }
 
 void renderPlayerPhaseBox()
@@ -390,14 +387,15 @@ void renderSpeechBubble()
 	static int bubbleWidth = 0;
 	char buffer[ScreenWidth * 2];
 	COORD begin, end, pos;
-	int i, j, slen, x, y, w, h;
+	int slen, x, y, w, h;
+	int i, j;
 	
 	for (i = 0; i < enemyLen; i++)
 	{
 		if (SpeechBubble[i].isActive)
 		{
-			x = SpeechBubble[i].x;	
-			y = SpeechBubble[i].y;
+			x = SpeechBubble[i].pos.X;	
+			y = SpeechBubble[i].pos.Y;
 			w = SpeechBubble[i].width;
 			h = SpeechBubble[i].height;
 			// render bubble box
@@ -447,8 +445,8 @@ void renderPattern()
 				if (render->s != NULL)
 				{
 					printLines(
-						render->x,
-						render->y,
+						render->pos.X,
+						render->pos.Y,
 						render->s,
 						render->tColor,
 						render->bColor
@@ -456,10 +454,10 @@ void renderPattern()
 				}
 				else
 				{
-					pos.X = render->x;
+					pos.X = render->pos.X;
 					for (k = 0; k < render->height; k++)
 					{
-						pos.Y = render->y + k;
+						pos.Y = render->pos.Y + k;
 						FillConsoleOutputAttribute(
 							ScreenHandle[ScreenIndex], 
 							render->tColor | (render->bColor << 4), 
@@ -467,13 +465,13 @@ void renderPattern()
 							pos, 
 							&dw
 						);
-						playerpos.X = Player.x;
-						playerpos.Y = Player.y;
-						begin.X 	= render.x;
-						begin.Y 	= render.y;
-						end.X 		= render.x + render.width;
-						end.Y 		= render.y + render.height;
-						getCollisionInRange(&playerpos, &begin, &end);
+						cpyCOORD(&begin, &(render->pos));
+						setCOORD(&(end), 
+							render->pos.X + render->width, 
+							render->pos.Y + render->height
+						);
+						if (getCollisionInRange(&(Player.pos), &begin, &end))
+							Patterns[i].collider();
 					}
 					
 				}

@@ -87,8 +87,8 @@ HANDLE 		startPattern(Pattern pattern, void* args, unsigned int* threadID);
 int 		movePlayerSelectBox();
 int 		getPlayerDamage(int damage);
 /* Collider */
-int 		playerCollider(COORD pos);
-int 		playerColliderInRange(COORD begin, COORD end);
+COORD* 		getCollision(COORD *src, COORD *trg);
+COORD* 		getCollisionInRange(COORD *src, COORD *begin, COORD *end);
 
 /* Sub Renderer */
 void renderEnemy();

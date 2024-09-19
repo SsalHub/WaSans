@@ -221,19 +221,19 @@ int getPlayerDamage(int damage)
 	return 1;
 }
 
-int playerCollider(COORD pos)
+COORD* getCollision(COORD *src, COORD *trg)
 {
-	if (Player.x == pos.X && Player.y == pos.Y)
-		return 1;
-	return 0;
+	if (src->X == trg->X && src->Y == trg->Y)
+		return src;
+	return NULL;
 }
 
-int playerColliderInRange(COORD begin, COORD end)
+COORD* getCollisionInRange(COORD *src, COORD *begin, COORD *end)
 {
-	int bCollision = (begin.X <= Player.x && Player.x <= end.X) && (begin.Y <= Player.y && Player.y <= end.Y);
+	int bCollision = (begin->X <= src->X && src->X <= end->X) && (begin->Y <= src->Y && src->Y <= end->Y);
 	if (bCollision)
-		return 1;
-	return 0;
+		return src;
+	return NULL;
 }
 
 
@@ -428,7 +428,7 @@ void renderSpeechBubble()
 
 void renderPattern()
 {
-	COORD pos;
+	COORD pos, begin, end, playerpos;
 	DWORD dw;
 	RenderInfo *render;
 	int i, j, k, layer;
@@ -467,7 +467,15 @@ void renderPattern()
 							pos, 
 							&dw
 						);
+						playerpos.X = Player.x;
+						playerpos.Y = Player.y;
+						begin.X 	= render.x;
+						begin.Y 	= render.y;
+						end.X 		= render.x + render.width;
+						end.Y 		= render.y + render.height;
+						getCollisionInRange(&playerpos, &begin, &end);
 					}
+					
 				}
 			}
 		}

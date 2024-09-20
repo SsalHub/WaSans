@@ -4,7 +4,6 @@
 char* AssetFile[_ASSET_LEN_];
 
 
-				
 void sleep(float sec)
 {
 	Sleep(sec * 1000);

@@ -10,9 +10,9 @@
 #include "../settings.h"
 #include "../utils.h"
 
-typedef void (Renderer)(void);
+typedef void (RENDERER)(void);
 
-typedef struct RenderInfo
+typedef struct RENDER_INFO
 {
 	COORD pos;
 	char* s;
@@ -20,22 +20,22 @@ typedef struct RenderInfo
 	CONSOLE_COLOR bColor;
 	int width;
 	int height;
-} RenderInfo;
+} RENDER_INFO;
 
-typedef enum TextAlign
+typedef enum TEXT_ALIGN
 {
 	_ALIGN_CENTER_ = -100,
 	_ALIGN_LEFT_,
 	_ALIGN_RIGHT_,
 	_ALIGN_TOP_,
 	_ALIGN_BOTTOM_,
-} TextAlign;
+} TEXT_ALIGN;
 
 extern int ScreenIndex;
 extern HANDLE ScreenHandle[2];
 
 static int bRender;
-static Renderer* sceneRenderer;
+static RENDERER* sceneRenderer;
 static int bRenderThread;
 static unsigned int pRenderThread;
 static HANDLE hRenderThread;
@@ -50,10 +50,10 @@ void fillColorToScreen(CONSOLE_COLOR bColor);
 void printLine(int x, int y, char *str, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
 void printLines(int x, int y, char *str, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
 
-void setRenderInfo(RenderInfo *target, COORD pos, char *s, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
-void setRenderInfoAttr(RenderInfo *target, COORD pos, int w, int h, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
-void setRenderer(Renderer* renderer);
-Renderer* getCurrentRenderer();
+void setRenderInfo(RENDER_INFO *target, COORD pos, char *s, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
+void setRenderInfoAttr(RENDER_INFO *target, COORD pos, int w, int h, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
+void setRenderer(RENDERER* RENDERER);
+RENDERER* getCurrentRenderer();
 
 void printFPS();
 void waitForFrame();

@@ -28,7 +28,7 @@ void fadeOut()
 	setRenderer(renderBlackScreenEffect);
 }
 
-void fadeIn(Renderer* renderer)
+void fadeIn(RENDERER* renderer)
 {
 	const int fadeSpeed = 40;
     int oldTime, currTime, i;
@@ -70,7 +70,7 @@ void blackScreenEffect(float t)
 {
 	int oldTime, i;
     char flag;
-    Renderer* lastRenderer;
+    RENDERER* lastRenderer;
 	
 	oldTime = clock();
 	lastRenderer = getCurrentRenderer();

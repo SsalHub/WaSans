@@ -4,12 +4,12 @@
 #include <string.h>
 #include <time.h>
 
-typedef enum ExitCode
+typedef enum EXITCODE
 {
 	_EXIT_NONE_			= -1,
 	_EXIT_GAME_			= 0,
 	_LOAD_ASSET_ERROR_	= 1,
-} ExitCode;
+} EXITCODE;
 
 extern int ScreenWidth, ScreenHeight;
 extern int BaseFrame;

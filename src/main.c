@@ -9,9 +9,10 @@ int main(int argc, char *argv[]) {
 
 void initGame()
 {
-	// init basic info
+	// init basic info and events
 	initPlayerName("SJW");
 	PlayerLevel = 1;
+	initEventListener();
 	// load assets
 	initDataAsset();
 	initBGMAsset();
@@ -24,7 +25,7 @@ void initGame()
 
 void runGame()
 {
-	ExitCode ec = _EXIT_NONE_;
+	EXITCODE ec = _EXIT_NONE_;
 	gotoNextScene(getCurrentScene());
 	while (ec != _EXIT_GAME_)
 	{

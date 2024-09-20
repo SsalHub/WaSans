@@ -296,7 +296,7 @@ void renderPlayerPos()
 
 void renderPlayerPhaseBox()
 {
-	const int w = 103, h = 8;
+	const int w = 103, h = 9;
     static char buffer[1024];
 	char ch[3];
 	int i, j;
@@ -316,7 +316,7 @@ void renderPlayerPhaseBox()
 	        strcat(buffer, "=: \n");
 	    }
 	}
-    printLines(6, 16, buffer, _WHITE_, _BLACK_);
+    printLines(6, 15, buffer, _WHITE_, _BLACK_);
 }
 
 void renderPlayerInfo()
@@ -324,7 +324,6 @@ void renderPlayerInfo()
 	static const int y = 24;
     int x = 11, i, damaged;
     char itoa_str[8], level_str[8], hp_str[12], hp_bar[12];
-//	char playerInfo[ScreenWidth];
     int idx = 0;
     
     // player name
@@ -441,7 +440,7 @@ void renderPattern()
 {
 	COORD pos, begin, end, playerpos;
 	DWORD dw;
-	RenderInfo *render;
+	RENDER_INFO *render;
 	int i, j, k, layer;
 	
 	

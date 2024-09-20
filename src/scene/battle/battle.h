@@ -57,7 +57,7 @@ typedef struct PatternInfo
 	unsigned int threadID;
 	// render info
 	int renderInfoLen[_PATTERN_LAYER_LEN_];
-	RenderInfo renderInfo[_PATTERN_LAYER_LEN_][30];
+	RENDER_INFO renderInfo[_PATTERN_LAYER_LEN_][30];
 	Collider *collider;
 } PatternInfo;
 

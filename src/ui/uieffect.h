@@ -4,12 +4,12 @@
 #include <windows.h>
 #include "../render/renderer.h"
 
-static Renderer* currentRenderer;
+static RENDERER* currentRenderer;
 static int fadeProgress;
 static char* buffer;
 
 void fadeOut();
-void fadeIn(Renderer* renderer);
+void fadeIn(RENDERER* renderer);
 void renderFadeEffect();
 void blackScreenEffect(float t);
 void renderBlackScreenEffect();

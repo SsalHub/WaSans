@@ -230,7 +230,7 @@ static void enemyPhase()
 unsigned __stdcall explodeBlasterToCenter(void* args)
 {
 	// receive args
-	PatternArgs_Blaster *data = (PatternArgs_Blaster*)args;
+	SANS_ARGS_BLASTER *data = (SANS_ARGS_BLASTER*)args;
 	int pId = data->patternId;
 	BLASTER_ANGLE blasterAngle = data->blasterAngle;
 	// other vars
@@ -422,7 +422,7 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 unsigned __stdcall explodeBlasterToPlayer(void* args)
 {
 	// receive args
-	PatternArgs_Blaster *data = (PatternArgs_Blaster*)args;
+	SANS_ARGS_BLASTER *data = (SANS_ARGS_BLASTER*)args;
 	int pId = data->patternId;
 	BLASTER_ANGLE blasterAngle = data->blasterAngle;
 	// other vars

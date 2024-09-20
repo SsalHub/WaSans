@@ -5,13 +5,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
+#include "manager/scenemanager.h"
+#include "battle/battle.h"
 #include "../utils.h"
 #include "../settings.h"
 #include "../ui/uieffect.h"
 #include "../render/renderer.h"
 #include "../sound/sounds.h"
-#include "scenemanager.h"
-#include "battle/battle.h"
 
 #define _SANS_SCRIPT_LEN_ 	5
 #define _SANS_PATTERN_LEN_ 	4
@@ -35,16 +35,16 @@ typedef enum BLASTER_ANGLE
 //	_BLAST_MID_CENTER_,
 } BLASTER_ANGLE;
 
-enum _SansBattle_EnemyType
+enum SANS_ENEMYTYPE
 {
 	_ENEMY_SANS_ 			= 0,
 };
 
-typedef struct _PatternArgs_Blaster
+typedef struct SANS_ARGS_BLASTER
 {
 	unsigned int patternId;
 	BLASTER_ANGLE blasterAngle;
-} PatternArgs_Blaster;
+} SANS_ARGS_BLASTER;
 
 
 
@@ -59,7 +59,7 @@ static const char scripts[_SANS_SCRIPT_LEN_][128] = {
 //					"always wondered why people never use their strongest attack first.",
 				    "here we go.",
 				};
-static PatternArgs_Blaster gasterBlasterPatternInfo[_SANS_PATTERN_LEN_] = {
+static SANS_ARGS_BLASTER gasterBlasterPatternInfo[_SANS_PATTERN_LEN_] = {
 					{ 0, _BLAST_MID_RIGHT_ },
 					{ 1, _BLAST_MID_LEFT_ },
 					{ 2, _BLAST_TOP_CENTER_ },

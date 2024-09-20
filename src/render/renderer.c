@@ -175,7 +175,7 @@ void printLines(int x, int y, char *str, CONSOLE_COLOR tColor, CONSOLE_COLOR bCo
 
 
 /*  */
-void setRenderInfo(RenderInfo *target, COORD pos, char *s, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor)
+void setRenderInfo(RENDER_INFO *target, COORD pos, char *s, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor)
 {
 	if (s != NULL)
 		target->s = s;
@@ -184,7 +184,7 @@ void setRenderInfo(RenderInfo *target, COORD pos, char *s, CONSOLE_COLOR tColor,
 	target->bColor = bColor;
 }
 
-void setRenderInfoAttr(RenderInfo *target, COORD pos, int w, int h, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor)
+void setRenderInfoAttr(RENDER_INFO *target, COORD pos, int w, int h, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor)
 {
 	target->s = NULL;
 	target->pos = pos;
@@ -194,12 +194,12 @@ void setRenderInfoAttr(RenderInfo *target, COORD pos, int w, int h, CONSOLE_COLO
 	target->bColor = bColor;
 }
 
-void setRenderer(Renderer* renderer)
+void setRenderer(RENDERER* renderer)
 {
 	sceneRenderer = renderer;
 }
 
-Renderer* getCurrentRenderer()
+RENDERER* getCurrentRenderer()
 {
 	return sceneRenderer;
 }

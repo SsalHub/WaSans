@@ -5,7 +5,7 @@ void initFirstScene()
 	currentScene = _SCENE_MAINMENU_;
 }
 
-void gotoNextScene(SceneType scene)
+void gotoNextScene(SCENE_TYPE scene)
 {
 	currentScene = scene;
 	switch (scene)
@@ -22,7 +22,7 @@ void gotoNextScene(SceneType scene)
 	}
 }
 
-ExitCode runScene()
+EXITCODE runScene()
 {
 	startSceneFunc();
 	runSceneFunc();
@@ -32,17 +32,17 @@ ExitCode runScene()
 	return _EXIT_NONE_;
 }
 
-void setCurrentScene(SceneType scene)
+void setCurrentScene(SCENE_TYPE scene)
 {
 	currentScene = scene;
 }
 
-SceneType getCurrentScene()
+SCENE_TYPE getCurrentScene()
 {
 	return currentScene;
 }
 
-Renderer* getSceneRenderer(SceneType scene)
+RENDERER* getSceneRenderer(SCENE_TYPE scene)
 {
 	switch (scene)
 	{

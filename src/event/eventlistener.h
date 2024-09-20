@@ -1,10 +1,8 @@
 #ifndef __EVENTLISTENER__
 #define __EVENTLISTENER__
+#include "events.h"
 
-typedef enum EVENT_TYPE
-{
-	GAME_INIT,
-	
-} EVENT_TYPE; 
+
+//extern EventListener[_EVENT_LEN_](*);
 
 #endif

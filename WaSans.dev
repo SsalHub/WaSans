@@ -29,7 +29,7 @@ IncludeVersionInfo=0
 SupportXPThemes=0
 CompilerSet=0
 CompilerSettings=0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;1;0;1;0;0;0;8;0;0;0
-UnitCount=26
+UnitCount=24
 
 [VersionInfo]
 Major=1
@@ -190,20 +190,10 @@ Priority=1000
 OverrideBuildCmd=0
 BuildCmd=
 
-[Unit20]
-FileName=src\event\eventlistener.c
-Folder=src/event
-Compile=1
-Link=1
-Priority=1000
-OverrideBuildCmd=0
-BuildCmd=
-CompileCpp=0
-
 [Unit21]
-FileName=src\event\eventlistener.h
+FileName=src\scene\manager\loadscene.h
 CompileCpp=0
-Folder=src/event
+Folder=src/scene/manager
 Compile=1
 Link=1
 Priority=1000
@@ -211,7 +201,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit23]
-FileName=src\scene\manager\loadscene.h
+FileName=src\scene\manager\scenemanager.h
 Folder=src/scene/manager
 Compile=1
 Link=1
@@ -458,7 +448,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit19]
-FileName=src\event\events.h
+FileName=src\event\eventmanager.h
 CompileCpp=0
 Folder=src/event
 Compile=1
@@ -468,7 +458,7 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit22]
-FileName=src\scene\manager\loadscene.c
+FileName=src\scene\manager\scenemanager.c
 CompileCpp=0
 Folder=src/scene/manager
 Compile=1
@@ -478,9 +468,9 @@ OverrideBuildCmd=0
 BuildCmd=
 
 [Unit24]
-FileName=src\scene\manager\scenemanager.c
+FileName=src\event\eventmanager.c
 CompileCpp=0
-Folder=src/scene/manager
+Folder=src/event
 Compile=1
 Link=1
 Priority=1000
@@ -501,6 +491,16 @@ BuildCmd=
 FileName=src\event\events.c
 CompileCpp=0
 Folder=src/event
+Compile=1
+Link=1
+Priority=1000
+OverrideBuildCmd=0
+BuildCmd=
+
+[Unit20]
+FileName=src\scene\manager\loadscene.c
+CompileCpp=0
+Folder=src/scene/manager
 Compile=1
 Link=1
 Priority=1000

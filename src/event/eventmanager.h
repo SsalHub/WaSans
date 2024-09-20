@@ -1,5 +1,5 @@
-#ifndef __EVENTS__
-#define __EVENTS__
+#ifndef __EVENTMANAGER__
+#define __EVENTMANAGER__
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -13,7 +13,8 @@ typedef enum EVENT_TYPE
 {
 	// init, scene events
 	_EVENT_GAME_INIT_,
-	_EVENT_SCENE_INIT_,
+	_EVENT_SCENE_START_,
+	_EVENT_SCENE_UPDATE_,
 	_EVENT_NEXT_SCENE_,
 	// ui events
 	_EVENT_FADE_IN_,
@@ -39,6 +40,9 @@ void initEventListener();
 void onEvent(EVENT_TYPE et);
 int addEventListener(EVENT_PTR e, void *args, EVENT_TYPE et);
 EVENT_LISTENER* searchEventListener(EVENT_PTR e, void *args, EVENT_TYPE et);
+
+/* Terminate Func */
 int removeEventListener(EVENT_PTR e, void *args, EVENT_TYPE et);
+int removeEventListenerAtIndex(EVENT_TYPE et, int index);
 void releaseEventListener();
 #endif

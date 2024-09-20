@@ -1,4 +1,5 @@
-#include "events.h"
+#include "eventmanager.h"
+
 
 void initEventListener()
 {
@@ -25,8 +26,10 @@ void onEvent(EVENT_TYPE et)
 int addEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
 {
 	EVENT_LISTENER *head = &(eventListener[et]), *curr = head->next, *prev = head;
+	int id = 0;
 	while (curr)
 	{
+		id++;
 		prev = curr;
 		curr = curr->next;
 	}
@@ -36,7 +39,7 @@ int addEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
 	curr->args = args;
 	curr->next = NULL;
 	prev->next = curr;
-	return 0;
+	return id;
 }
 
 EVENT_LISTENER* searchEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
@@ -53,6 +56,9 @@ EVENT_LISTENER* searchEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
 	return curr;
 }
 
+
+
+/* Terminate Func */
 // if success, return 0. or return -1.
 int removeEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
 {
@@ -65,6 +71,25 @@ int removeEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
 		curr = curr->next;
 	}
 	if (!curr)
+		return -1;
+	prev->next = curr->next;
+	free(curr);
+	return 0;
+}
+
+// if success, return 0. or return -1.
+int removeEventListenerAtIndex(EVENT_TYPE et, int index)
+{
+	EVENT_LISTENER *head = &(eventListener[et]), *curr = head->next, *prev = head;
+	int i;
+	for (i = 0; i < index; i++)
+	{
+		if (!curr)
+			return -1;
+		prev = curr;
+		curr = curr->next;
+	}
+	if (i != index)
 		return -1;
 	prev->next = curr->next;
 	free(curr);

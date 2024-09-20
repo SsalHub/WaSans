@@ -19,7 +19,7 @@
 #define _BATTLE_SELECT_LEN_	4
 #define _PATTERN_CONTINUE_	-1
 
-typedef enum BlasterAngle
+typedef enum BLASTER_ANGLE
 {
 	_BLAST_TOP_CENTER_		= 0,	// vertical
 	_BLAST_TOP_RIGHT_		= 45,	// diagonal
@@ -33,7 +33,7 @@ typedef enum BlasterAngle
 	_BLAST_TOP_LEFT_		= 270,
 	_BLAST_MID_LEFT_		= 315,
 //	_BLAST_MID_CENTER_,
-} BlasterAngle;
+} BLASTER_ANGLE;
 
 enum _SansBattle_EnemyType
 {
@@ -43,7 +43,7 @@ enum _SansBattle_EnemyType
 typedef struct _PatternArgs_Blaster
 {
 	unsigned int patternId;
-	BlasterAngle blasterAngle;
+	BLASTER_ANGLE blasterAngle;
 } PatternArgs_Blaster;
 
 
@@ -80,9 +80,9 @@ static void enemyPhase();
 /* Boss Phase func */
 unsigned __stdcall explodeBlasterToCenter(void* args);
 unsigned __stdcall explodeBlasterToPlayer(void* args);
-AssetType getBlasterType(BlasterAngle blasterAngle);
-char* fixBlasterAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle);
-int explodeBlaster(BlasterAngle angle, int pid, COORD begin, COORD end, ConsoleColor bColor);
+ASSET_TYPE getBlasterType(BLASTER_ANGLE blasterAngle);
+char* fixBlasterAngle(char* dst, size_t dstSize, BLASTER_ANGLE blasterAngle);
+int explodeBlaster(BLASTER_ANGLE angle, int pid, COORD begin, COORD end, CONSOLE_COLOR bColor);
 void runSansPattern(int pid);
 void runSansPatternInRange(int begin, int end);
 int isAnyPatternAlive();
@@ -91,9 +91,9 @@ void SansPatternCollider_Basic();
 void SansPatternCollider_IsStop();
 
 /* etc */
-int writeSpeechBubble(unsigned int scriptIdx, ConsoleColor tColor, int bVoice);
+int writeSpeechBubble(unsigned int scriptIdx, CONSOLE_COLOR tColor, int bVoice);
 void movePlayerPos();
-void setSansFace(AssetType facetype);
+void setSansFace(ASSET_TYPE facetype);
 
 /* Terminate Func */
 void releasePatternInRange(int begin, int end);

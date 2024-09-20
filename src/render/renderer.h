@@ -16,8 +16,8 @@ typedef struct RenderInfo
 {
 	COORD pos;
 	char* s;
-	ConsoleColor tColor;
-	ConsoleColor bColor;
+	CONSOLE_COLOR tColor;
+	CONSOLE_COLOR bColor;
 	int width;
 	int height;
 } RenderInfo;
@@ -45,13 +45,13 @@ void initScreen();
 void setWindowInfo(int w, int h);
 void flipScreen();
 void clearScreen();
-void fillColorInRange(COORD begin, COORD end, ConsoleColor bColor);
-void fillColorToScreen(ConsoleColor bColor);
-void printLine(int x, int y, char *str, ConsoleColor tColor, ConsoleColor bColor);
-void printLines(int x, int y, char *str, ConsoleColor tColor, ConsoleColor bColor);
+void fillColorInRange(COORD begin, COORD end, CONSOLE_COLOR bColor);
+void fillColorToScreen(CONSOLE_COLOR bColor);
+void printLine(int x, int y, char *str, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
+void printLines(int x, int y, char *str, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
 
-void setRenderInfo(RenderInfo *target, COORD pos, char *s, ConsoleColor tColor, ConsoleColor bColor);
-void setRenderInfoAttr(RenderInfo *target, COORD pos, int w, int h, ConsoleColor tColor, ConsoleColor bColor);
+void setRenderInfo(RenderInfo *target, COORD pos, char *s, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
+void setRenderInfoAttr(RenderInfo *target, COORD pos, int w, int h, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
 void setRenderer(Renderer* renderer);
 Renderer* getCurrentRenderer();
 

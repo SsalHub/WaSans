@@ -232,12 +232,12 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 	// receive args
 	PatternArgs_Blaster *data = (PatternArgs_Blaster*)args;
 	int pId = data->patternId;
-	BlasterAngle blasterAngle = data->blasterAngle;
+	BLASTER_ANGLE blasterAngle = data->blasterAngle;
 	// other vars
-	AssetType blasterType = getBlasterType(blasterAngle);
+	ASSET_TYPE blasterType = getBlasterType(blasterAngle);
 	int oldTime, renderInfoIdx = 0, blastId = 0;
 	COORD pos, begin, end, exit, explode, expl_target;
-	ConsoleColor tColor;
+	CONSOLE_COLOR tColor;
 	float t;
 	
 	switch (blasterAngle)
@@ -424,12 +424,12 @@ unsigned __stdcall explodeBlasterToPlayer(void* args)
 	// receive args
 	PatternArgs_Blaster *data = (PatternArgs_Blaster*)args;
 	int pId = data->patternId;
-	BlasterAngle blasterAngle = data->blasterAngle;
+	BLASTER_ANGLE blasterAngle = data->blasterAngle;
 	// other vars
 //	int playerX = Player.x, playerY = Player.y;
 }
 
-int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleColor bColor)	
+int explodeBlaster(BLASTER_ANGLE angle, int pId, COORD begin, COORD end, CONSOLE_COLOR bColor)	
 {
 	if (end.X < begin.X)
 	{
@@ -511,7 +511,7 @@ int explodeBlaster(BlasterAngle angle, int pId, COORD begin, COORD end, ConsoleC
 	return i;
 }
 
-AssetType getBlasterType(BlasterAngle blasterAngle)
+ASSET_TYPE getBlasterType(BLASTER_ANGLE blasterAngle)
 {
 	switch (blasterAngle)
 	{
@@ -536,9 +536,9 @@ AssetType getBlasterType(BlasterAngle blasterAngle)
 	return -1;
 }
 
-char* fixBlasterAngle(char* dst, size_t dstSize, BlasterAngle blasterAngle)
+char* fixBlasterAngle(char* dst, size_t dstSize, BLASTER_ANGLE blasterAngle)
 {
-	AssetType blasterType = getBlasterType(blasterAngle);
+	ASSET_TYPE blasterType = getBlasterType(blasterAngle);
 	dst = AssetFile[blasterType];
 	
 	// string rotation 
@@ -623,7 +623,7 @@ void SansPatternCollider_IsStop()
 
 
 /* etc */
-int writeSpeechBubble(unsigned int idx, ConsoleColor tColor, int bVoice)
+int writeSpeechBubble(unsigned int idx, CONSOLE_COLOR tColor, int bVoice)
 {
     static int currLen = 0, oldTime = 0, readOver = 0;
     static const char *pScript = NULL;
@@ -695,7 +695,7 @@ int writeSpeechBubble(unsigned int idx, ConsoleColor tColor, int bVoice)
     return idx;
 }
 
-void setSansFace(AssetType facetype)
+void setSansFace(ASSET_TYPE facetype)
 {
 	EnemyInfo[0][_ENEMY_FACE_].data = AssetFile[facetype];
 }

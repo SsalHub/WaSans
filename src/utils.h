@@ -11,7 +11,7 @@
 
 #define _ASSET_LEN_ 54
 
-typedef enum AssetType
+typedef enum ASSET_TYPE
 {
 	/* Global Asset */
     _LOGO_UNDERTALE_ 			= 0,
@@ -74,9 +74,9 @@ typedef enum AssetType
     _SANS_BLASTER_DIAG_270D_,
     _SANS_BLASTER_DIAG_270E_,
     _SANS_BLASTER_DIAG_270F_,
-} AssetType;
+} ASSET_TYPE;
 
-typedef enum ConsoleColor
+typedef enum CONSOLE_COLOR
 {
     _BLACK_ 					= 0,
     _BLUE_ 						= 1,
@@ -94,9 +94,9 @@ typedef enum ConsoleColor
     _PURPLE_ 					= 13,
     _LIGHT_YELLOW_ 				= 14,
     _WHITE_ 					= 15,
-} ConsoleColor;
+} CONSOLE_COLOR;
 
-typedef enum InputType
+typedef enum INPUT_TYPE
 {
     _SPACE_ 					= 32,
     _ESCAPE_ 					= 27,
@@ -107,7 +107,7 @@ typedef enum InputType
     _UPPER_R_ 					= 82,
     _LOWER_R_ 					= 114,
     _CARRIAGE_RETURN_ 			= 13,
-} InputType;
+} INPUT_TYPE;
 
 
 

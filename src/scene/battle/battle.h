@@ -37,8 +37,8 @@ typedef struct BattleObject
 {
 	COORD pos;
 	char *data;
-	ConsoleColor tColor;
-	ConsoleColor bColor;
+	CONSOLE_COLOR tColor;
+	CONSOLE_COLOR bColor;
 	int width;
 	int height;
 	int isActive;

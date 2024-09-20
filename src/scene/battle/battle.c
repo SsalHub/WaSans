@@ -377,7 +377,7 @@ void renderPlayerInfo()
 void renderSelectBox()
 {
 	const int y = 25;
-    ConsoleColor tSelect[4] = {_YELLOW_, _YELLOW_, _YELLOW_, _YELLOW_};
+    CONSOLE_COLOR tSelect[4] = {_YELLOW_, _YELLOW_, _YELLOW_, _YELLOW_};
     tSelect[battleSelect] = _LIGHT_YELLOW_;
     // FIGHT 
     printLines(7, y, AssetFile[_SELECT_BOX_], tSelect[0], _BLACK_);

@@ -63,7 +63,7 @@ void clearScreen()
 //	printLines(x, y, ScreenBuffer, _BLACK_, _BLACK_);
 }
 
-void fillColorInRange(COORD begin, COORD end, ConsoleColor bColor)
+void fillColorInRange(COORD begin, COORD end, CONSOLE_COLOR bColor)
 {
 	if (end.Y < begin.Y)
 		return;
@@ -78,7 +78,7 @@ void fillColorInRange(COORD begin, COORD end, ConsoleColor bColor)
 	} while (pos.Y < targetY);
 }
 
-void fillColorToScreen(ConsoleColor bColor)
+void fillColorToScreen(CONSOLE_COLOR bColor)
 {
 	COORD pos = { 0, 0 };
 	DWORD dw;
@@ -86,7 +86,7 @@ void fillColorToScreen(ConsoleColor bColor)
 	FillConsoleOutputAttribute(ScreenHandle[ScreenIndex], 0 | (bColor << 4), ScreenWidth * ScreenHeight, pos, &dw);
 }
 
-void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor)
+void printLine(int x, int y, char* str, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor)
 {
 	COORD pos = { x, y };
 	DWORD dw;
@@ -135,7 +135,7 @@ void printLine(int x, int y, char* str, ConsoleColor tColor, ConsoleColor bColor
 	WriteFile(ScreenHandle[ScreenIndex], str, strlen(str), &dw, NULL);
 }
 
-void printLines(int x, int y, char *str, ConsoleColor tColor, ConsoleColor bColor)
+void printLines(int x, int y, char *str, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor)
 {
 	COORD pos = { x, y };
 	DWORD dw;
@@ -175,7 +175,7 @@ void printLines(int x, int y, char *str, ConsoleColor tColor, ConsoleColor bColo
 
 
 /*  */
-void setRenderInfo(RenderInfo *target, COORD pos, char *s, ConsoleColor tColor, ConsoleColor bColor)
+void setRenderInfo(RenderInfo *target, COORD pos, char *s, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor)
 {
 	if (s != NULL)
 		target->s = s;
@@ -184,7 +184,7 @@ void setRenderInfo(RenderInfo *target, COORD pos, char *s, ConsoleColor tColor, 
 	target->bColor = bColor;
 }
 
-void setRenderInfoAttr(RenderInfo *target, COORD pos, int w, int h, ConsoleColor tColor, ConsoleColor bColor)
+void setRenderInfoAttr(RenderInfo *target, COORD pos, int w, int h, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor)
 {
 	target->s = NULL;
 	target->pos = pos;

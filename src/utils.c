@@ -12,7 +12,7 @@ void sleep(float sec)
 
 void initDataAsset()
 {
-	AssetType t;
+	ASSET_TYPE t;
 	for (t = 0; t < _ASSET_LEN_; t++)
 		AssetFile[t] = readAssetFile(assetFilePath[t]);
 }

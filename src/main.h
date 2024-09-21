@@ -5,9 +5,9 @@
 #include "utils.h"
 #include "settings.h"
 #include "render/renderer.h"
-#include "scene/manager/scenemanager.h"
-#include "sound/sounds.h"
-#include "event/events.h"
+#include "scene/scenemanager.h"
+#include "sound/sounds.h"-
+#include "event/eventmanager.h"
 
 int main(int argc, char *argv[]);
 void initGame();

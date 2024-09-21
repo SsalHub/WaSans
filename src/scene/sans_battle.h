@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-#include "manager/scenemanager.h"
+#include "scenemanager.h"
 #include "battle/battle.h"
 #include "../utils.h"
 #include "../settings.h"

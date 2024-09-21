@@ -96,6 +96,20 @@ int removeEventListenerAtIndex(EVENT_TYPE et, int index)
 	return 0;
 }
 
+// if success, return 0.
+int flushEvent(EVENT_TYPE et)
+{
+	EVENT_LISTENER *head = &(eventListener[i]), *curr = head->next, *prev;
+	while (curr)
+	{
+		prev = curr;
+		curr = curr->next;
+		free(prev);
+	}
+	head->next = NULL;
+	return 0;
+}
+
 void releaseEventListener()
 {
 	int i = 0;

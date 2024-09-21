@@ -1,5 +1,5 @@
-#ifndef __LOADSCENE__
-#define __LOADSCENE__
+#ifndef __SCENELOADER__
+#define __SCENELOADER__
 #include "../mainmenu.h"
 #include "../sans_battle.h"
 #include "../battle/battle.h"

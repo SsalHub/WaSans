@@ -1,6 +1,6 @@
 #ifndef __SCENEMANAGER__
 #define __SCENEMANAGER__
-#include "loadscene.h"
+#include "loader/sceneloader.h"
 #include "../../settings.h"
 #include "../../render/renderer.h"
 

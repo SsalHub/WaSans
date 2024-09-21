@@ -1,15 +1,16 @@
-#include "battle.h"
+#include "battlemanager.h"
 
 int MaxHP = 100;
-BattleObject **EnemyInfo = NULL, *SpeechBubble;
-BattleObject Player, EnemyPhaseBox, PlayerPhaseBox;
-PatternInfo *Patterns;
+BATTLE_OBJECT **EnemyInfo = NULL, *SpeechBubble;
+BATTLE_OBJECT Player, EnemyPhaseBox, PlayerPhaseBox;
+PATTERN_INFO *Patterns;
 
 
 
 /* Main Renderer */
 void renderBattleScene()
 {
+	checkPlayerInfo();
     renderPlayerInfo();
     renderSpeechBubble();
     renderEnemy();
@@ -29,7 +30,7 @@ void renderBattleScene()
 
 
 /* Init Functions */
-void initBattle(int elen, BattleObject (*enemy)[3], int plen, PatternInfo *pattern)
+void initBattle(int elen, BATTLE_OBJECT (*enemy)[3], int plen, PATTERN_INFO *pattern)
 {
 	battlePhase = _INTRO_PHASE_;
 	battleTurn = 0;
@@ -102,15 +103,15 @@ void initPlayerPhaseBox()
     }
 }
 
-void initEnemyInfo(int elen, BattleObject (*enemy)[3])
+void initEnemyInfo(int elen, BATTLE_OBJECT (*enemy)[3])
 {
 	int i;
 	enemyLen = elen;
-	EnemyInfo = (BattleObject**)malloc(sizeof(BattleObject*) * enemyLen);
-	SpeechBubble = (BattleObject*)malloc(sizeof(BattleObject) * enemyLen);
+	EnemyInfo = (BATTLE_OBJECT**)malloc(sizeof(BATTLE_OBJECT*) * enemyLen);
+	SpeechBubble = (BATTLE_OBJECT*)malloc(sizeof(BATTLE_OBJECT) * enemyLen);
 	for (i = 0; i < enemyLen; i++)
 	{
-		EnemyInfo[i] = (BattleObject*)malloc(sizeof(BattleObject) * 3);
+		EnemyInfo[i] = (BATTLE_OBJECT*)malloc(sizeof(BATTLE_OBJECT) * 3);
 		EnemyInfo[i][_ENEMY_LEG_] = enemy[i][_ENEMY_LEG_];
 		EnemyInfo[i][_ENEMY_BODY_] = enemy[i][_ENEMY_BODY_];
 		EnemyInfo[i][_ENEMY_FACE_] = enemy[i][_ENEMY_FACE_];
@@ -120,7 +121,7 @@ void initEnemyInfo(int elen, BattleObject (*enemy)[3])
 	}
 }
 
-void initPatternInfo(int plen, PatternInfo *pattern)
+void initPatternInfo(int plen, PATTERN_INFO *pattern)
 {
 	patternLen = plen;
 	Patterns = pattern;
@@ -129,7 +130,7 @@ void initPatternInfo(int plen, PatternInfo *pattern)
 
 
 /* Util Func */
-void setBattlePhase(BattlePhase phase)
+void setBattlePhase(BATTLE_PHASE phase)
 {
 	battlePhase = phase;
 }
@@ -152,7 +153,7 @@ void gotoNextTurn()
 	battleTurn++;
 }
 
-BattlePhase getBattlePhase()
+BATTLE_PHASE getBattlePhase()
 {
 	return battlePhase;
 }
@@ -162,7 +163,7 @@ int getBattleTurn()
 	return battleTurn;
 }
 
-HANDLE startPattern(Pattern pattern, void* args, unsigned int* threadID)
+HANDLE startPattern(BATTLE_PATTERN pattern, void* args, unsigned int* threadID)
 {
 	return (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)pattern, args, 0, threadID);
 }
@@ -209,23 +210,35 @@ int movePlayerSelectBox()
 	return -1;
 }
 
-// if player died return 0. or return 1.
-int getPlayerDamage(int damage)
+void checkPlayerInfo()
 {
-	Player.HP -= damage;
-	if (Player.HP <= 0)
-		return 0;
-	return 1;
+	static int oldTime = -5000, lastDOT = -1;
+	
+	if (Player.width)
+	{
+		if (500 < clock() - oldTime)
+		{
+			oldTime = clock();
+			Player.HP--;
+			Player.width--;
+			lastDOT = Player.width;
+			if (Player.HP <= 0)
+				Player.mode = _PLAYER_DIED_;
+		}
+	}
 }
 
-COORD* getCollision(COORD *src, COORD *trg)
+
+
+/* Collider */
+COORD* checkCollision(COORD *src, COORD *trg)
 {
 	if (src->X == trg->X && src->Y == trg->Y)
 		return src;
 	return NULL;
 }
 
-COORD* getCollisionInRange(COORD *src, COORD *begin, COORD *end)
+COORD* checkCollisionInRange(COORD *src, COORD *begin, COORD *end)
 {
 	int bCollision = (begin->X <= src->X && src->X <= end->X) && (begin->Y <= src->Y && src->Y <= end->Y);
 	if (bCollision)
@@ -233,6 +246,13 @@ COORD* getCollisionInRange(COORD *src, COORD *begin, COORD *end)
 	return NULL;
 }
 
+void setCollisionInfo(COLLISION_INFO *target, COORD pos, BATTLE_PATTERN pattern, RENDER_INFO *render)
+{
+	target->pattern = pattern;
+	cpyCOORD(&(target->pos), &(pos));
+	target->tColor = render->tColor;
+	target->bColor = render->bColor;
+}
 
 
 
@@ -351,15 +371,19 @@ void renderPlayerInfo()
     printLine(48, y, hp_bar, _YELLOW_, _BLACK_);
     // calculate current damage
     // set current player HP info
-    if (Player.isActive == _PLAYER_SANS_POISON_)
+    if (Player.width)	// player's sub HP
     {
 		damaged = (MaxHP - Player.HP) / 10;
 	    for (i = 0; i < damaged; i++)
-	        hp_bar[i] = '#';
-	    if (Player.HP % 10)
-    		hp_bar[damaged++] = '#';
+	        hp_bar[i] = '=';
 	    hp_bar[damaged] = '\0';
-	    printLine(58 - damaged, y, hp_bar, _BLUE_, _BLACK_);
+	    printLine(58 - damaged, y, hp_bar, _RED_, _BLACK_);
+	    // print DoT
+		int DOT = Player.width / 10 + 1;
+	    for (i = 0; i < DOT; i++)
+	        hp_bar[i] = '#';
+	    hp_bar[DOT] = '\0';
+	    printLine(58 - damaged - DOT, y, hp_bar, _PURPLE_, _BLACK_);
 	}
 	else
 	{
@@ -441,8 +465,8 @@ void renderPattern()
 	COORD pos, begin, end, playerpos;
 	DWORD dw;
 	RENDER_INFO *render;
+	COLLISION_INFO colInfo;
 	int i, j, k, layer;
-	
 	
 	for (layer = (_PATTERN_LAYER_LEN_ - 1); 0 <= layer; layer--)
 	{
@@ -483,8 +507,12 @@ void renderPattern()
 							render->pos.X + render->width, 
 							render->pos.Y + render->height
 						);
-						if (getCollisionInRange(&(Player.pos), &begin, &end))
-							Patterns[i].collider();
+						if (checkCollisionInRange(&(Player.pos), &begin, &end) && render->isCollidable)
+						{
+							// set collision info
+							setCollisionInfo(&colInfo, Player.pos, Patterns[i].pattern, render);
+							Patterns[i].collider(&colInfo);
+						}
 					}
 					
 				}

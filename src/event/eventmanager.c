@@ -1,6 +1,7 @@
 #include "eventmanager.h"
 
 
+/* Init Func */
 void initEventListener()
 {
 	int i;
@@ -10,6 +11,7 @@ void initEventListener()
 		eventListener[i].args = NULL;
 		eventListener[i].next = NULL;
 	}
+//	addEventListener(onStartGame, NULL, _EVENT_GAME_START_);
 }
 
 void onEvent(EVENT_TYPE et)
@@ -26,28 +28,28 @@ void onEvent(EVENT_TYPE et)
 int addEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
 {
 	EVENT_LISTENER *head = &(eventListener[et]), *curr = head->next, *prev = head;
-	int id = 0;
+	static int id = 0;
 	while (curr)
 	{
-		id++;
 		prev = curr;
 		curr = curr->next;
-	}
-	// add node
+	}	// add node
 	curr = (EVENT_LISTENER*)malloc(sizeof(EVENT_LISTENER));
 	curr->event = e;
 	curr->args = args;
+	curr->id = id;
 	curr->next = NULL;
 	prev->next = curr;
-	return id;
+	id++;
+	return curr->id;
 }
 
-EVENT_LISTENER* searchEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
+EVENT_LISTENER* searchEventListener(unsigned int id, EVENT_TYPE et)
 {
 	EVENT_LISTENER *head = &(eventListener[et]), *curr = head->next;
 	while (curr)
 	{
-		if (curr->event == e && curr->args == args)
+		if (curr->id == id)
 			break;
 		curr = curr->next;
 	}
@@ -60,12 +62,12 @@ EVENT_LISTENER* searchEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
 
 /* Terminate Func */
 // if success, return 0. or return -1.
-int removeEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
+int removeEventListener(unsigned int id, EVENT_TYPE et)
 {
 	EVENT_LISTENER *head = &(eventListener[et]), *curr = head->next, *prev = head;
 	while (curr)
 	{
-		if (curr->event == e && curr->args == args)
+		if (curr->id == id)
 			break;
 		prev = curr;
 		curr = curr->next;
@@ -77,29 +79,10 @@ int removeEventListener(EVENT_PTR e, void *args, EVENT_TYPE et)
 	return 0;
 }
 
-// if success, return 0. or return -1.
-int removeEventListenerAtIndex(EVENT_TYPE et, int index)
-{
-	EVENT_LISTENER *head = &(eventListener[et]), *curr = head->next, *prev = head;
-	int i;
-	for (i = 0; i < index; i++)
-	{
-		if (!curr)
-			return -1;
-		prev = curr;
-		curr = curr->next;
-	}
-	if (i != index)
-		return -1;
-	prev->next = curr->next;
-	free(curr);
-	return 0;
-}
-
 // if success, return 0.
-int flushEvent(EVENT_TYPE et)
+void flushEvent(EVENT_TYPE et)
 {
-	EVENT_LISTENER *head = &(eventListener[i]), *curr = head->next, *prev;
+	EVENT_LISTENER *head = &(eventListener[et]), *curr = head->next, *prev;
 	while (curr)
 	{
 		prev = curr;
@@ -107,7 +90,6 @@ int flushEvent(EVENT_TYPE et)
 		free(prev);
 	}
 	head->next = NULL;
-	return 0;
 }
 
 void releaseEventListener()

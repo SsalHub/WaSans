@@ -1,9 +1,9 @@
 #include "scenemanager.h"
 
-void initFirstScene()
-{
-	currentScene = _SCENE_MAINMENU_;
-}
+//void initFirstScene()
+//{
+//	currentScene = _SCENE_MAINMENU_;
+//}
 
 void gotoNextScene(SCENE_TYPE scene)
 {
@@ -13,11 +13,12 @@ void gotoNextScene(SCENE_TYPE scene)
 		case _SCENE_MAINMENU_:
 			loadScene_Mainmenu(&startSceneFunc, &runSceneFunc);
 			break;
-		case _SCENE_SANS_BATTLE_:
-			loadScene_SansBattle(&startSceneFunc, &runSceneFunc);
+		case _SCENE_BATTLE_SANS_:
+			loadScene_Battle_Sans(&startSceneFunc, &runSceneFunc);
 			break;
 		case _SCENE_EXIT_GAME_:
-			loadScene_ExitGame(&startSceneFunc, &runSceneFunc);
+			startSceneFunc = NULL;
+			runSceneFunc = NULL;
 			break;
 	}
 }
@@ -47,9 +48,9 @@ RENDERER* getSceneRenderer(SCENE_TYPE scene)
 	switch (scene)
 	{
 		case _SCENE_MAINMENU_:
-			return renderMainmenu;
-		case _SCENE_SANS_BATTLE_:
-			return renderBattleScene;
+			return getSceneRenderer_Mainmenu();
+		case _SCENE_BATTLE_SANS_:
+			return getSceneRenderer_Battle_Sans();
 		case _SCENE_EXIT_GAME_:
 			return NULL;
 	}

@@ -1,5 +1,6 @@
 #include "main.h"
 
+
 int main(int argc, char *argv[]) {
 	initGame();
 	runGame();
@@ -12,21 +13,25 @@ void initGame()
 	// init basic info and events
 	initPlayerName("SJW");
 	PlayerLevel = 1;
-	initEventListener();
+	
 	// load assets
 	initDataAsset();
 	initBGMAsset();
 	initVoiceAsset();
+	
+	// init event listener
+	initEventListener();
 	// init screen renderer
 	initScreen();
-	initFirstScene();
 	beginRenderThread();
 }
 
 void runGame()
 {
+//	onEvent(_EVENT_GAME_START_);
+	gotoNextScene(_SCENE_MAINMENU_);
+	
 	EXITCODE ec = _EXIT_NONE_;
-	gotoNextScene(getCurrentScene());
 	while (ec != _EXIT_GAME_)
 	{
 		ec = runScene();

@@ -6,7 +6,7 @@
 #include "settings.h"
 #include "render/renderer.h"
 #include "scene/scenemanager.h"
-#include "sound/sounds.h"-
+#include "sound/sounds.h"
 #include "event/eventmanager.h"
 
 int main(int argc, char *argv[]);

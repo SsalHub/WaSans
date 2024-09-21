@@ -1,12 +1,14 @@
-#include "sans_battle.h"
+#include "sans.h"
 
 
 /* Main func in sans battle */
-void initSansBattle()
+void Sans_Start()
 {
-	BattleObject sans[3];
+	BATTLE_OBJECT sans[3];
 	patternIdx = 0;
     scriptIdx = -1;
+    Player.mode = _PLAYER_ALIVE_;
+    Player.width = 0;	// sub HP
 
 	// init battle
 	initSansPattern();
@@ -19,9 +21,33 @@ void initSansBattle()
 	SpeechBubble[_ENEMY_SANS_].width = 24;
 	SpeechBubble[_ENEMY_SANS_].height = 6;
 	SpeechBubble[_ENEMY_SANS_].isActive = 0;
+	// init event listener
+	addEventListener(Sans_onDamaged, NULL, _EVENT_ON_DAMAGED_);
 }
 
-void initSansObject(BattleObject (*enemy)[3])
+void Sans_Update()
+{
+    introPhase();
+    enemyPhase();
+	// main phase
+	while (1)
+	{
+	    playerPhase();
+	    if (getCurrentScene() != _SCENE_BATTLE_SANS_)
+	    	break;
+	    enemyPhase();
+	}
+	// exit battle scene
+	releasePatterns();
+	releaseBattleAssets();
+	flushEvent(_EVENT_ON_DAMAGED_);
+	gotoNextScene(_SCENE_MAINMENU_);
+}
+
+
+
+/* Init Func */
+void initSansObject(BATTLE_OBJECT (*enemy)[3])
 {
 	(*enemy)[_ENEMY_LEG_].isActive 	= 0;
 	(*enemy)[_ENEMY_BODY_].isActive = 0;
@@ -62,33 +88,17 @@ void initSansPattern()
 			sansPattern[i].renderInfoLen[j] = 0;
 	}
 	// init detail info
-	sansPattern[0].pattern = (Pattern)explodeBlasterToCenter;
-	sansPattern[0].collider = SansPatternCollider_Basic;
-	sansPattern[1].pattern = (Pattern)explodeBlasterToCenter;
-	sansPattern[1].collider = SansPatternCollider_Basic;
-	sansPattern[2].pattern = (Pattern)explodeBlasterToCenter;
-	sansPattern[2].collider = SansPatternCollider_Basic;
-	sansPattern[3].pattern = (Pattern)explodeBlasterToCenter;
-	sansPattern[3].collider = SansPatternCollider_Basic;
-}
-
-void runSansBattle()
-{
-    introPhase();
-    enemyPhase();
-	// main phase
-	while (1)
-	{
-	    playerPhase();
-	    if (getCurrentScene() != _SCENE_SANS_BATTLE_)
-	    	break;
-	    enemyPhase();
-	}
+	sansPattern[0].pattern = (BATTLE_PATTERN)explodeBlasterToCenter;
+	sansPattern[0].collider = Sans_onCollision;
 	
-	// exit battle scene
-	releasePatterns();
-	releaseBattleAssets();
-	gotoNextScene(_SCENE_MAINMENU_);
+	sansPattern[1].pattern = (BATTLE_PATTERN)explodeBlasterToCenter;
+	sansPattern[1].collider = Sans_onCollision;
+	
+	sansPattern[2].pattern = (BATTLE_PATTERN)explodeBlasterToCenter;
+	sansPattern[2].collider = Sans_onCollision;
+
+	sansPattern[3].pattern = (BATTLE_PATTERN)explodeBlasterToCenter;
+	sansPattern[3].collider = Sans_onCollision;
 }
 
 
@@ -103,7 +113,7 @@ static void introPhase()
 	sleep(1.0f);
 	// run intro phase
     playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
-    fadeIn(getSceneRenderer(_SCENE_SANS_BATTLE_));
+    fadeIn(_SCENE_BATTLE_SANS_);
     
 	setSansFace(_SANS_FACE_NORMAL_A_);
 	sleep(1.0f);
@@ -137,13 +147,6 @@ static void playerPhase()
 						break;
 						
 					case 0:
-						if (!getPlayerDamage(5))
-						{	
-							// game over
-							playBGM(_BGM_MEGALOVANIA_, _SOUND_PAUSE_);
-							gotoNextScene(_SCENE_MAINMENU_);
-							return;
-						}
 						break;
 					case 1:
 						break;
@@ -192,7 +195,7 @@ static void enemyPhase()
 	    	
         	// run boss pattern
 			setSansFace(_SANS_FACE_NORMAL_A_);
-			runSansPatternInRange(0, 3);
+			Sans_runPatternInRange(0, 3);
 			// wait until all pattern completed
 			flushIstream();
 	        while (isAnyPatternAlive())
@@ -459,7 +462,8 @@ int explodeBlaster(BLASTER_ANGLE angle, int pId, COORD begin, COORD end, CONSOLE
 					width * 2,
 					height,
 					_WHITE_,
-					bColor
+					bColor,
+					1
 				);
 				pos.Y++;
 			}
@@ -479,7 +483,8 @@ int explodeBlaster(BLASTER_ANGLE angle, int pId, COORD begin, COORD end, CONSOLE
 					width,
 					height,
 					_WHITE_,
-					bColor
+					bColor,
+					1
 				);
 				pos.Y++;
 			}
@@ -502,7 +507,8 @@ int explodeBlaster(BLASTER_ANGLE angle, int pId, COORD begin, COORD end, CONSOLE
 					width * 2,
 					height,
 					_WHITE_,
-					bColor
+					bColor,
+					1
 				);
 				pos.Y++;
 			}
@@ -545,7 +551,7 @@ char* fixBlasterAngle(char* dst, size_t dstSize, BLASTER_ANGLE blasterAngle)
 	return dst;
 }
 
-void runSansPattern(int pid)
+void Sans_runPattern(int pid)
 {
 	if (pid < 0)
 		return;
@@ -557,7 +563,7 @@ void runSansPattern(int pid)
 	GetExitCodeThread(sansPattern[pid].hThread, &(sansPattern[pid].isActive));
 }
 
-void runSansPatternInRange(int begin, int end)
+void Sans_runPatternInRange(int begin, int end)
 {
 	if (begin < 0 || end < begin)
 		return;
@@ -585,39 +591,64 @@ int isAnyPatternAlive()
 	return 0;
 }
 
-/* Pattern Collider */
-void SansPatternCollider_Basic()
+void Sans_onDamaged(void *args)
 {
 	static int oldTime = -1000;
-	int currTime = clock();
-	if (currTime - oldTime < 20)
+	if (50 < clock() - oldTime)
 	{
-		Player.isActive = _PLAYER_ALIVE_;
-		return;
+		oldTime = clock();
+		Player.HP--;
+		if (Player.HP <= 0)
+			Player.mode = _PLAYER_DIED_;
 	}
-	oldTime = currTime;
-	int isAlive = getPlayerDamage(1);
-	Player.isActive = _PLAYER_SANS_POISON_;
-	if (!isAlive)
-		Player.isActive = _PLAYER_DIED_;
+	else
+	{
+		Player.width++;
+	}
 }
 
-void SansPatternCollider_IsStop()
+void Sans_onHit(void *args)
 {
+	
+}
+
+
+
+/* Main onCollision Func */
+void Sans_onCollision(void *args)
+{
+	// collision cooltime
+	static int oldTime = 0;
 	int currTime = clock();
 	if (currTime - oldTime < 20)
-	{
-		Player.isActive = _PLAYER_ALIVE_;
 		return;
-	}
 	oldTime = currTime;
+	// Main Func
+	COLLISION_INFO colInfo = *(COLLISION_INFO*)args;
+	if (colInfo.pattern != NULL) 	// Should Fix Later
+	{
+		Sans_DefaultCollision();
+	}
+	else
+	{
+		Sans_MoveDetectionCollision();
+	}
+}
+
+
+
+/* Sub onCollision Func */
+void Sans_DefaultCollision()
+{
+	onEvent(_EVENT_ON_DAMAGED_);
+}
+
+void Sans_MoveDetectionCollision()
+{
 	if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41) 
 			|| GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
 		return;
-	int isAlive = getPlayerDamage(1);
-	Player.isActive = _PLAYER_SANS_POISON_;
-	if (!isAlive)
-		Player.isActive = _PLAYER_DIED_;
+	onEvent(_EVENT_ON_DAMAGED_);
 }
 
 

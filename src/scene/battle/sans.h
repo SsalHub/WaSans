@@ -5,19 +5,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <windows.h>
-#include "scenemanager.h"
-#include "battle/battle.h"
-#include "../utils.h"
-#include "../settings.h"
-#include "../ui/uieffect.h"
-#include "../render/renderer.h"
-#include "../sound/sounds.h"
+#include "battlemanager.h"
+#include "../scenemanager.h"
+#include "../../utils.h"
+#include "../../settings.h"
+#include "../../ui/uieffect.h"
+#include "../../render/renderer.h"
+#include "../../sound/sounds.h"
+#include "../../event/eventmanager.h"
+
 
 #define _SANS_SCRIPT_LEN_ 	5
 #define _SANS_PATTERN_LEN_ 	4
 #define _BLAST_ANGLE_LEN_ 	6
 #define _BATTLE_SELECT_LEN_	4
 #define _PATTERN_CONTINUE_	-1
+
 
 typedef enum BLASTER_ANGLE
 {
@@ -49,7 +52,7 @@ typedef struct SANS_ARGS_BLASTER
 
 
 static int patternIdx, scriptIdx;
-static PatternInfo sansPattern[_SANS_PATTERN_LEN_];
+static PATTERN_INFO sansPattern[_SANS_PATTERN_LEN_];
 static const char scripts[_SANS_SCRIPT_LEN_][128] = {
 				    "it's a beautiful day outside.",
 				    "birds are singing. flowers are blooming.",
@@ -67,10 +70,12 @@ static SANS_ARGS_BLASTER gasterBlasterPatternInfo[_SANS_PATTERN_LEN_] = {
 				};
 
 /* Main func in sans battle */
-void initSansBattle();
-void initSansObject(BattleObject (*enemy)[3]);
+void Sans_Start();
+void Sans_Update();
+
+/* init func */
+void initSansObject(BATTLE_OBJECT (*enemy)[3]);
 void initSansPattern();
-void runSansBattle();
 
 /* Each Phase Func */
 static void introPhase();
@@ -83,12 +88,18 @@ unsigned __stdcall explodeBlasterToPlayer(void* args);
 ASSET_TYPE getBlasterType(BLASTER_ANGLE blasterAngle);
 char* fixBlasterAngle(char* dst, size_t dstSize, BLASTER_ANGLE blasterAngle);
 int explodeBlaster(BLASTER_ANGLE angle, int pid, COORD begin, COORD end, CONSOLE_COLOR bColor);
-void runSansPattern(int pid);
-void runSansPatternInRange(int begin, int end);
+void Sans_runPattern(int pid);
+void Sans_runPatternInRange(int begin, int end);
 int isAnyPatternAlive();
-/* Pattern Collider */
-void SansPatternCollider_Basic();
-void SansPatternCollider_IsStop();
+void Sans_onDamaged(void *args);
+void Sans_onHit(void *args);
+
+/* Main onCollision Func */
+void Sans_onCollision(void *args);
+
+/* Sub onCollision Func */
+void Sans_DefaultCollision();
+void Sans_MoveDetectionCollision();
 
 /* etc */
 int writeSpeechBubble(unsigned int scriptIdx, CONSOLE_COLOR tColor, int bVoice);

@@ -12,7 +12,7 @@
 
 static int menuSelect = 0;
 
-void initMainMenu();
-void runMainmenu();
+void Mainmenu_Start();
+void Mainmenu_Update();
 void renderMainmenu();
 #endif

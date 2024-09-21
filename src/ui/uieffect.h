@@ -3,13 +3,16 @@
 #include <string.h>
 #include <windows.h>
 #include "../render/renderer.h"
+#include "../scene/scenemanager.h"
+
 
 static RENDERER* currentRenderer;
 static int fadeProgress;
 static char* buffer;
 
+
 void fadeOut();
-void fadeIn(RENDERER* renderer);
+void fadeIn(SCENE_TYPE scene);
 void renderFadeEffect();
 void blackScreenEffect(float t);
 void renderBlackScreenEffect();

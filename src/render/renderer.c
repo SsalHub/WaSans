@@ -60,7 +60,6 @@ void clearScreen()
 	DWORD dw;
 	FillConsoleOutputCharacter(ScreenHandle[ScreenIndex], ' ', ScreenWidth * ScreenHeight, pos, &dw);
 	FillConsoleOutputAttribute(ScreenHandle[ScreenIndex], 0, ScreenWidth * ScreenHeight, pos, &dw);
-//	printLines(x, y, ScreenBuffer, _BLACK_, _BLACK_);
 }
 
 void fillColorInRange(COORD begin, COORD end, CONSOLE_COLOR bColor)
@@ -184,7 +183,7 @@ void setRenderInfo(RENDER_INFO *target, COORD pos, char *s, CONSOLE_COLOR tColor
 	target->bColor = bColor;
 }
 
-void setRenderInfoAttr(RENDER_INFO *target, COORD pos, int w, int h, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor)
+void setRenderInfoAttr(RENDER_INFO *target, COORD pos, int w, int h, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor, unsigned int isCollidable)
 {
 	target->s = NULL;
 	target->pos = pos;
@@ -192,9 +191,10 @@ void setRenderInfoAttr(RENDER_INFO *target, COORD pos, int w, int h, CONSOLE_COL
 	target->height = h;
 	target->tColor = tColor;
 	target->bColor = bColor;
+	target->isCollidable = isCollidable;
 }
 
-void setRenderer(RENDERER* renderer)
+void setRenderer(RENDERER *renderer)
 {
 	sceneRenderer = renderer;
 }
@@ -231,8 +231,8 @@ unsigned __stdcall renderThread()
 	while (bRenderThread)
 	{
 		clearScreen();
-		if (sceneRenderer != NULL)
-			(*sceneRenderer)();
+		if (sceneRenderer)
+			sceneRenderer();
 		else
 			fillColorToScreen(_BLACK_);
 		printFPS();

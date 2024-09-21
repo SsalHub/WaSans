@@ -1,14 +1,14 @@
 #include "mainmenu.h"
 
 
-void initMainMenu()
+void Mainmenu_Start()
 {
 	setRenderer(renderMainmenu);
 	menuSelect = 0;
 	playBGM(_BGM_STARTMENU_, _SOUND_BEGIN_);
 }
 
-void runMainmenu()
+void Mainmenu_Update()
 {
 	char input;
 	while (1)
@@ -39,7 +39,7 @@ void runMainmenu()
 					{
 						// begin game
 						fadeOut();
-						gotoNextScene(_SCENE_SANS_BATTLE_);
+						gotoNextScene(_SCENE_BATTLE_SANS_);
 						return;
 					}
 					else if(menuSelect == 1)
@@ -51,7 +51,7 @@ void runMainmenu()
 					break;
 			}
 		}
-		sleep(0.01f);
+		waitForFrame();
 	}
 	gotoNextScene(_SCENE_EXIT_GAME_);
 }

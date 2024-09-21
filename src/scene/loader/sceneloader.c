@@ -1,23 +1,30 @@
 #include "sceneloader.h"
 
+#include "../mainmenu.h"
+#include "../battle/battlemanager.h"
+#include "../battle/sans.h"
+#include "../../render/renderer.h"
 
 void loadScene_Mainmenu(StartScene* start, RunScene* run)
 {
-	(*start) = initMainMenu;
-	(*run) = runMainmenu;
+	(*start) = Mainmenu_Start;
+	(*run) = Mainmenu_Update;
 //	setSceneRenderer(renderMainmenu);
 }
 
-void loadScene_SansBattle(StartScene* start, RunScene* run)
+RENDERER* getSceneRenderer_Mainmenu()
 {
-	(*start) = initSansBattle;
-	(*run) = runSansBattle;
+	return renderMainmenu;
+}
+
+void loadScene_Battle_Sans(StartScene* start, RunScene* run)
+{
+	(*start) = Sans_Start;
+	(*run) = Sans_Update;
 //	setSceneRenderer(renderBattleScene);
 }
 
-void loadScene_ExitGame(StartScene* start, RunScene* run)
+RENDERER* getSceneRenderer_Battle_Sans()
 {
-	(*start) = NULL;
-	(*run) = NULL;
-//	setSceneRenderer(NULL);
+	return renderBattleScene;
 }

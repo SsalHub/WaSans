@@ -9,7 +9,7 @@
 #include <process.h>
 #include "settings.h"
 
-#define _ASSET_LEN_ 54
+#define _ASSET_LEN_ 59
 
 typedef enum ASSET_TYPE
 {
@@ -18,10 +18,15 @@ typedef enum ASSET_TYPE
     _SELECT_BOX_,
     
     /* On Sans Battle */
-    _SANS_LEG_NORMAL_,
-    _SANS_BODY_NORMAL_,
-    _SANS_FACE_NORMAL_A_,
-    _SANS_FACE_NORMAL_B_,
+    _SANS_LEG_IDLE_,
+    _SANS_BODY_IDLE_,
+    _SANS_BODY_HANDS_DOWN_A_,
+    _SANS_BODY_HANDS_DOWN_B_,
+    _SANS_BODY_HANDS_DOWN_C_,
+    _SANS_BODY_HANDS_DOWN_E_,
+    _SANS_BODY_HANDS_DOWN_F_,
+    _SANS_FACE_IDLE_A_,
+    _SANS_FACE_IDLE_B_,
     
     _SANS_BLASTER_VERT_0A_,
     _SANS_BLASTER_VERT_0B_,
@@ -121,10 +126,15 @@ static const char assetFilePath[_ASSET_LEN_][128] = {
 					"data/SELECT_BOX.asset",
 					
 					/* On Sans Battle Asset */
-					"data/character/sans/leg_normal.asset",
-					"data/character/sans/body_normal.asset",
-					"data/character/sans/face_normal_a.asset",
-					"data/character/sans/face_normal_b.asset",
+					"data/character/sans/leg_idle.asset",
+					"data/character/sans/body_idle.asset",
+					"data/character/sans/body_hands_down_a.asset",
+					"data/character/sans/body_hands_down_b.asset",
+					"data/character/sans/body_hands_down_c.asset",
+					"data/character/sans/body_hands_down_d.asset",
+					"data/character/sans/body_hands_down_e.asset",
+					"data/character/sans/face_idle_a.asset",
+					"data/character/sans/face_idle_b.asset",
 					
 					"data/character/sans/gasterblaster/0/vertical_0_a.asset",
 					"data/character/sans/gasterblaster/0/vertical_0_b.asset",

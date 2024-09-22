@@ -74,7 +74,7 @@ void Sans_Start();
 void Sans_Update();
 
 /* init func */
-void initSansObject(BATTLE_OBJECT (*enemy)[3]);
+void initSansObject(BATTLE_OBJECT (*enemy)[_ENEMY_INFO_LEN_]);
 void initSansPattern();
 
 /* Each Phase Func */
@@ -83,16 +83,19 @@ static void playerPhase();
 static void enemyPhase();
 
 /* Boss Phase func */
-unsigned __stdcall explodeBlasterToCenter(void* args);
-unsigned __stdcall explodeBlasterToPlayer(void* args);
-ASSET_TYPE getBlasterType(BLASTER_ANGLE blasterAngle);
-char* fixBlasterAngle(char* dst, size_t dstSize, BLASTER_ANGLE blasterAngle);
-int explodeBlaster(BLASTER_ANGLE angle, int pid, COORD begin, COORD end, CONSOLE_COLOR bColor);
 void Sans_runPattern(int pid);
 void Sans_runPatternInRange(int begin, int end);
 int isAnyPatternAlive();
+ASSET_TYPE getBlasterType(BLASTER_ANGLE blasterAngle);
+char* fixBlasterAngle(char *dst, size_t dstSize, BLASTER_ANGLE blasterAngle);
+int explodeBlaster(BLASTER_ANGLE angle, int pid, COORD begin, COORD end, CONSOLE_COLOR bColor);
 void Sans_onDamaged(void *args);
 void Sans_onHit(void *args);
+
+/* Pattern Func */
+BATTLE_PATTERN explodeBlasterToCenter(void *args);
+BATTLE_PATTERN explodeBlasterToPlayer(void *args);
+BATTLE_PATTERN swapGravity(void *args);
 
 /* Main onCollision Func */
 void Sans_onCollision(void *args);
@@ -103,8 +106,8 @@ void Sans_MoveDetectionCollision();
 
 /* etc */
 int writeSpeechBubble(unsigned int scriptIdx, CONSOLE_COLOR tColor, int bVoice);
-void movePlayerPos();
 void setSansFace(ASSET_TYPE facetype);
+void movePlayerPos();
 
 /* Terminate Func */
 void releasePatternInRange(int begin, int end);

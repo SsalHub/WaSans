@@ -9,8 +9,10 @@
 
 
 #define _PATTERN_LAYER_LEN_		3
+#define _ENEMY_INFO_LEN_		2
 
-typedef unsigned __stdcall (*BATTLE_PATTERN)(void*);
+typedef unsigned __stdcall BATTLE_PATTERN;
+typedef unsigned __stdcall (*BATTLE_PATTERN_PTR)(void*);
 typedef void COLLIDER(void*);
 
 typedef enum BATTLE_PHASE
@@ -22,8 +24,7 @@ typedef enum BATTLE_PHASE
 
 typedef enum ENEMY_INFO
 {
-	_ENEMY_LEG_		= 0,
-	_ENEMY_BODY_, 
+	_ENEMY_BODY_	= 0,
 	_ENEMY_FACE_, 
 } ENEMY_INFO;
 
@@ -32,8 +33,16 @@ typedef enum PLAYER_STATUS
 	_PLAYER_DIED_ 	= 0,
 	_PLAYER_ALIVE_,
 	_PLAYER_IMMUNE_,
-	_PLAYER_SANS_DOT_,
 } PLAYER_STATUS;
+
+typedef enum ENEMYBOX_STATUS
+{
+	_ENEMYBOX_DEFAULT_	= 0,
+	_ENEMYBOX_GRAVITY_UP_,
+	_ENEMYBOX_GRAVITY_DOWN_,
+	_ENEMYBOX_GRAVITY_LEFT_,
+	_ENEMYBOX_GRAVITY_RIGHT_,
+}
 
 typedef struct BATTLE_OBJECT
 {
@@ -51,7 +60,7 @@ typedef struct BATTLE_OBJECT
 typedef struct PATTERN_INFO
 {
 	// basic pattern info
-	BATTLE_PATTERN pattern;
+	BATTLE_PATTERN_PTR pattern;
 	void* data;
 	// thread info
 	HANDLE hThread;
@@ -66,7 +75,7 @@ typedef struct PATTERN_INFO
 typedef struct COLLISION_INFO
 {
 	COORD pos;
-	BATTLE_PATTERN pattern;	
+	BATTLE_PATTERN_PTR pattern;	
 	CONSOLE_COLOR tColor;
 	CONSOLE_COLOR bColor;
 } COLLISION_INFO;
@@ -86,11 +95,11 @@ static int enemyLen, patternLen;
 void renderBattleScene();
 
 /* Init Functions */
-void initBattle(int elen, BATTLE_OBJECT (*enemy)[3], int plen, PATTERN_INFO *pattern);
+void initBattle(int elen, BATTLE_OBJECT (*enemy)[_ENEMY_INFO_LEN_], int plen, PATTERN_INFO *pattern);
 void initPlayer();
 void initEnemyPhaseBox();
 void initPlayerPhaseBox();
-void initEnemyInfo(int len, BATTLE_OBJECT (*enemy)[3]);
+void initEnemyInfo(int len, BATTLE_OBJECT (*enemy)[_ENEMY_INFO_LEN_]);
 void initPatternInfo(int plen, PATTERN_INFO *pattern);
 
 /* Util Func */
@@ -99,13 +108,13 @@ void 		gotoNextPhase();
 void 		gotoNextTurn();
 BATTLE_PHASE getBattlePhase();
 int 		getBattleTurn();
-HANDLE 		startPattern(BATTLE_PATTERN pattern, void *args, unsigned int *threadID);
+HANDLE 		startPattern(BATTLE_PATTERN_PTR pattern, void *args, unsigned int *threadID);
 int 		movePlayerSelectBox();
 void checkPlayerInfo();
 /* Collider */
 COORD* 		checkCollision(COORD *src, COORD *trg);
 COORD* 		checkCollisionInRange(COORD *src, COORD *begin, COORD *end);
-void 		setCollisionInfo(COLLISION_INFO *target, COORD pos, BATTLE_PATTERN pattern, RENDER_INFO *render);
+void 		setCollisionInfo(COLLISION_INFO *target, COORD pos, BATTLE_PATTERN_PTR pattern, RENDER_INFO *render);
 
 /* Sub Renderer */
 void renderEnemy();

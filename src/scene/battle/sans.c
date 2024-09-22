@@ -4,11 +4,12 @@
 /* Main func in sans battle */
 void Sans_Start()
 {
-	BATTLE_OBJECT sans[3];
+	BATTLE_OBJECT sans[2];
 	patternIdx = 0;
     scriptIdx = -1;
     Player.mode = _PLAYER_ALIVE_;
     Player.width = 0;	// sub HP
+    Player.height = 0;	// jump(gravity) speed
 
 	// init battle
 	initSansPattern();
@@ -47,29 +48,23 @@ void Sans_Update()
 
 
 /* Init Func */
-void initSansObject(BATTLE_OBJECT (*enemy)[3])
+void initSansObject(BATTLE_OBJECT (*enemy)[_ENEMY_INFO_LEN_])
 {
-	(*enemy)[_ENEMY_LEG_].isActive 	= 0;
 	(*enemy)[_ENEMY_BODY_].isActive = 0;
 	(*enemy)[_ENEMY_FACE_].isActive = 0;
 	
 	// init leg
-	setCOORD(&((*enemy)[_ENEMY_LEG_].pos), 51, 11);
-	(*enemy)[_ENEMY_LEG_].data = AssetFile[_SANS_LEG_NORMAL_];
-	(*enemy)[_ENEMY_LEG_].tColor = _WHITE_;
-	(*enemy)[_ENEMY_LEG_].bColor = _BLACK_;
 	// init body
-	setCOORD(&((*enemy)[_ENEMY_BODY_].pos), 50, 7);
-	(*enemy)[_ENEMY_BODY_].data = AssetFile[_SANS_BODY_NORMAL_];
+	setCOORD(&((*enemy)[_ENEMY_BODY_].pos), 50, 0);
+	(*enemy)[_ENEMY_BODY_].data = AssetFile[_SANS_BODY_IDLE_];
 	(*enemy)[_ENEMY_BODY_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_BODY_].bColor = _BLACK_;
 	// init face
 	setCOORD(&((*enemy)[_ENEMY_FACE_].pos), 51, 0);
-	(*enemy)[_ENEMY_FACE_].data = AssetFile[_SANS_FACE_NORMAL_A_];
+	(*enemy)[_ENEMY_FACE_].data = AssetFile[_SANS_FACE_IDLE_A_];
 	(*enemy)[_ENEMY_FACE_].tColor = _WHITE_;
 	(*enemy)[_ENEMY_FACE_].bColor = _BLACK_;
 	
-	(*enemy)[_ENEMY_LEG_].isActive 	= 1;
 	(*enemy)[_ENEMY_BODY_].isActive = 1;
 	(*enemy)[_ENEMY_FACE_].isActive = 1;
 }
@@ -88,16 +83,16 @@ void initSansPattern()
 			sansPattern[i].renderInfoLen[j] = 0;
 	}
 	// init detail info
-	sansPattern[0].pattern = (BATTLE_PATTERN)explodeBlasterToCenter;
+	sansPattern[0].pattern = (BATTLE_PATTERN_PTR)explodeBlasterToCenter;
 	sansPattern[0].collider = Sans_onCollision;
 	
-	sansPattern[1].pattern = (BATTLE_PATTERN)explodeBlasterToCenter;
+	sansPattern[1].pattern = (BATTLE_PATTERN_PTR)explodeBlasterToCenter;
 	sansPattern[1].collider = Sans_onCollision;
 	
-	sansPattern[2].pattern = (BATTLE_PATTERN)explodeBlasterToCenter;
+	sansPattern[2].pattern = (BATTLE_PATTERN_PTR)explodeBlasterToCenter;
 	sansPattern[2].collider = Sans_onCollision;
 
-	sansPattern[3].pattern = (BATTLE_PATTERN)explodeBlasterToCenter;
+	sansPattern[3].pattern = (BATTLE_PATTERN_PTR)explodeBlasterToCenter;
 	sansPattern[3].collider = Sans_onCollision;
 }
 
@@ -115,7 +110,7 @@ static void introPhase()
     playBGM(_BGM_BIRDNOISE_, _SOUND_BEGIN_);
     fadeIn(_SCENE_BATTLE_SANS_);
     
-	setSansFace(_SANS_FACE_NORMAL_A_);
+	setSansFace(_SANS_FACE_IDLE_A_);
 	sleep(1.0f);
 	flushIstream();
 	while (scriptIdx < introScriptLen)
@@ -178,7 +173,7 @@ static void enemyPhase()
 	    case 0: // intro turn
 			playSFX(_SFX_MOMENT_);
 			blackScreenEffect(1.0f);
-			setSansFace(_SANS_FACE_NORMAL_B_);
+			setSansFace(_SANS_FACE_IDLE_B_);
 	    	setBattlePhase(_ENEMY_PHASE_);
 	    	playSFX(_SFX_MOMENT_);
 	    	
@@ -194,7 +189,7 @@ static void enemyPhase()
 			}
 	    	
         	// run boss pattern
-			setSansFace(_SANS_FACE_NORMAL_A_);
+			setSansFace(_SANS_FACE_IDLE_A_);
 			Sans_runPatternInRange(0, 3);
 			// wait until all pattern completed
 			flushIstream();
@@ -215,7 +210,7 @@ static void enemyPhase()
 	        break;
 	    
 	    case 1:
-			setSansFace(_SANS_FACE_NORMAL_A_);
+			setSansFace(_SANS_FACE_IDLE_A_);
 			flushIstream();
 	        while (1)
 	        {
@@ -230,7 +225,190 @@ static void enemyPhase()
 
 
 /* Boss Phase func */
-unsigned __stdcall explodeBlasterToCenter(void* args)
+void Sans_runPattern(int pid)
+{
+	if (pid < 0)
+		return;
+	sansPattern[pid].hThread = startPattern(
+			sansPattern[pid].pattern,
+			sansPattern[pid].data,
+			&(sansPattern[pid].threadID));
+			
+	GetExitCodeThread(sansPattern[pid].hThread, &(sansPattern[pid].isActive));
+}
+
+void Sans_runPatternInRange(int begin, int end)
+{
+	if (begin < 0 || end < begin)
+		return;
+	int pid;
+	for (pid = begin; pid <= end; pid++)
+	{
+		sansPattern[pid].hThread = startPattern(
+			sansPattern[pid].pattern,
+			sansPattern[pid].data,
+			&(sansPattern[pid].threadID));
+			
+		GetExitCodeThread(sansPattern[pid].hThread, &(sansPattern[pid].isActive));
+	}
+}
+
+int isAnyPatternAlive()
+{
+	int i;
+    for (i = 0; i < _SANS_PATTERN_LEN_; i++)
+    {
+    	GetExitCodeThread(sansPattern[i].hThread, &(sansPattern[i].isActive));
+    	if (sansPattern[i].isActive == STILL_ACTIVE)
+    		return 1;
+	}
+	return 0;
+}
+
+int explodeBlaster(BLASTER_ANGLE angle, int pId, COORD begin, COORD end, CONSOLE_COLOR bColor)	
+{
+	if (end.X < begin.X)
+	{
+		COORD tmp = begin;
+		begin = end;
+		end = tmp;
+	}
+	const int blasterWidth = 2;
+	COORD pos;
+	int width, height;
+	int i = 0;
+	
+	switch (angle)
+	{
+		// vertical
+		case _BLAST_TOP_CENTER_:
+		case _BLAST_BOT_CENTER_:
+			width = blasterWidth;
+			height = (end.Y - begin.Y) + 1;
+			pos.X = begin.X;
+			pos.Y = begin.Y;
+			for (i = 0; i < height; i++)
+			{
+				setRenderInfoAttr(
+					&(sansPattern[pId].renderInfo[1][i]), 
+					pos,
+					width * 2,
+					height,
+					_WHITE_,
+					bColor,
+					1
+				);
+				pos.Y++;
+			}
+			break;
+		// horizontal
+		case _BLAST_MID_RIGHT_:
+		case _BLAST_MID_LEFT_:
+			width = (end.X - begin.X) + 1;
+			height = blasterWidth;
+			pos.X = begin.X;
+			pos.Y = begin.Y;
+			for (i = 0; i < height; i++)
+			{
+				setRenderInfoAttr(
+					&(sansPattern[pId].renderInfo[1][i]), 
+					pos,
+					width,
+					height,
+					_WHITE_,
+					bColor,
+					1
+				);
+				pos.Y++;
+			}
+			break;
+		// diagonal
+		case _BLAST_TOP_RIGHT_:
+		case _BLAST_BOT_RIGHT_:
+		case _BLAST_BOT_LEFT_:
+		case _BLAST_TOP_LEFT_:
+			width = blasterWidth;
+			height = (end.Y - begin.Y) + 1;
+			pos.X = begin.X;
+			pos.Y = begin.Y;
+			for (i = 0; i < height; i++)
+			{
+				pos.X = lerp(begin.X, end.X, i / (float)height);
+				setRenderInfoAttr(
+					&(sansPattern[pId].renderInfo[1][i]), 
+					pos,
+					width * 2,
+					height,
+					_WHITE_,
+					bColor,
+					1
+				);
+				pos.Y++;
+			}
+			break; 
+	}
+	return i;
+}
+
+ASSET_TYPE getBlasterType(BLASTER_ANGLE blasterAngle)
+{
+	switch (blasterAngle)
+	{
+		case _BLAST_TOP_CENTER_:
+			return _SANS_BLASTER_VERT_0A_;
+		case _BLAST_MID_RIGHT_:
+			return _SANS_BLASTER_VERT_90A_;
+		case _BLAST_BOT_CENTER_:
+			return _SANS_BLASTER_VERT_180A_;
+		case _BLAST_MID_LEFT_:
+			return _SANS_BLASTER_VERT_270A_;
+		
+		case _BLAST_TOP_RIGHT_:
+			return _SANS_BLASTER_DIAG_0A_;
+		case _BLAST_BOT_RIGHT_:
+			return _SANS_BLASTER_DIAG_90A_;
+		case _BLAST_BOT_LEFT_:
+			return _SANS_BLASTER_DIAG_180A_;
+		case _BLAST_TOP_LEFT_:
+			return _SANS_BLASTER_DIAG_270A_;
+	}
+	return -1;
+}
+
+char* fixBlasterAngle(char *dst, size_t dstSize, BLASTER_ANGLE blasterAngle)
+{
+	ASSET_TYPE blasterType = getBlasterType(blasterAngle);
+	dst = AssetFile[blasterType];
+	
+	// string rotation 
+	return dst;
+}
+
+void Sans_onDamaged(void *args)
+{
+	static int oldTime = -1000;
+	if (50 < clock() - oldTime)
+	{
+		oldTime = clock();
+		Player.HP--;
+		if (Player.HP <= 0)
+			Player.mode = _PLAYER_DIED_;
+	}
+	else
+	{
+		Player.width++;
+	}
+}
+
+void Sans_onHit(void *args)
+{
+	
+}
+
+
+
+/* Pattern Func */
+BATTLE_PATTERN explodeBlasterToCenter(void *args)
 {
 	// receive args
 	SANS_ARGS_BLASTER *data = (SANS_ARGS_BLASTER*)args;
@@ -422,7 +600,7 @@ unsigned __stdcall explodeBlasterToCenter(void* args)
 	sleep(1.0f);
 }
 
-unsigned __stdcall explodeBlasterToPlayer(void* args)
+BATTLE_PATTERN explodeBlasterToPlayer(void *args)
 {
 	// receive args
 	SANS_ARGS_BLASTER *data = (SANS_ARGS_BLASTER*)args;
@@ -432,185 +610,11 @@ unsigned __stdcall explodeBlasterToPlayer(void* args)
 //	int playerX = Player.x, playerY = Player.y;
 }
 
-int explodeBlaster(BLASTER_ANGLE angle, int pId, COORD begin, COORD end, CONSOLE_COLOR bColor)	
-{
-	if (end.X < begin.X)
-	{
-		COORD tmp = begin;
-		begin = end;
-		end = tmp;
-	}
-	const int blasterWidth = 2;
-	COORD pos;
-	int width, height;
-	int i = 0;
-	
-	switch (angle)
-	{
-		// vertical
-		case _BLAST_TOP_CENTER_:
-		case _BLAST_BOT_CENTER_:
-			width = blasterWidth;
-			height = (end.Y - begin.Y) + 1;
-			pos.X = begin.X;
-			pos.Y = begin.Y;
-			for (i = 0; i < height; i++)
-			{
-				setRenderInfoAttr(
-					&(sansPattern[pId].renderInfo[1][i]), 
-					pos,
-					width * 2,
-					height,
-					_WHITE_,
-					bColor,
-					1
-				);
-				pos.Y++;
-			}
-			break;
-		// horizontal
-		case _BLAST_MID_RIGHT_:
-		case _BLAST_MID_LEFT_:
-			width = (end.X - begin.X) + 1;
-			height = blasterWidth;
-			pos.X = begin.X;
-			pos.Y = begin.Y;
-			for (i = 0; i < height; i++)
-			{
-				setRenderInfoAttr(
-					&(sansPattern[pId].renderInfo[1][i]), 
-					pos,
-					width,
-					height,
-					_WHITE_,
-					bColor,
-					1
-				);
-				pos.Y++;
-			}
-			break;
-		// diagonal
-		case _BLAST_TOP_RIGHT_:
-		case _BLAST_BOT_RIGHT_:
-		case _BLAST_BOT_LEFT_:
-		case _BLAST_TOP_LEFT_:
-			width = blasterWidth;
-			height = (end.Y - begin.Y) + 1;
-			pos.X = begin.X;
-			pos.Y = begin.Y;
-			for (i = 0; i < height; i++)
-			{
-				pos.X = lerp(begin.X, end.X, i / (float)height);
-				setRenderInfoAttr(
-					&(sansPattern[pId].renderInfo[1][i]), 
-					pos,
-					width * 2,
-					height,
-					_WHITE_,
-					bColor,
-					1
-				);
-				pos.Y++;
-			}
-			break; 
-	}
-	return i;
-}
-
-ASSET_TYPE getBlasterType(BLASTER_ANGLE blasterAngle)
-{
-	switch (blasterAngle)
-	{
-		case _BLAST_TOP_CENTER_:
-			return _SANS_BLASTER_VERT_0A_;
-		case _BLAST_MID_RIGHT_:
-			return _SANS_BLASTER_VERT_90A_;
-		case _BLAST_BOT_CENTER_:
-			return _SANS_BLASTER_VERT_180A_;
-		case _BLAST_MID_LEFT_:
-			return _SANS_BLASTER_VERT_270A_;
-		
-		case _BLAST_TOP_RIGHT_:
-			return _SANS_BLASTER_DIAG_0A_;
-		case _BLAST_BOT_RIGHT_:
-			return _SANS_BLASTER_DIAG_90A_;
-		case _BLAST_BOT_LEFT_:
-			return _SANS_BLASTER_DIAG_180A_;
-		case _BLAST_TOP_LEFT_:
-			return _SANS_BLASTER_DIAG_270A_;
-	}
-	return -1;
-}
-
-char* fixBlasterAngle(char* dst, size_t dstSize, BLASTER_ANGLE blasterAngle)
-{
-	ASSET_TYPE blasterType = getBlasterType(blasterAngle);
-	dst = AssetFile[blasterType];
-	
-	// string rotation 
-	return dst;
-}
-
-void Sans_runPattern(int pid)
-{
-	if (pid < 0)
-		return;
-	sansPattern[pid].hThread = startPattern(
-			sansPattern[pid].pattern,
-			sansPattern[pid].data,
-			&(sansPattern[pid].threadID));
-			
-	GetExitCodeThread(sansPattern[pid].hThread, &(sansPattern[pid].isActive));
-}
-
-void Sans_runPatternInRange(int begin, int end)
-{
-	if (begin < 0 || end < begin)
-		return;
-	int pid;
-	for (pid = begin; pid <= end; pid++)
-	{
-		sansPattern[pid].hThread = startPattern(
-			sansPattern[pid].pattern,
-			sansPattern[pid].data,
-			&(sansPattern[pid].threadID));
-			
-		GetExitCodeThread(sansPattern[pid].hThread, &(sansPattern[pid].isActive));
-	}
-}
-
-int isAnyPatternAlive()
-{
-	int i;
-    for (i = 0; i < _SANS_PATTERN_LEN_; i++)
-    {
-    	GetExitCodeThread(sansPattern[i].hThread, &(sansPattern[i].isActive));
-    	if (sansPattern[i].isActive == STILL_ACTIVE)
-    		return 1;
-	}
-	return 0;
-}
-
-void Sans_onDamaged(void *args)
-{
-	static int oldTime = -1000;
-	if (50 < clock() - oldTime)
-	{
-		oldTime = clock();
-		Player.HP--;
-		if (Player.HP <= 0)
-			Player.mode = _PLAYER_DIED_;
-	}
-	else
-	{
-		Player.width++;
-	}
-}
-
-void Sans_onHit(void *args)
+BATTLE_PATTERN swapGravity(void *args)
 {
 	
 }
+
 
 
 
@@ -733,47 +737,65 @@ void setSansFace(ASSET_TYPE facetype)
 
 void movePlayerPos()
 {
-	static int playerSpeed = 1, oldTime = 0;
-	if (playerSpeed)
+	static int oldTime = 0;
+	if (EnemyPhaseBox.mode == _ENEMYBOX_DEFAULT_)
 	{
-		// key input
-		if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
+		if (30 < clock() - oldTime)
 		{
-			Player.pos.X -= playerSpeed;
+			if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
+				Player.pos.X -= 1;
+			else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
+				Player.pos.X += 1;
+			else if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
+				Player.pos.Y -= 1;
+			else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
+				Player.pos.Y += 1;
+		    // fix player pos
+			if (Player.pos.X <= EnemyPhaseBox.pos.X + 2)
+		        Player.pos.X = EnemyPhaseBox.pos.X + 2;
+		    else if (EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width <= Player.pos.X)
+		        Player.pos.X = EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width;
+		    if (Player.pos.Y <= EnemyPhaseBox.pos.Y)
+		        Player.pos.Y = EnemyPhaseBox.pos.Y + 1;
+		    else if (EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 <= Player.pos.Y)
+		        Player.pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2;
+			// set timer
+			oldTime = clock();
 		}
-		else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
-		{
-			Player.pos.X += playerSpeed;
-		}
-		if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
-		{
-			Player.pos.Y -= playerSpeed;
-		}
-		else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
-		{
-			Player.pos.Y += playerSpeed;
-		}
-		playerSpeed = 0;
-	    // fix player pos
-		if (Player.pos.X <= EnemyPhaseBox.pos.X + 2)
-	        Player.pos.X = EnemyPhaseBox.pos.X + 2;
-	    else if (EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width <= Player.pos.X)
-	        Player.pos.X = EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width;
-	    if (Player.pos.Y <= EnemyPhaseBox.pos.Y)
-	        Player.pos.Y = EnemyPhaseBox.pos.Y + 1;
-	    else if (EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 <= Player.pos.Y)
-	        Player.pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2;
-	    // set clock (oldTime)
-		oldTime = clock();
+		return;
 	}
-	else
+	// if gravity on
+	else if (EnemyPhaseBox.mode == _ENEMYBOX_GRAVITY_UP_)
 	{
-		int currTime = clock();
-		if (50 < currTime - oldTime)
+		
+	}
+	else if (EnemyPhaseBox.mode == _ENEMYBOX_GRAVITY_DOWN_)
+	{
+		if (30 < clock() - oldTime)
 		{
-			playerSpeed = 1;
-			oldTime = currTime;
+			if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
+				Player.pos.X -= 1;
+			else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
+				Player.pos.X += 1;
+			if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
+			{
+				// jump
+				Player.pos.Y -= 1;
+				Player.height = Player.height < 3 ? Player.height + 1 : Player.height;
+			}
+		    // fix player pos
+			if (Player.pos.X <= EnemyPhaseBox.pos.X + 2)
+		        Player.pos.X = EnemyPhaseBox.pos.X + 2;
+		    else if (EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width <= Player.pos.X)
+		        Player.pos.X = EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width;
+		    if (Player.pos.Y <= EnemyPhaseBox.pos.Y)
+		        Player.pos.Y = EnemyPhaseBox.pos.Y + 1;
+		    else if (EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 <= Player.pos.Y)
+		        Player.pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2;
+			
+			oldTime = clock();
 		}
+		return;
 	}
 }
 

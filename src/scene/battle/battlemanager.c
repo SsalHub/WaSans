@@ -30,7 +30,7 @@ void renderBattleScene()
 
 
 /* Init Functions */
-void initBattle(int elen, BATTLE_OBJECT (*enemy)[3], int plen, PATTERN_INFO *pattern)
+void initBattle(int elen, BATTLE_OBJECT (*enemy)[_ENEMY_INFO_LEN_], int plen, PATTERN_INFO *pattern)
 {
 	battlePhase = _INTRO_PHASE_;
 	battleTurn = 0;
@@ -62,6 +62,7 @@ void initEnemyPhaseBox()
 	setCOORD(&(EnemyPhaseBox.pos), 49, 15);
 	EnemyPhaseBox.width = 18;
 	EnemyPhaseBox.height = 8;
+	EnemyPhaseBox.mode = _ENEMYBOX_DEFAULT_;
 	EnemyPhaseBox.data = (char*)malloc(sizeof(char) * ((ScreenWidth + 1) * (ScreenHeight / 2)));
 	
 	// print enemy phase box
@@ -103,7 +104,7 @@ void initPlayerPhaseBox()
     }
 }
 
-void initEnemyInfo(int elen, BATTLE_OBJECT (*enemy)[3])
+void initEnemyInfo(int elen, BATTLE_OBJECT (*enemy)[_ENEMY_INFO_LEN_])
 {
 	int i;
 	enemyLen = elen;
@@ -111,8 +112,7 @@ void initEnemyInfo(int elen, BATTLE_OBJECT (*enemy)[3])
 	SpeechBubble = (BATTLE_OBJECT*)malloc(sizeof(BATTLE_OBJECT) * enemyLen);
 	for (i = 0; i < enemyLen; i++)
 	{
-		EnemyInfo[i] = (BATTLE_OBJECT*)malloc(sizeof(BATTLE_OBJECT) * 3);
-		EnemyInfo[i][_ENEMY_LEG_] = enemy[i][_ENEMY_LEG_];
+		EnemyInfo[i] = (BATTLE_OBJECT*)malloc(sizeof(BATTLE_OBJECT) * _ENEMY_INFO_LEN_);
 		EnemyInfo[i][_ENEMY_BODY_] = enemy[i][_ENEMY_BODY_];
 		EnemyInfo[i][_ENEMY_FACE_] = enemy[i][_ENEMY_FACE_];
 		
@@ -163,7 +163,7 @@ int getBattleTurn()
 	return battleTurn;
 }
 
-HANDLE startPattern(BATTLE_PATTERN pattern, void* args, unsigned int* threadID)
+HANDLE startPattern(BATTLE_PATTERN_PTR pattern, void *args, unsigned int *threadID)
 {
 	return (HANDLE)_beginthreadex(NULL, 0, (_beginthreadex_proc_type)pattern, args, 0, threadID);
 }
@@ -212,18 +212,49 @@ int movePlayerSelectBox()
 
 void checkPlayerInfo()
 {
-	static int oldTime = -5000, lastDOT = -1;
+	/*  		Player.width == DOT
+				Player.height == jump speed (gravity) 		*/
+	static int DOT_oldTime = -5000, Gravity_oldTime = -5000;
+	static float accumGravity = 1.0f;
 	
 	if (Player.width)
 	{
-		if (500 < clock() - oldTime)
+		if (500 < clock() - DOT_oldTime)
 		{
-			oldTime = clock();
 			Player.HP--;
 			Player.width--;
 			lastDOT = Player.width;
 			if (Player.HP <= 0)
 				Player.mode = _PLAYER_DIED_;
+			DOT_oldTime = clock();
+		}
+	}
+	// if player is not on platform
+	if (Player.pos.Y < EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1)
+	{
+		if (30 < clock() - Gravity_oldTime)
+		{
+			accumGravity += 0.2f;
+			if (1 <= accumGravity)
+			{
+				Player.pos.Y -= 1;
+				Player.height -= 1;
+			}
+			Gravity_oldTime = clock();
+		}
+	}
+	else if (Player.height)
+	{
+		if (30 < clock() - Gravity_oldTime)
+		{
+			accumGravity += 0.2f;
+			if (1 <= accumGravity)
+			{
+				Player.pos.Y -= 1;
+				accumGravity -= 1;
+				Player.height -= 1;
+			}
+			Gravity_oldTime = clock();
 		}
 	}
 }
@@ -246,7 +277,7 @@ COORD* checkCollisionInRange(COORD *src, COORD *begin, COORD *end)
 	return NULL;
 }
 
-void setCollisionInfo(COLLISION_INFO *target, COORD pos, BATTLE_PATTERN pattern, RENDER_INFO *render)
+void setCollisionInfo(COLLISION_INFO *target, COORD pos, BATTLE_PATTERN_PTR pattern, RENDER_INFO *render)
 {
 	target->pattern = pattern;
 	cpyCOORD(&(target->pos), &(pos));
@@ -259,21 +290,11 @@ void setCollisionInfo(COLLISION_INFO *target, COORD pos, BATTLE_PATTERN pattern,
 /* Sub Renderer */
 void renderEnemy()
 {
-	if (EnemyInfo == NULL)
+	if (!EnemyInfo)
 		return;
 	int i;
 	for (i = 0; i < enemyLen; i++)
 	{
-//		if (!EnemyInfo[i][_ENEMY_FACE_].isActive)
-//			continue;
-		// render leg
-		printLines(
-				EnemyInfo[i][_ENEMY_LEG_].pos.X, 
-				EnemyInfo[i][_ENEMY_LEG_].pos.Y, 
-				EnemyInfo[i][_ENEMY_LEG_].data, 
-				EnemyInfo[i][_ENEMY_LEG_].tColor, 
-				EnemyInfo[i][_ENEMY_LEG_].bColor
-		);
 		// render body
 		printLines(
 				EnemyInfo[i][_ENEMY_BODY_].pos.X, 
@@ -300,17 +321,6 @@ void renderEnemyPhaseBox()
 
 void renderPlayerPos()
 {
-    // fix player x pos
-    if (Player.pos.X <= EnemyPhaseBox.pos.X + 2)
-        Player.pos.X = EnemyPhaseBox.pos.X + 2;
-    else if (EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width <= Player.pos.X)
-        Player.pos.X = EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width;
-    // fix player y pos
-    if (Player.pos.Y <= EnemyPhaseBox.pos.Y)
-        Player.pos.Y = EnemyPhaseBox.pos.Y + 1;
-    else if (EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 <= Player.pos.Y)
-        Player.pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2;
-    // render   
     printLine(Player.pos.X, Player.pos.Y, Player.data, Player.tColor, Player.bColor);
 }
 
@@ -342,9 +352,10 @@ void renderPlayerPhaseBox()
 void renderPlayerInfo()
 {
 	static const int y = 24;
-    int x = 11, i, damaged;
+    int x = 11;
     char itoa_str[8], level_str[8], hp_str[12], hp_bar[12];
-    int idx = 0;
+    int damaged, DOT, currHP;
+    int i, idx = 0;
     
     // player name
     printLine(12, y, PlayerName, _WHITE_, _BLACK_);
@@ -365,35 +376,33 @@ void renderPlayerInfo()
     printLine(60, y, hp_str, _WHITE_, _BLACK_);
     
 	// set string that HP info
-    for (int i = 0; i < 10; i++)
-        hp_bar[i] = '@';
-    hp_bar[10] = '\0';
-    printLine(48, y, hp_bar, _YELLOW_, _BLACK_);
+    strcpy(hp_bar, "==========");
+    printLine(48, y, hp_bar, _RED_, _BLACK_);
     // calculate current damage
     // set current player HP info
     if (Player.width)	// player's sub HP
     {
-		damaged = (MaxHP - Player.HP) / 10;
-	    for (i = 0; i < damaged; i++)
-	        hp_bar[i] = '=';
-	    hp_bar[damaged] = '\0';
-	    printLine(58 - damaged, y, hp_bar, _RED_, _BLACK_);
+		currHP = Player.HP / 10;
+	    for (i = 0; i < currHP; i++)
+	        hp_bar[i] = '@';
+	    hp_bar[i] = '\0';
+	    printLine(48, y, hp_bar, _YELLOW_, _BLACK_);
 	    // print DoT
-		int DOT = Player.width / 10 + 1;
+		DOT = Player.width / 10;
 	    for (i = 0; i < DOT; i++)
 	        hp_bar[i] = '#';
-	    hp_bar[DOT] = '\0';
-	    printLine(58 - damaged - DOT, y, hp_bar, _PURPLE_, _BLACK_);
+		if (Player.width % 10)
+			hp_bar[i++] = '#';
+	    hp_bar[i] = '\0';
+	    printLine(48 + currHP - DOT, y, hp_bar, _PURPLE_, _BLACK_);
 	}
 	else
 	{
-		damaged = (MaxHP - Player.HP) / 10;
-	    if (damaged <= 0)
-	    	return;
-	    for (i = 0; i < damaged; i++)
-	        hp_bar[i] = '#';
-	    hp_bar[damaged] = '\0';
-	    printLine(58 - damaged, y, hp_bar, _RED_, _BLACK_);
+		currHP = Player.HP / 10;
+	    for (i = 0; i < currHP; i++)
+	        hp_bar[i] = '@';
+	    hp_bar[i] = '\0';
+	    printLine(48, y, hp_bar, _YELLOW_, _BLACK_);
 	}
 }
 
@@ -529,8 +538,8 @@ void releaseBattleAssets()
 	int i;
 	for (i = 0; i < enemyLen; i++)
 	{
-		free(EnemyInfo[i]);
 		free(SpeechBubble[i].data);
+		free(EnemyInfo[i]);
 	}
 	free(EnemyInfo);
 	free(SpeechBubble);

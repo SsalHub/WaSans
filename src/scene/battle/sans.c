@@ -78,22 +78,17 @@ void initSansPattern()
 		sansPattern[i].hThread = NULL;
 		sansPattern[i].threadID = 0;
 		sansPattern[i].isActive = 0;
+		sansPattern[i].collider = Sans_onCollision;
 		sansPattern[i].data = &(gasterBlasterPatternInfo[i]);
 		for (j = 0; j < _PATTERN_LAYER_LEN_; j++)
 			sansPattern[i].renderInfoLen[j] = 0;
 	}
 	// init detail info
 	sansPattern[0].pattern = (BATTLE_PATTERN_PTR)explodeBlasterToCenter;
-	sansPattern[0].collider = Sans_onCollision;
-	
 	sansPattern[1].pattern = (BATTLE_PATTERN_PTR)explodeBlasterToCenter;
-	sansPattern[1].collider = Sans_onCollision;
-	
 	sansPattern[2].pattern = (BATTLE_PATTERN_PTR)explodeBlasterToCenter;
-	sansPattern[2].collider = Sans_onCollision;
-
 	sansPattern[3].pattern = (BATTLE_PATTERN_PTR)explodeBlasterToCenter;
-	sansPattern[3].collider = Sans_onCollision;
+	sansPattern[4].pattern = (BATTLE_PATTERN_PTR)swapGravity;
 }
 
 
@@ -199,6 +194,19 @@ static void enemyPhase()
 	        	waitForFrame();
 	        }
 	        releasePatternInRange(0, 3);
+	        
+        	// run boss pattern
+			setSansFace(_SANS_FACE_IDLE_A_);
+			Sans_runPatternInRange(4, 4);
+			// wait until all pattern completed
+			flushIstream();
+	        while (isAnyPatternAlive())
+	        {
+	        	movePlayerPos();
+	        	waitForFrame();
+	        }
+	        releasePatternInRange(4, 4);
+	        
 	        flushIstream();
 			while (scriptIdx < introScriptIdx_B)
 			{
@@ -411,8 +419,8 @@ void Sans_onHit(void *args)
 BATTLE_PATTERN explodeBlasterToCenter(void *args)
 {
 	// receive args
-	SANS_ARGS_BLASTER *data = (SANS_ARGS_BLASTER*)args;
-	int pId = data->patternId;
+	SANS_PATTERN_ARGS *data = (SANS_PATTERN_ARGS*)args;
+	unsigned int pId = data->patternId;
 	BLASTER_ANGLE blasterAngle = data->blasterAngle;
 	// other vars
 	ASSET_TYPE blasterType = getBlasterType(blasterAngle);
@@ -502,7 +510,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 		begin,
 		AssetFile[blasterType],
 		_GRAY_,
-		_BLACK_
+		_BLACK_,
+		0
 	);
 	sansPattern[pId].renderInfoLen[0] = 1;
 	playSFXOnThread(_SFX_GASTERBLASTER_);
@@ -532,7 +541,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 			pos,
 			AssetFile[blasterType + blastId],
 			tColor,
-			_BLACK_
+			_BLACK_,
+			0
 		);
 		sansPattern[pId].renderInfoLen[0] = 1;
 		waitForFrame();
@@ -549,7 +559,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 			end,
 			AssetFile[blasterType + 4],
 			_WHITE_,
-			_BLACK_
+			_BLACK_,
+			0
 		);
 		sansPattern[pId].renderInfoLen[0] = 1;
 		// explode
@@ -591,7 +602,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 			pos,
 			AssetFile[blasterType + blastId],
 			tColor,
-			_BLACK_
+			_BLACK_,
+			0
 		);
 		sansPattern[pId].renderInfoLen[0] = 1;
 		waitForFrame();
@@ -603,8 +615,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 BATTLE_PATTERN explodeBlasterToPlayer(void *args)
 {
 	// receive args
-	SANS_ARGS_BLASTER *data = (SANS_ARGS_BLASTER*)args;
-	int pId = data->patternId;
+	SANS_PATTERN_ARGS *data = (SANS_PATTERN_ARGS*)args;
+	unsigned int pId = data->patternId;
 	BLASTER_ANGLE blasterAngle = data->blasterAngle;
 	// other vars
 //	int playerX = Player.x, playerY = Player.y;
@@ -612,7 +624,38 @@ BATTLE_PATTERN explodeBlasterToPlayer(void *args)
 
 BATTLE_PATTERN swapGravity(void *args)
 {
+	// receive args
+	SANS_PATTERN_ARGS *data = (SANS_PATTERN_ARGS*)args;
+	unsigned int pId = data->patternId;
+	INPUT_TYPE gravityDir = data->gravityDir;
+	ASSET_TYPE face, body;
+	ENEMYBOX_STATUS gravityMode;
+	// 
+	int oldTime;
+	float t;
+	int i, idx;
 	
+	// init asset, gravity info
+	face = _SANS_FACE_IDLE_A_;
+	if (gravityDir == _DOWN_)
+	{
+		body = _SANS_BODY_HANDS_DOWN_A_;
+		gravityMode = _ENEMYBOX_GRAVITY_DOWN_;
+	}
+
+	setSansBody(_ENEMY_ASSET_DEFAULT_);
+	oldTime = clock();
+	t = 0;
+	idx = 0;
+	while (t < 1)
+	{
+		t = (clock() - oldTime) / 500.0f;	// limit == 0.5sec
+		idx = (int)(t / 0.2f);
+		
+		setSansBody(body + idx);
+	}	
+	EnemyPhaseBox.mode = gravityMode;
+	Player.tColor = _BLUE_;
 }
 
 
@@ -730,9 +773,22 @@ int writeSpeechBubble(unsigned int idx, CONSOLE_COLOR tColor, int bVoice)
     return idx;
 }
 
-void setSansFace(ASSET_TYPE facetype)
+void setSansFace(ASSET_TYPE type)
 {
-	EnemyInfo[0][_ENEMY_FACE_].data = AssetFile[facetype];
+	if (type == _ENEMY_ASSET_DEFAULT_)
+		EnemyInfo[0][_ENEMY_FACE_].data = AssetFile[_SANS_FACE_IDLE_A_];
+	else
+		EnemyInfo[0][_ENEMY_FACE_].data = AssetFile[type];
+	
+		
+}
+
+void setSansBody(ASSET_TYPE type)
+{
+	if (type == _ENEMY_ASSET_DEFAULT_)
+		EnemyInfo[0][_ENEMY_BODY_].data = AssetFile[_SANS_BODY_IDLE_];
+	else
+		EnemyInfo[0][_ENEMY_BODY_].data = AssetFile[type];
 }
 
 void movePlayerPos()
@@ -742,14 +798,16 @@ void movePlayerPos()
 	{
 		if (30 < clock() - oldTime)
 		{
+			// move player pos
 			if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
 				Player.pos.X -= 1;
 			else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
 				Player.pos.X += 1;
-			else if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
+			if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
 				Player.pos.Y -= 1;
 			else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
 				Player.pos.Y += 1;
+				
 		    // fix player pos
 			if (Player.pos.X <= EnemyPhaseBox.pos.X + 2)
 		        Player.pos.X = EnemyPhaseBox.pos.X + 2;
@@ -764,7 +822,6 @@ void movePlayerPos()
 		}
 		return;
 	}
-	// if gravity on
 	else if (EnemyPhaseBox.mode == _ENEMYBOX_GRAVITY_UP_)
 	{
 		

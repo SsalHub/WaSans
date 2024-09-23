@@ -53,7 +53,7 @@ void fillColorToScreen(CONSOLE_COLOR bColor);
 void printLine(int x, int y, char *str, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
 void printLines(int x, int y, char *str, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
 
-void setRenderInfo(RENDER_INFO *target, COORD pos, char *s, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor);
+void setRenderInfo(RENDER_INFO *target, COORD pos, char *s, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor, unsigned int isCollidable);
 void setRenderInfoAttr(RENDER_INFO *target, COORD pos, int w, int h, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor, unsigned int isCollidable);
 void setRenderer(RENDERER *RENDERER);
 RENDERER* getCurrentRenderer();

@@ -1,7 +1,8 @@
 #include "settings.h"
 
+
 int ScreenWidth = 120, ScreenHeight = 30;
-int BaseFrame = 80;
+int BaseFrame = 60;
 float FPS = 0;
 char* PlayerName;
 int PlayerLevel;
@@ -9,6 +10,11 @@ int PlayerLevel;
 
 
 void waitForFrame()
+{
+	Sleep(1000 / BaseFrame);
+}
+
+void tuneFrameDelay()
 {
 	int delay = 1000 * (fpsCount / (float)BaseFrame) - (clock() - oldTime);
 	if (0 < delay)

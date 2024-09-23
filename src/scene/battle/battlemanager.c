@@ -63,9 +63,9 @@ void initEnemyPhaseBox()
 	EnemyPhaseBox.width = 18;
 	EnemyPhaseBox.height = 8;
 	EnemyPhaseBox.mode = _ENEMYBOX_DEFAULT_;
-	EnemyPhaseBox.data = (char*)malloc(sizeof(char) * ((ScreenWidth + 1) * (ScreenHeight / 2)));
 	
-	// print enemy phase box
+	EnemyPhaseBox.data = (char*)malloc(sizeof(char) * ((ScreenWidth + 1) * (ScreenHeight / 2)));
+	// set enemy phase box string
     EnemyPhaseBox.data[0] = '\0';
     for (i = 0; i < EnemyPhaseBox.height; i++)
     {
@@ -215,7 +215,7 @@ void checkPlayerInfo()
 	/*  		Player.width == DOT
 				Player.height == jump speed (gravity) 		*/
 	static int DOT_oldTime = -5000, Gravity_oldTime = -5000;
-	static float accumGravity = 1.0f;
+	static float cumulGravity = 1.0f;
 	
 	if (Player.width)
 	{
@@ -223,38 +223,45 @@ void checkPlayerInfo()
 		{
 			Player.HP--;
 			Player.width--;
-			lastDOT = Player.width;
 			if (Player.HP <= 0)
 				Player.mode = _PLAYER_DIED_;
 			DOT_oldTime = clock();
 		}
 	}
-	// if player is not on platform
-	if (Player.pos.Y < EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1)
+	// if gravity on
+	if (EnemyPhaseBox.mode != _ENEMYBOX_DEFAULT_)
 	{
-		if (30 < clock() - Gravity_oldTime)
+		// if player is not on platform
+		if (Player.pos.Y < EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1)
 		{
-			accumGravity += 0.2f;
-			if (1 <= accumGravity)
+			if (30 < clock() - Gravity_oldTime)
 			{
-				Player.pos.Y -= 1;
-				Player.height -= 1;
+				cumulGravity += 0.2f;
+				if (1 <= cumulGravity)
+				{
+					Player.pos.Y += 1;
+					Player.height -= 1;
+				}
+				Gravity_oldTime = clock();
 			}
-			Gravity_oldTime = clock();
 		}
-	}
-	else if (Player.height)
-	{
-		if (30 < clock() - Gravity_oldTime)
+		else if (Player.height)
 		{
-			accumGravity += 0.2f;
-			if (1 <= accumGravity)
+			if (30 < clock() - Gravity_oldTime)
 			{
-				Player.pos.Y -= 1;
-				accumGravity -= 1;
-				Player.height -= 1;
+				cumulGravity += 0.2f;
+				if (1 <= cumulGravity)
+				{
+					Player.pos.Y -= 1;
+					cumulGravity -= 1;
+					Player.height -= 1;
+				}
+				Gravity_oldTime = clock();
 			}
-			Gravity_oldTime = clock();
+		}
+		else
+		{
+			cumulGravity = 0;
 		}
 	}
 }

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 
+
 typedef enum EXITCODE
 {
 	_EXIT_NONE_			= -1,
@@ -17,9 +18,12 @@ extern float FPS;
 extern char* PlayerName;
 extern int PlayerLevel;
 
+
 static int oldTime = 0, fpsCount = 0;
 
+
 void waitForFrame();
+void tuneFrameDelay();
 void checkFPS();
 void initPlayerName(char* name);
 void releasePlayerName();

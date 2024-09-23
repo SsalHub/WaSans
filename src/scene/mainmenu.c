@@ -23,7 +23,7 @@ void Mainmenu_Update()
 				case 'w':	
 					if (0 < menuSelect)
 						menuSelect--;
-					break;	
+					break;
 				
 				case _DOWN_:
 				case 'S':

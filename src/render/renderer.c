@@ -174,13 +174,14 @@ void printLines(int x, int y, char *str, CONSOLE_COLOR tColor, CONSOLE_COLOR bCo
 
 
 /*  */
-void setRenderInfo(RENDER_INFO *target, COORD pos, char *s, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor)
+void setRenderInfo(RENDER_INFO *target, COORD pos, char *s, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor, unsigned int isCollidable)
 {
 	if (s != NULL)
 		target->s = s;
 	target->pos = pos;
 	target->tColor = tColor;
 	target->bColor = bColor;
+	target->isCollidable = isCollidable;
 }
 
 void setRenderInfoAttr(RENDER_INFO *target, COORD pos, int w, int h, CONSOLE_COLOR tColor, CONSOLE_COLOR bColor, unsigned int isCollidable)
@@ -237,7 +238,7 @@ unsigned __stdcall renderThread()
 			fillColorToScreen(_BLACK_);
 		printFPS();
 		flipScreen();
-		waitForFrame();
+		tuneFrameDelay();
 	}
 }
 

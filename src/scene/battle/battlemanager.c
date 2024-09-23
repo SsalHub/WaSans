@@ -238,7 +238,7 @@ void checkPlayerInfo()
 				if (1 <= cumulGravity)
 				{
 					Player.pos.Y -= 1;
-					cumulGravity -= 0.5f;
+					cumulGravity -= 0.7f;
 					Player.height = Player.height < 1 ? 0 : Player.height - 1;
 				}
 				Gravity_oldTime = clock();
@@ -253,7 +253,7 @@ void checkPlayerInfo()
 				if (1 <= cumulGravity)
 				{
 					Player.pos.Y += 1;
-					cumulGravity -= 0.2f;
+					cumulGravity -= 0.7f;
 					Player.height = Player.height < 1 ? 0 : Player.height - 1;
 				}
 				Gravity_oldTime = clock();

@@ -103,6 +103,7 @@ typedef enum CONSOLE_COLOR
 
 typedef enum INPUT_TYPE
 {
+	_INPUT_NONE_				= -1,
     _SPACE_ 					= 32,
     _ESCAPE_ 					= 27,
     _LEFT_ 						= 75,

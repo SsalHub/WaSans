@@ -53,7 +53,6 @@ void initSansObject(BATTLE_OBJECT (*enemy)[_ENEMY_INFO_LEN_])
 	(*enemy)[_ENEMY_BODY_].isActive = 0;
 	(*enemy)[_ENEMY_FACE_].isActive = 0;
 	
-	// init leg
 	// init body
 	setCOORD(&((*enemy)[_ENEMY_BODY_].pos), 50, 0);
 	(*enemy)[_ENEMY_BODY_].data = AssetFile[_SANS_BODY_IDLE_];
@@ -643,19 +642,17 @@ BATTLE_PATTERN swapGravity(void *args)
 		gravityMode = _ENEMYBOX_GRAVITY_DOWN_;
 	}
 
-	setSansBody(_ENEMY_ASSET_DEFAULT_);
-	oldTime = clock();
-	t = 0;
-	idx = 0;
-	while (t < 1)
-	{
-		t = (clock() - oldTime) / 500.0f;	// limit == 0.5sec
-		idx = (int)(t / 0.2f);
-		
-		setSansBody(body + idx);
-	}	
-	EnemyPhaseBox.mode = gravityMode;
+	setSansBody(body);
+	sleep(0.3f);
+	setSansBody(body + 1);
+	sleep(0.02f);
+	setSansBody(body + 2);
+	sleep(0.02f);
+	setSansBody(body + 3);
+	sleep(0.02f);
+	setSansBody(body + 4);
 	Player.tColor = _BLUE_;
+	EnemyPhaseBox.mode = gravityMode;
 }
 
 
@@ -779,8 +776,6 @@ void setSansFace(ASSET_TYPE type)
 		EnemyInfo[0][_ENEMY_FACE_].data = AssetFile[_SANS_FACE_IDLE_A_];
 	else
 		EnemyInfo[0][_ENEMY_FACE_].data = AssetFile[type];
-	
-		
 }
 
 void setSansBody(ASSET_TYPE type)
@@ -807,40 +802,46 @@ void movePlayerPos()
 				Player.pos.Y -= 1;
 			else if (GetAsyncKeyState(VK_DOWN) || GetAsyncKeyState(0x53))
 				Player.pos.Y += 1;
-				
 		    // fix player pos
-			if (Player.pos.X <= EnemyPhaseBox.pos.X + 2)
-		        Player.pos.X = EnemyPhaseBox.pos.X + 2;
-		    else if (EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width <= Player.pos.X)
-		        Player.pos.X = EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width;
-		    if (Player.pos.Y <= EnemyPhaseBox.pos.Y)
-		        Player.pos.Y = EnemyPhaseBox.pos.Y + 1;
-		    else if (EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 <= Player.pos.Y)
-		        Player.pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2;
+			fixPlayerPos(_ENEMYBOX_DEFAULT_);
 			// set timer
 			oldTime = clock();
 		}
-		return;
 	}
-	else if (EnemyPhaseBox.mode == _ENEMYBOX_GRAVITY_UP_)
+	else
 	{
-		
-	}
-	else if (EnemyPhaseBox.mode == _ENEMYBOX_GRAVITY_DOWN_)
-	{
-		if (30 < clock() - oldTime)
+		// if gravity on
+		if (EnemyPhaseBox.mode == _ENEMYBOX_GRAVITY_UP_)
 		{
-			if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
-				Player.pos.X -= 1;
-			else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
-				Player.pos.X += 1;
-			if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
+			
+		}
+		else if (EnemyPhaseBox.mode == _ENEMYBOX_GRAVITY_DOWN_)
+		{
+			if (30 < clock() - oldTime)
 			{
-				// jump
-				Player.pos.Y -= 1;
-				Player.height = Player.height < 3 ? Player.height + 1 : Player.height;
+				if (GetAsyncKeyState(VK_LEFT) || GetAsyncKeyState(0x41))
+					Player.pos.X -= 1;
+				else if (GetAsyncKeyState(VK_RIGHT) || GetAsyncKeyState(0x44))
+					Player.pos.X += 1;
+				if (GetAsyncKeyState(VK_UP) || GetAsyncKeyState(0x57))
+				{
+					// if player is on platform
+					if (Player.pos.Y == EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2)
+						Player.height = 4;
+				}
+			    // fix player pos
+				fixPlayerPos(_ENEMYBOX_GRAVITY_DOWN_);
+				oldTime = clock();
 			}
-		    // fix player pos
+		}
+	}
+}
+
+void fixPlayerPos(ENEMYBOX_STATUS gravityDir)
+{
+	switch (gravityDir)
+	{
+		case _ENEMYBOX_DEFAULT_:
 			if (Player.pos.X <= EnemyPhaseBox.pos.X + 2)
 		        Player.pos.X = EnemyPhaseBox.pos.X + 2;
 		    else if (EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width <= Player.pos.X)
@@ -849,13 +850,16 @@ void movePlayerPos()
 		        Player.pos.Y = EnemyPhaseBox.pos.Y + 1;
 		    else if (EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 <= Player.pos.Y)
 		        Player.pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2;
-			
-			oldTime = clock();
-		}
-		return;
+		    break;
+		    
+		case _ENEMYBOX_GRAVITY_DOWN_:
+			if (Player.pos.X <= EnemyPhaseBox.pos.X + 2)
+		        Player.pos.X = EnemyPhaseBox.pos.X + 2;
+		    else if (EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width <= Player.pos.X)
+		        Player.pos.X = EnemyPhaseBox.pos.X + 1 + EnemyPhaseBox.width;
+			break;
 	}
 }
-
 
 
 /* Terminate Func */

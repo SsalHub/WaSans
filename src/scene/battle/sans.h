@@ -110,6 +110,7 @@ int writeSpeechBubble(unsigned int scriptIdx, CONSOLE_COLOR tColor, int bVoice);
 void setSansFace(ASSET_TYPE type);
 void setSansBody(ASSET_TYPE type);
 void movePlayerPos();
+void fixPlayerPos(ENEMYBOX_STATUS gravityDir);
 
 /* Terminate Func */
 void releasePatternInRange(int begin, int end);

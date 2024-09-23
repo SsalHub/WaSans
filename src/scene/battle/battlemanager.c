@@ -215,7 +215,7 @@ void checkPlayerInfo()
 	/*  		Player.width == DOT
 				Player.height == jump speed (gravity) 		*/
 	static int DOT_oldTime = -5000, Gravity_oldTime = -5000;
-	static float cumulGravity = 1.0f;
+	static float cumulGravity = 0.0f;
 	
 	if (Player.width)
 	{
@@ -228,33 +228,33 @@ void checkPlayerInfo()
 			DOT_oldTime = clock();
 		}
 	}
-	// if gravity on
 	if (EnemyPhaseBox.mode != _ENEMYBOX_DEFAULT_)
 	{
-		// if player is not on platform
-		if (Player.pos.Y < EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1)
+		if (Player.height)
 		{
 			if (30 < clock() - Gravity_oldTime)
 			{
-				cumulGravity += 0.2f;
+				cumulGravity += 0.3f;
 				if (1 <= cumulGravity)
 				{
-					Player.pos.Y += 1;
-					Player.height -= 1;
+					Player.pos.Y -= 1;
+					cumulGravity -= 0.5f;
+					Player.height = Player.height < 1 ? 0 : Player.height - 1;
 				}
 				Gravity_oldTime = clock();
 			}
 		}
-		else if (Player.height)
+		else if (Player.pos.Y < EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2)
 		{
+			// if player is not on platform
 			if (30 < clock() - Gravity_oldTime)
 			{
-				cumulGravity += 0.2f;
+				cumulGravity += 0.3f;
 				if (1 <= cumulGravity)
 				{
-					Player.pos.Y -= 1;
-					cumulGravity -= 1;
-					Player.height -= 1;
+					Player.pos.Y += 1;
+					cumulGravity -= 0.2f;
+					Player.height = Player.height < 1 ? 0 : Player.height - 1;
 				}
 				Gravity_oldTime = clock();
 			}

@@ -15,8 +15,9 @@
 #include "../../event/eventmanager.h"
 
 
-#define _SANS_PATTERN_LEN_ 	5	// num of patterns
+#define _SANS_PATTERN_LEN_ 	6	// num of patterns
 #define _SANS_SCRIPT_LEN_ 	5	// num of scripts
+
 #define _BLAST_ANGLE_LEN_ 	6
 #define _BATTLE_SELECT_LEN_	4
 #define _PATTERN_CONTINUE_	-1
@@ -92,7 +93,7 @@ void setGravityMode(INPUT_TYPE gravity);
 BATTLE_PATTERN explodeBlasterToCenter(void *args);
 BATTLE_PATTERN explodeBlasterToPlayer(void *args);
 BATTLE_PATTERN swapGravity(void *args);
-BATTLE_PATTERN layingFloorBone(void *args);
+BATTLE_PATTERN riseFloorBone(void *args);
 
 /* Main onCollision Func */
 void Sans_onCollision(void *args);
@@ -124,5 +125,6 @@ static SANS_PATTERN_ARGS sansPatternInfo[_SANS_PATTERN_LEN_] = {
 			{ 	2, 		explodeBlasterToCenter,		_BLAST_TOP_CENTER_, 	0 			},
 			{ 	3, 		explodeBlasterToCenter,		_BLAST_BOT_CENTER_,		0 			},
 			{ 	4, 		swapGravity,				0,						_DOWN_ 		},
+			{ 	5, 		riseFloorBone,				0,						0 			},
 		};
 #endif

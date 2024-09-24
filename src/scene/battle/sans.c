@@ -178,17 +178,6 @@ static void enemyPhase()
 			}
 	    	
         	// run boss pattern
-			Sans_runPatternInRange(0, 3);
-			// wait until all pattern completed
-			flushIstream();
-	        while (isAnyPatternAlive())
-	        {
-	        	movePlayerPos();
-	        	waitForFrame();
-	        }
-	        releasePatternInRange(0, 3);
-	        
-        	// run boss pattern
 			Sans_runPattern(4);
 			// wait until all pattern completed
 			flushIstream();
@@ -198,6 +187,17 @@ static void enemyPhase()
 	        	waitForFrame();
 	        }
 	        releasePattern(4);
+	        
+        	// run boss pattern
+			Sans_runPattern(5);
+			// wait until all pattern completed
+			flushIstream();
+	        while (isAnyPatternAlive())
+	        {
+	        	movePlayerPos();
+	        	waitForFrame();
+	        }
+	        releasePattern(5);
 	        
 	        flushIstream();
 			while (scriptIdx < introScriptIdx_B)
@@ -647,11 +647,9 @@ BATTLE_PATTERN swapGravity(void *args)
 	ENEMYBOX_STATUS gravityMode;
 	
 	// init asset, gravity info
-//	face = _SANS_FACE_IDLE_A_;
 	if (gravityDir == _DOWN_)
 		body = _SANS_BODY_HANDS_DOWN_A_;
 	setSansBody(body);
-	setGravityMode(gravityDir);
 	
 	sleep(0.2f);
 	setSansBody(body + 1);
@@ -661,68 +659,53 @@ BATTLE_PATTERN swapGravity(void *args)
 	setSansBody(body + 3);
 	sleep(0.02f);
 	setSansBody(body + 4);
+	setGravityMode(gravityDir);
 	
-	sleep(1.5f);
+	sleep(0.5f);
 }
 
-BATTLE_PATTERN layingFloorBone(void *args)
+BATTLE_PATTERN riseFloorBone(void *args)
 {
 	// receive args
 	SANS_PATTERN_ARGS *data = (SANS_PATTERN_ARGS*)args;
 	unsigned int pId = data->patternId;
 	ENEMYBOX_STATUS gravityDir = EnemyPhaseBox.mode;
-	const int height = 3;
+	const int height = 2, warningLayer = 1, boneLayer = 0;
 	COORD pos;
+	CONSOLE_COLOR warningColor;
 	int oldTime;
 	int i, t;
 	
 	if (gravityDir == _ENEMYBOX_GRAVITY_DOWN_)
 	{
 		oldTime = clock();
-		setCOORD(&pos, EnemyPhaseBox.pos.X, EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 - height);
+		setCOORD(&pos, EnemyPhaseBox.pos.X + 2, EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - height);
 		t = 0;
 		
+		// show warning area
 		while (t < 1)
 		{
 			t = (clock() - oldTime) / 500.0f;
 			
-			if (t < 0.1f)
-			{
-				setRenderInfoAttr(
-					&(sansPattern[pId].renderInfo[1][i]), 
-					pos,
-					EnemyPhaseBox.width,
-					height,
-					_HOTPINK_,
-					_HOTPINK_,
-					1
-				);
-			}
-			else if (t < 0.3f)
-			{
-				setRenderInfoAttr(
-					&(sansPattern[pId].renderInfo[1][i]), 
-					pos,
-					EnemyPhaseBox.width,
-					height,
-					_RED_,
-					_RED_,
-					1
-				);
-			}
-			else if (t < 0.4f)
-			{
-				setRenderInfoAttr(
-					&(sansPattern[pId].renderInfo[1][i]), 
-					pos,
-					EnemyPhaseBox.width,
-					height,
-					_HOTPINK_,
-					_HOTPINK_,
-					1
-				);
-			}
+			if (t < 0.2f || 0.8f < t)
+				warningColor = _HOTPINK_;
+			else
+				warningColor = _RED_;
+				
+			setRenderInfoAttr(
+				&(sansPattern[pId].renderInfo[warningLayer][0]), 
+				pos,
+				EnemyPhaseBox.width,
+				height,
+				warningColor,
+				warningColor,
+				0
+			);
+			sansPattern[pId].renderInfoLen[warningLayer] = 1;
+			waitForFrame();
 		}
+		
+		
 	}
 }
 

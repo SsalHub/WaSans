@@ -496,6 +496,7 @@ void renderPattern()
 				render = &(Patterns[i].renderInfo[layer][j]);
 				if (render->s != NULL)
 				{
+					// render pattern
 					printLines(
 						render->pos.X,
 						render->pos.Y,
@@ -503,6 +504,22 @@ void renderPattern()
 						render->tColor,
 						render->bColor
 					);
+					// check collision
+					if (render->isCollidable)
+					{
+						cpyCOORD(&begin, &(render->pos));
+						setCOORD(
+							&(end),
+							render->pos.X + render->width, 
+							render->pos.Y + render->height
+						);
+						if (checkCollisionInRange(&(Player.pos), &begin, &end))
+						{
+							// set collision info
+							setCollisionInfo(&colInfo, Player.pos, Patterns[i].pattern, render);
+							Patterns[i].collider(&colInfo);
+						}
+					}
 				}
 				else
 				{
@@ -510,6 +527,7 @@ void renderPattern()
 					for (k = 0; k < render->height; k++)
 					{
 						pos.Y = render->pos.Y + k;
+						// render pattern
 						FillConsoleOutputAttribute(
 							ScreenHandle[ScreenIndex], 
 							render->tColor | (render->bColor << 4), 
@@ -517,17 +535,21 @@ void renderPattern()
 							pos, 
 							&dw
 						);
-						cpyCOORD(&begin, &(render->pos));
-						setCOORD(
-							&(end),
-							render->pos.X + render->width, 
-							render->pos.Y + render->height
-						);
-						if (checkCollisionInRange(&(Player.pos), &begin, &end) && render->isCollidable)
+						// check collision
+						if (render->isCollidable)
 						{
-							// set collision info
-							setCollisionInfo(&colInfo, Player.pos, Patterns[i].pattern, render);
-							Patterns[i].collider(&colInfo);
+							cpyCOORD(&begin, &(render->pos));
+							setCOORD(	
+								&(end),
+								render->pos.X + render->width, 
+								render->pos.Y + render->height
+							);
+							if (checkCollisionInRange(&(Player.pos), &begin, &end))
+							{
+								// set collision info
+								setCollisionInfo(&colInfo, Player.pos, Patterns[i].pattern, render);
+								Patterns[i].collider(&colInfo);
+							}
 						}
 					}
 					

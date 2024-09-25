@@ -39,7 +39,7 @@ void Sans_Update()
 	    enemyPhase();
 	}
 	// exit battle scene
-	releasePatterns();
+	Sans_releasePatterns();
 	releaseBattleAssets();
 	flushEvent(_EVENT_ON_DAMAGED_);
 	gotoNextScene(_SCENE_MAINMENU_);
@@ -178,28 +178,37 @@ static void enemyPhase()
 			}
 	    	
         	// run boss pattern
-			Sans_runPattern(4);
-			// wait until all pattern completed
+			flushIstream();
+        				// pattern 0
+			Sans_runPattern(0);
+	        while (isAnyPatternAlive())
+	        {
+	        	movePlayerPos();
+	        	waitForFrame();
+	        }
+	        Sans_releasePattern(0);
+			flushIstream();
+	        			// pattern 1
+			Sans_runPattern(1);
+	        while (isAnyPatternAlive())
+	        {
+	        	movePlayerPos();
+	        	waitForFrame();
+	        }
+	        Sans_releasePattern(1);
+	        			// pattern 2
+			Sans_runPatternInRange(2, 6);
 			flushIstream();
 	        while (isAnyPatternAlive())
 	        {
 	        	movePlayerPos();
 	        	waitForFrame();
 	        }
-	        releasePattern(4);
-	        
-        	// run boss pattern
-			Sans_runPattern(5);
-			// wait until all pattern completed
-			flushIstream();
-	        while (isAnyPatternAlive())
-	        {
-	        	movePlayerPos();
-	        	waitForFrame();
-	        }
-	        releasePattern(5);
+	        Sans_releasePatternInRange(2, 6);
 	        
 	        flushIstream();
+			setSansFace(_ENEMY_ASSET_DEFAULT_);
+			setSansBody(_ENEMY_ASSET_DEFAULT_);
 			while (scriptIdx < introScriptIdx_B)
 			{
 				scriptIdx = writeSpeechBubble(scriptIdx, _BLACK_, 0);
@@ -207,8 +216,6 @@ static void enemyPhase()
     			waitForFrame();
 			}
 			sleep(0.1f);
-			setSansFace(_ENEMY_ASSET_DEFAULT_);
-			setSansBody(_ENEMY_ASSET_DEFAULT_);
 	        break;
 	    
 	    case 1:
@@ -524,6 +531,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 	setRenderInfo(
 		&(sansPattern[pId].renderInfo[0][0]), 
 		begin,
+		0,
+		0,
 		AssetFile[blasterType],
 		_GRAY_,
 		_BLACK_,
@@ -554,6 +563,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 		setRenderInfo(
 			&(sansPattern[pId].renderInfo[0][0]), 
 			pos,
+			0,
+			0,
 			AssetFile[blasterType + blastId],
 			tColor,
 			_BLACK_,
@@ -572,6 +583,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 		setRenderInfo(
 			&(sansPattern[pId].renderInfo[0][0]), 
 			end,
+			0,
+			0,
 			AssetFile[blasterType + 4],
 			_WHITE_,
 			_BLACK_,
@@ -615,6 +628,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 		setRenderInfo(
 			&(sansPattern[pId].renderInfo[0][0]), 
 			pos,
+			0,
+			0,
 			AssetFile[blasterType + blastId],
 			tColor,
 			_BLACK_,
@@ -647,8 +662,22 @@ BATTLE_PATTERN swapGravity(void *args)
 	ENEMYBOX_STATUS gravityMode;
 	
 	// init asset, gravity info
-	if (gravityDir == _DOWN_)
+	if (gravityDir == _INPUT_NONE_)
+	{
+		switch (EnemyPhaseBox.mode)
+		{
+			case _ENEMYBOX_GRAVITY_DOWN_:
+				body = _SANS_BODY_HANDS_UP_A_;
+				break;
+			case _ENEMYBOX_GRAVITY_UP_:
+				body = _SANS_BODY_HANDS_DOWN_A_;
+				break;
+		}
+	}
+	else if (gravityDir == _DOWN_)
+	{
 		body = _SANS_BODY_HANDS_DOWN_A_;
+	}
 	setSansBody(body);
 	
 	sleep(0.2f);
@@ -673,16 +702,26 @@ BATTLE_PATTERN riseFloorBone(void *args)
 	const int height = 2, warningLayer = 1, boneLayer = 0;
 	COORD pos;
 	CONSOLE_COLOR warningColor;
+	char boneHead[ScreenWidth + 1], boneBody[ScreenWidth + 1];
 	int oldTime;
-	int i, t;
+	int i, j, t;
 	
 	if (gravityDir == _ENEMYBOX_GRAVITY_DOWN_)
 	{
-		oldTime = clock();
 		setCOORD(&pos, EnemyPhaseBox.pos.X + 2, EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - height);
-		t = 0;
+		
+		// init bone string
+		for (i = 0; i < EnemyPhaseBox.width; i++)
+		{
+			boneHead[i] = 'Y';
+			boneBody[i] = '|';
+		}
+		boneHead[i] = '\n';
+		boneBody[i] = '\n';
 		
 		// show warning area
+		t = 0;
+		oldTime = clock();
 		while (t < 1)
 		{
 			t = (clock() - oldTime) / 500.0f;
@@ -704,8 +743,77 @@ BATTLE_PATTERN riseFloorBone(void *args)
 			sansPattern[pId].renderInfoLen[warningLayer] = 1;
 			waitForFrame();
 		}
+		sansPattern[pId].renderInfoLen[warningLayer] = 0;
+		sleep(0.05f);
 		
-		
+		// show bone attack
+		for (i = 0; i < height; i++)
+		{
+			// render bone head
+			pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 - i;
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[boneLayer][0]), 
+				pos,
+				EnemyPhaseBox.width,
+				1,
+				boneHead,
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+			// render bone body
+			for (j = 0; j < i; j++)
+			{
+				pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 2 - j;
+				setRenderInfo(
+					&(sansPattern[pId].renderInfo[boneLayer][1 + j]), 
+					pos,
+					EnemyPhaseBox.width,
+					1,
+					boneBody,
+					_WHITE_,
+					_BLACK_,
+					1
+				);
+			}
+			sansPattern[pId].renderInfoLen[boneLayer] = 1 + j;
+			sleep(0.05f);
+		}
+		sleep(0.05f);
+		for (; 0 <= i; i--)
+		{
+			// render bone head
+			pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - (i + 1);
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[boneLayer][0]), 
+				pos,
+				EnemyPhaseBox.width,
+				1,
+				boneHead,
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+			// render bone body
+			for (j = 0; j < i; j++)
+			{
+				pos.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - j;
+				setRenderInfo(
+					&(sansPattern[pId].renderInfo[boneLayer][0]), 
+					pos,
+					EnemyPhaseBox.width,
+					1,
+					boneBody,
+					_WHITE_,
+					_BLACK_,
+					1
+				);
+			}
+			sansPattern[pId].renderInfoLen[boneLayer] = 1 + j;
+			sleep(0.05f);
+		}
+		sansPattern[pId].renderInfoLen[boneLayer] = 0;
+		sleep(0.5f);
 	}
 }
 
@@ -917,19 +1025,19 @@ void fixPlayerPos(ENEMYBOX_STATUS gravityDir)
 
 
 /* Terminate Func */
-void releasePattern(int pid)
+void Sans_releasePattern(int pid)
 {
 	CloseHandle(sansPattern[pid].hThread);
 }
 
-void releasePatternInRange(int begin, int end)
+void Sans_releasePatternInRange(int begin, int end)
 {
 	int pid;
 	for (pid = begin; pid <= end; pid++)
 		CloseHandle(sansPattern[pid].hThread);
 }
 
-void releasePatterns()
+void Sans_releasePatterns()
 {
 	int i;
 	for (i = 0; i < _SANS_PATTERN_LEN_; i++)

@@ -15,7 +15,7 @@
 #include "../../event/eventmanager.h"
 
 
-#define _SANS_PATTERN_LEN_ 	6	// num of patterns
+#define _SANS_PATTERN_LEN_ 	7	// num of patterns
 #define _SANS_SCRIPT_LEN_ 	5	// num of scripts
 
 #define _BLAST_ANGLE_LEN_ 	6
@@ -110,9 +110,9 @@ void movePlayerPos();
 void fixPlayerPos(ENEMYBOX_STATUS gravityDir);
 
 /* Terminate Func */
-void releasePattern(int pid);
-void releasePatternInRange(int begin, int end);
-void releasePatterns();
+void Sans_releasePattern(int pid);
+void Sans_releasePatternInRange(int begin, int end);
+void Sans_releasePatterns();
 
 
 
@@ -120,11 +120,13 @@ void releasePatterns();
 	Define Pattern Info
 						 */
 static SANS_PATTERN_ARGS sansPatternInfo[_SANS_PATTERN_LEN_] = {
-			{ 	0, 		explodeBlasterToCenter,		_BLAST_MID_RIGHT_, 		0 			},
-			{ 	1, 		explodeBlasterToCenter,		_BLAST_MID_LEFT_, 		0 			},
-			{ 	2, 		explodeBlasterToCenter,		_BLAST_TOP_CENTER_, 	0 			},
-			{ 	3, 		explodeBlasterToCenter,		_BLAST_BOT_CENTER_,		0 			},
-			{ 	4, 		swapGravity,				0,						_DOWN_ 		},
-			{ 	5, 		riseFloorBone,				0,						0 			},
+		/*	pattern id	   	  pattern func name		 	gaster blaster args	 	swap gravity args									*/
+			{ 	0, 			swapGravity,				0,							_DOWN_ 			},
+			{ 	1, 			riseFloorBone,				0,							0 				},
+			{ 	2, 			swapGravity,				0,							_INPUT_NONE_	},
+			{ 	3, 			explodeBlasterToCenter,		_BLAST_MID_RIGHT_, 			0 				},
+			{ 	4, 			explodeBlasterToCenter,		_BLAST_MID_LEFT_, 			0 				},
+			{ 	5, 			explodeBlasterToCenter,		_BLAST_TOP_CENTER_, 		0 				},
+			{ 	6, 			explodeBlasterToCenter,		_BLAST_BOT_CENTER_,			0 				},
 		};
 #endif

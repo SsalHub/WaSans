@@ -23,7 +23,7 @@
 #define _PATTERN_CONTINUE_	-1
 
 
-typedef enum BLASTER_ANGLE
+typedef enum BLASTER_POSITION
 {
 	_BLAST_TOP_CENTER_		= 0,	// vertical
 	_BLAST_TOP_RIGHT_		= 45,	// diagonal
@@ -37,7 +37,7 @@ typedef enum BLASTER_ANGLE
 	_BLAST_TOP_LEFT_		= 270,
 	_BLAST_MID_LEFT_		= 315,
 //	_BLAST_MID_CENTER_,
-} BLASTER_ANGLE;
+} BLASTER_POSITION;
 
 enum SANS_ENEMYTYPE
 {
@@ -48,8 +48,8 @@ typedef struct SANS_PATTERN_ARGS
 {
 	unsigned int patternId;
 	BATTLE_PATTERN_PTR pattern;
-	BLASTER_ANGLE blasterAngle;
-	INPUT_TYPE gravityDir;
+	int blasterPos;
+	int direction;
 } SANS_PATTERN_ARGS;
 
 
@@ -82,15 +82,16 @@ static void enemyPhase();
 void Sans_runPattern(int pid);
 void Sans_runPatternInRange(int begin, int end);
 int isAnyPatternAlive();
-ASSET_TYPE getBlasterType(BLASTER_ANGLE blasterAngle);
-char* fixBlasterAngle(char *dst, size_t dstSize, BLASTER_ANGLE blasterAngle);
-int explodeBlaster(BLASTER_ANGLE angle, int pid, COORD begin, COORD end, CONSOLE_COLOR bColor);
+ASSET_TYPE getBlasterType(BLASTER_POSITION blasterPos);
+char* fixBlasterAngle(char *dst, size_t dstSize, BLASTER_POSITION blasterPos);
+int explodeBlaster(BLASTER_POSITION angle, int pid, COORD begin, COORD end, CONSOLE_COLOR bColor);
 void Sans_onDamaged(void *args);
 void Sans_onHit(void *args);
 void setGravityMode(INPUT_TYPE gravity);
 
 /* Pattern Func */
 BATTLE_PATTERN explodeBlasterToCenter(void *args);
+BATTLE_PATTERN explodeBlasterToEdge(void *args);
 BATTLE_PATTERN explodeBlasterToPlayer(void *args);
 BATTLE_PATTERN swapGravity(void *args);
 BATTLE_PATTERN riseFloorBone(void *args);
@@ -117,10 +118,10 @@ void Sans_releasePatterns();
 
 
 /* 
-	Define Pattern Info
+	Pattern Details
 						 */
 static SANS_PATTERN_ARGS sansPatternInfo[_SANS_PATTERN_LEN_] = {
-		/*	pattern id	   	  pattern func name		 	gaster blaster args	 	swap gravity args									*/
+	/*		pattern id	   	  pattern func name		 	gaster blaster args	 	swap gravity args		*/
 			{ 	0, 			swapGravity,				0,							_DOWN_ 			},
 			{ 	1, 			riseFloorBone,				0,							0 				},
 			{ 	2, 			swapGravity,				0,							_INPUT_NONE_	},
@@ -128,5 +129,5 @@ static SANS_PATTERN_ARGS sansPatternInfo[_SANS_PATTERN_LEN_] = {
 			{ 	4, 			explodeBlasterToCenter,		_BLAST_MID_LEFT_, 			0 				},
 			{ 	5, 			explodeBlasterToCenter,		_BLAST_TOP_CENTER_, 		0 				},
 			{ 	6, 			explodeBlasterToCenter,		_BLAST_BOT_CENTER_,			0 				},
-		};
+	};
 #endif

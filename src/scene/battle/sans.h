@@ -1,10 +1,11 @@
 #ifndef __SANS_BATTLE__
 #define __SANS_BATTLE__
+#include <windows.h>
 #include <conio.h>
 #include <time.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
-#include <windows.h>
 #include "battlemanager.h"
 #include "../scenemanager.h"
 #include "../../utils.h"
@@ -15,7 +16,7 @@
 #include "../../event/eventmanager.h"
 
 
-#define _SANS_PATTERN_LEN_ 	7	// num of patterns
+#define _SANS_PATTERN_LEN_ 	11	// num of patterns
 #define _SANS_SCRIPT_LEN_ 	5	// num of scripts
 
 #define _BLAST_ANGLE_LEN_ 	6
@@ -25,18 +26,28 @@
 
 typedef enum BLASTER_POSITION
 {
-	_BLAST_TOP_CENTER_		= 0,	// vertical
-	_BLAST_TOP_RIGHT_		= 45,	// diagonal
+	// vertical
+	_BLAST_TOP_LEFT_		= 330,
+	_BLAST_TOP_CENTER_		= 0,
+	_BLAST_TOP_RIGHT_		= 30,
 	
-	_BLAST_MID_RIGHT_		= 90,
-	_BLAST_BOT_RIGHT_		= 135,
+	_BLAST_RIGHT_TOP_		= 60,
+	_BLAST_RIGHT_CENTER_	= 90,
+	_BLAST_RIGHT_BOT_		= 120,
 	
+	_BLAST_BOT_RIGHT_		= 150,
 	_BLAST_BOT_CENTER_		= 180,
-	_BLAST_BOT_LEFT_		= 225,
+	_BLAST_BOT_LEFT_		= 210,
 	
-	_BLAST_TOP_LEFT_		= 270,
-	_BLAST_MID_LEFT_		= 315,
-//	_BLAST_MID_CENTER_,
+	_BLAST_LEFT_BOT_		= 240,
+	_BLAST_LEFT_CENTER_		= 270,
+	_BLAST_LEFT_TOP_		= 300,
+	
+	// diagonal
+	_BLAST_EDGE_TOP_LEFT_	= 315,	
+	_BLAST_EDGE_TOP_RIGHT_	= 45,
+	_BLAST_EDGE_BOT_LEFT_	= 225,
+	_BLAST_EDGE_BOT_RIGHT_	= 135,
 } BLASTER_POSITION;
 
 enum SANS_ENEMYTYPE
@@ -55,15 +66,6 @@ typedef struct SANS_PATTERN_ARGS
 
 static int patternIdx, scriptIdx;
 static PATTERN_INFO sansPattern[_SANS_PATTERN_LEN_];
-static const char scripts[_SANS_SCRIPT_LEN_][128] = {
-				    "it's a beautiful day outside.",
-				    "birds are singing. flowers are blooming.",
-				    "on days like these, kids like you...",
-				    "Should be burning in hell.",
-//				    "huh.",
-//					"always wondered why people never use their strongest attack first.",
-				    "here we go.",
-				};
 
 /* Main func in sans battle */
 void Sans_Start();
@@ -81,6 +83,7 @@ static void enemyPhase();
 /* Boss Phase func */
 void Sans_runPattern(int pid);
 void Sans_runPatternInRange(int begin, int end);
+int Sans_runScript(int begin, int end, CONSOLE_COLOR tColor, unsigned int bVoice);
 int isAnyPatternAlive();
 ASSET_TYPE getBlasterType(BLASTER_POSITION blasterPos);
 char* fixBlasterAngle(char *dst, size_t dstSize, BLASTER_POSITION blasterPos);
@@ -117,6 +120,24 @@ void Sans_releasePatterns();
 
 
 
+
+
+/* 
+		  Scripts
+						 */
+static const char scripts[_SANS_SCRIPT_LEN_][128] = {
+				    "it's a beautiful day outside.",
+				    "birds are singing. flowers are blooming.",
+				    "on days like these, kids like you...",
+				    "Should be burning in hell.",
+//				    "huh.",
+//					"always wondered why people never use their strongest attack first.",
+				    "here we go.",
+				};
+				
+				
+				
+				
 /* 
 	Pattern Details
 						 */
@@ -125,9 +146,15 @@ static SANS_PATTERN_ARGS sansPatternInfo[_SANS_PATTERN_LEN_] = {
 			{ 	0, 			swapGravity,				0,							_DOWN_ 			},
 			{ 	1, 			riseFloorBone,				0,							0 				},
 			{ 	2, 			swapGravity,				0,							_INPUT_NONE_	},
-			{ 	3, 			explodeBlasterToCenter,		_BLAST_MID_RIGHT_, 			0 				},
-			{ 	4, 			explodeBlasterToCenter,		_BLAST_MID_LEFT_, 			0 				},
-			{ 	5, 			explodeBlasterToCenter,		_BLAST_TOP_CENTER_, 		0 				},
-			{ 	6, 			explodeBlasterToCenter,		_BLAST_BOT_CENTER_,			0 				},
+			
+			{ 	3, 			explodeBlasterToEdge,		_BLAST_TOP_LEFT_,			0 				},
+			{ 	4, 			explodeBlasterToEdge,		_BLAST_LEFT_TOP_,			0 				},
+			{ 	5, 			explodeBlasterToEdge,		_BLAST_BOT_RIGHT_,			0 				},
+			{ 	6, 			explodeBlasterToEdge,		_BLAST_RIGHT_BOT_,			0 				},
+			
+			{ 	7, 			explodeBlasterToCenter,		_BLAST_RIGHT_CENTER_, 		0 				},
+			{ 	8, 			explodeBlasterToCenter,		_BLAST_LEFT_CENTER_, 		0 				},
+			{ 	9, 			explodeBlasterToCenter,		_BLAST_TOP_CENTER_, 		0 				},
+			{ 	10,			explodeBlasterToCenter,		_BLAST_BOT_CENTER_,			0 				},
 	};
 #endif

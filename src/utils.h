@@ -125,7 +125,26 @@ typedef enum INPUT_TYPE
 extern char* AssetFile[_ASSET_LEN_];
 
 
+void sleep(float sec);
+void initDataAsset();
+char* readFile(const char *fname, char *dest);
+char* readAssetFile(const char *fname);
+void releaseAssetFile();
+int getRandomRange(int min, int max);
+//char* rotateString(char* dst, char* src, int angle);
+float lerp(float from, float to, float t);
+void fillSpaceChar(char* str, int begin, int end);
+void flushIstream();
 
+/* COORD Util Func */
+COORD* setCOORD(COORD *dst, int x, int y);
+COORD* cpyCOORD(COORD *dst, COORD *src);
+COORD addCOORD(COORD a, COORD b);
+
+
+/*
+		Data Asset Paths
+							*/
 static const char assetFilePath[_ASSET_LEN_][128] = {
 					/* Global Asset */
 					"data/UNDERTALE_LOGO.asset",
@@ -198,21 +217,5 @@ static const char assetFilePath[_ASSET_LEN_][128] = {
 					"data/character/sans/gasterblaster/270/diagonal_270_d.asset",
 					"data/character/sans/gasterblaster/270/diagonal_270_e.asset",
 					"data/character/sans/gasterblaster/270/diagonal_270_f.asset",
-				};
-
-void sleep(float sec);
-void initDataAsset();
-char* readFile(const char *fname, char *dest);
-char* readAssetFile(const char *fname);
-void releaseAssetFile();
-int getRandomRange(int min, int max);
-//char* rotateString(char* dst, char* src, int angle);
-float lerp(float from, float to, float t);
-void fillSpaceChar(char* str, int begin, int end);
-void flushIstream();
-
-/* COORD Util Func */
-COORD* setCOORD(COORD *dst, int x, int y);
-COORD* cpyCOORD(COORD *dst, COORD *src);
-COORD addCOORD(COORD a, COORD b);
+		};
 #endif

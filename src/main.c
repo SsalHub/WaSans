@@ -16,8 +16,7 @@ void initGame()
 	
 	// load assets
 	initDataAsset();
-	initBGMAsset();
-	initVoiceAsset();
+	initSoundAsset();
 	
 	// init event listener
 	initEventListener();
@@ -45,8 +44,6 @@ void exitGame()
 	
 	releaseScreen();
 	releaseAssetFile();
-//	releaseBGMAsset();
-//	releaseVoiceAsset();
-	releaseSoundAssets();
+	releaseSoundAsset();
 	releasePlayerName();
 }

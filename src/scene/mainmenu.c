@@ -22,18 +22,25 @@ void Mainmenu_Update()
 				case 'W':
 				case 'w':	
 					if (0 < menuSelect)
+					{
+						playSFX(_SFX_SQUEAK_);
 						menuSelect--;
+					}
 					break;
 				
 				case _DOWN_:
 				case 'S':
 				case 's':
 					if (menuSelect < 1)
+					{
+						playSFX(_SFX_SQUEAK_);
 						menuSelect++;
+					}
 					break;
 				
 				case _SPACE_:
 				case _CARRIAGE_RETURN_:
+					playSFX(_SFX_SAVE_);
 					playBGM(_BGM_STARTMENU_, _SOUND_PAUSE_);
 					if (menuSelect == 0)
 					{

@@ -10,33 +10,39 @@
 #define _SOUND_ASSET_LEN_ 	12
 #define _BGM_ASSET_LEN_		5
 #define _VOICE_ASSET_LEN_	1
-#define _SFX_ASSET_LEN_		6
+#define _SFX_ASSET_LEN_		12
 
-typedef enum BGMAssetType
+typedef enum BGM_TYPE
 {
     _BGM_BIRDNOISE_,
     _BGM_CYMBAL_,
     _BGM_GAMEOVER_,
     _BGM_MEGALOVANIA_,
     _BGM_STARTMENU_,
-} BGMAssetType;
+} BGM_TYPE;
     
-typedef enum VoiceAssetType
+typedef enum VOICE_TYPE
 {
     _VOICE_SANS_,
-} VoiceAssetType;
+} VOICE_TYPE;
     
-typedef enum SFXAssetType
+typedef enum SFX_TYPE
 {
+    _SFX_APPEAR_,
     _SFX_ATTACK_,
+    _SFX_BELL_,
     _SFX_DOORCLOSE_,
     _SFX_GASTERBLASTER_,
+    _SFX_IMPACT_,
     _SFX_INTRONOISE_,
     _SFX_MOMENT_,
     _SFX_REFLECT_,
-} SFXAssetType;
+    _SFX_SAVE_,
+    _SFX_SEGAPOWER_,
+    _SFX_SQUEAK_,
+} SFX_TYPE;
 
-typedef enum SoundPlayType
+typedef enum SOUND_PLAY_TYPE
 {
     _SOUND_ONCE_,
     _SOUND_LOOP_,
@@ -44,51 +50,66 @@ typedef enum SoundPlayType
     _SOUND_PAUSE_,
     _SOUND_RESUME_,
     _SOUND_STOP_,
-} SoundPlayType;
+} SOUND_PLAY_TYPE;
 
-typedef struct Sound
+typedef struct SOUND_DATA
 {
 	DWORD dw;
 	unsigned int dwID;
- } Sound;
+ } SOUND_DATA;
+
 
 static MCI_OPEN_PARMS mciOpen;
 static MCI_PLAY_PARMS mciPlay;
 static MCI_STATUS_PARMS mciStatus;
-static const char bgmAssetPath[_BGM_ASSET_LEN_][64]= {
-    "../../data/bgm/birdnoise.wav",
-    "../../data/bgm/cymbal.wav",
-    "../../data/bgm/gameover.wav",
-    "../../data/bgm/megalovania.wav",
-    "../../data/bgm/startmenu.wav",
-};
-static Sound bgmAsset[_BGM_ASSET_LEN_];
-static const char voiceAssetPath[_VOICE_ASSET_LEN_][64]= {
-    "../../data/voice/sans.wav",
-};
-static Sound voiceAsset[_VOICE_ASSET_LEN_];
-static const char sfxAssetPath[_SFX_ASSET_LEN_][64]= {
-    "../../data/sfx/attack.wav",
-    "../../data/sfx/doorclose.wav",
-    "../../data/sfx/gasterblaster.wav",
-    "../../data/sfx/intronoise.wav",
-    "../../data/sfx/moment.wav",
-    "../../data/sfx/reflect.wav",
-};
+static SOUND_DATA bgmAsset[_BGM_ASSET_LEN_];
+static SOUND_DATA voiceAsset[_VOICE_ASSET_LEN_];
 
+
+void initSoundAsset();
 void initBGMAsset();
 void initVoiceAsset();
 
-void playBGM(BGMAssetType bgmType, SoundPlayType flag);
-void playVoice(VoiceAssetType voiceType);
-void playSFX(SFXAssetType sfxType);
-
-/* Release Sound Assets */
-void releaseBGMAsset();
-void releaseVoiceAsset();
-void releaseSoundAssets();
-unsigned __stdcall releaseSoundAuto(void* args);
+void playBGM(BGM_TYPE bgmType, SOUND_PLAY_TYPE flag);
+void playVoice(VOICE_TYPE voiceType);
+void playSFX(SFX_TYPE sfxType);
 
 /* Using On Multi-Threads Only */
-void playSFXOnThread(SFXAssetType sfxType); 
+void playSFXOnThread(SFX_TYPE sfxType); 
+
+/* Terminate Func */
+void releaseBGMAsset();
+void releaseVoiceAsset();
+void releaseSoundAsset();
+unsigned __stdcall releaseSoundAuto(void* args);
+
+
+
+/*
+		SOUND_DATA Asset Paths
+								*/
+static const char bgmAssetPath[_BGM_ASSET_LEN_][64]= {
+    "data/bgm/birdnoise.wav",
+    "data/bgm/cymbal.wav",
+    "data/bgm/gameover.wav",
+    "data/bgm/megalovania.wav",
+    "data/bgm/startmenu.wav",
+};
+static const char voiceAssetPath[_VOICE_ASSET_LEN_][64]= {
+    "data/voice/sans.wav",
+};
+static const char sfxAssetPath[_SFX_ASSET_LEN_][64]= {
+    "data/sfx/appear.wav",
+    "data/sfx/attack.wav",
+    "data/sfx/bell.wav",
+    "data/sfx/doorclose.wav",
+    "data/sfx/gasterblaster.wav",
+    "data/sfx/impact.wav",
+    "data/sfx/intronoise.wav",
+    "data/sfx/moment.wav",
+    "data/sfx/reflect.wav",
+    "data/sfx/save.wav",
+    "data/sfx/segapower.wav",
+    "data/sfx/squeak.wav",
+};
 #endif

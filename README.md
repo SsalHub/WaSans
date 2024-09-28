@@ -1,2 +1,3 @@
 # WA!
-- Current Attempt : [Youtube](https://youtu.be/cbGrC4VNIS0?si=suWiMgOJ_tjAjXcf)
+![C_Sans](https://github.com/user-attachments/assets/a4ff15dd-774a-4da9-a6dc-d7c47a32a191)
+- [Video](https://youtu.be/uMsJpGDBpPM)

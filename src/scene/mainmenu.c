@@ -1,10 +1,16 @@
 #include "mainmenu.h"
 
-int showMainmenu()
+
+void Mainmenu_Start()
 {
-	int select = 0;
+	setRenderer(renderMainmenu);
+	menuSelect = 0;
+	playBGM(_BGM_STARTMENU_, _SOUND_BEGIN_);
+}
+
+void Mainmenu_Update()
+{
 	char input;
-	
 	while (1)
 	{
 		if (kbhit())
@@ -13,36 +19,59 @@ int showMainmenu()
 			switch (input)
 			{
 				case _UP_:
-				case _LEFT_:
-					if (0 < select)
-						select--;
+				case 'W':
+				case 'w':	
+					if (0 < menuSelect)
+					{
+						playSFX(_SFX_SQUEAK_);
+						menuSelect--;
+					}
 					break;
 				
 				case _DOWN_:
-				case _RIGHT_:
-					if (select < 1)
-						select++;
+				case 'S':
+				case 's':
+					if (menuSelect < 1)
+					{
+						playSFX(_SFX_SQUEAK_);
+						menuSelect++;
+					}
 					break;
 				
 				case _SPACE_:
-				case _CARRIGE_RETURN_:
-					return select;
+				case _CARRIAGE_RETURN_:
+					playSFX(_SFX_SAVE_);
+					playBGM(_BGM_STARTMENU_, _SOUND_PAUSE_);
+					if (menuSelect == 0)
+					{
+						// begin game
+						fadeOut();
+						gotoNextScene(_SCENE_BATTLE_SANS_);
+						return;
+					}
+					else if(menuSelect == 1)
+					{
+						// exit game
+						gotoNextScene(_SCENE_EXIT_GAME_);
+						return;
+					}
+					break;
 			}
 		}
-		renderCustomScreen(renderMainmenu, select);
+		waitForFrame();
 	}
-	return -1;
+	gotoNextScene(_SCENE_EXIT_GAME_);
 }
 
-void renderMainmenu(int select)
+void renderMainmenu()
 {
-	// print logo
-	printLines(_ALIGN_CENTER_, 6, DataFile[_LOGO_UNDERTALE_], _WHITE_);	
-	
-	// print selections
-	ConsoleColor tSelect[2] = { _WHITE_, _WHITE_ };
-	tSelect[select] = _YELLOW_;
-	
-	printLine(_ALIGN_CENTER_, 23, "Begin Game", tSelect[0]);
-	printLine(_ALIGN_CENTER_, 25, "Exit Game", tSelect[1]);
+	CONSOLE_COLOR tSelect[2] = { _WHITE_, _WHITE_ };
+	// render logo
+	printLines(6, 5, AssetFile[_LOGO_UNDERTALE_], _WHITE_, _BLACK_);	
+	printLine(61, 7, "####", _HOTPINK_, _BLACK_);
+	printLine(62, 8, "=/", _HOTPINK_, _BLACK_);
+	// render button
+	tSelect[menuSelect] = _YELLOW_;
+	printLine(_ALIGN_CENTER_, 21, "Begin Game", tSelect[0], _BLACK_);
+	printLine(_ALIGN_CENTER_, 23, "Exit Game", tSelect[1], _BLACK_);
 }

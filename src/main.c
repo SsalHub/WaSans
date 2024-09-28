@@ -1,5 +1,6 @@
 #include "main.h"
 
+
 int main(int argc, char *argv[]) {
 	initGame();
 	runGame();
@@ -9,32 +10,30 @@ int main(int argc, char *argv[]) {
 
 void initGame()
 {
+	// init basic info and events
+	initPlayerName("SJW");
+	PlayerLevel = 1;
+	
+	// load assets
+	initDataAsset();
+	initSoundAsset();
+	
+	// init event listener
+	initEventListener();
+	// init screen renderer
 	initScreen();
-	initDataFile();
+	beginRenderThread();
 }
 
 void runGame()
 {
-	int mainmenu;
-	while (1)
+//	onEvent(_EVENT_GAME_START_);
+	gotoNextScene(_SCENE_MAINMENU_);
+	
+	EXITCODE ec = _EXIT_NONE_;
+	while (ec != _EXIT_GAME_)
 	{
-		mainmenu = showMainmenu();
-		if (mainmenu == 0)
-		{
-			// run boss battle
-			runSansBattle();
-		}
-		else if(mainmenu == 1)
-		{
-			// exit game
-			break;
-		}
-		else
-		{
-			// error
-			perror("Mainmenu selection error");
-			exit(1);
-		}
+		ec = runScene();
 	}
 }
 
@@ -44,5 +43,7 @@ void exitGame()
 	// printLine(_ALIGN_CENTER_, _ALIGN_TOP_, str, _WHITE_);
 	
 	releaseScreen();
-	releaseDataFile();
+	releaseAssetFile();
+	releaseSoundAsset();
+	releasePlayerName();
 }

@@ -157,6 +157,7 @@ static void enemyPhase()
 			blackScreenEffect(1.0f);
 			setSansFace(_SANS_FACE_IDLE_B_);
 	    	setBattlePhase(_ENEMY_PHASE_);
+			setEnemyBoxSize(_ENEMYBOX_SMALL_);
 	    	playSFX(_SFX_MOMENT_);
 	    	
 	    	// run script
@@ -440,7 +441,7 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 		case _BLAST_TOP_CENTER_:
 			blasterType = _SANS_BLASTER_VERT_0A_;
 			end.X 		= EnemyPhaseBox.pos.X + (EnemyPhaseBox.width * 0.5f) - 4;
-			end.Y 		= EnemyPhaseBox.pos.Y - 7;
+			end.Y 		= EnemyPhaseBox.pos.Y - 8;
 			begin.X 	= end.X - 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X + 14;
@@ -453,7 +454,7 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 		case _BLAST_BOT_CENTER_:
 			blasterType = _SANS_BLASTER_VERT_180A_;
 			end.X 		= EnemyPhaseBox.pos.X + (EnemyPhaseBox.width * 0.5f) - 4;
-			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height + 1;
+			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height;
 			begin.X 	= end.X + 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X - 14;
@@ -468,7 +469,7 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 		case _BLAST_RIGHT_CENTER_:
 			blasterType = _SANS_BLASTER_VERT_90A_;
 			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width + 10;
-			end.Y 		= EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 3;
+			end.Y 		= EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 2;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y - 5;
 			exit.X 		= end.X;
@@ -480,8 +481,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 			break;
 		case _BLAST_LEFT_CENTER_:
 			blasterType = _SANS_BLASTER_VERT_270A_;
-			end.X = EnemyPhaseBox.pos.X - 23;
-			end.Y = EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 3;
+			end.X 		= EnemyPhaseBox.pos.X - 23;
+			end.Y 		= EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 2;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y + 5;
 			exit.X 		= end.X;
@@ -650,7 +651,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_TOP_LEFT_:
 			blasterType = _SANS_BLASTER_VERT_0A_;
 			end.X 		= EnemyPhaseBox.pos.X;
-			end.Y 		= EnemyPhaseBox.pos.Y - 7;
+			end.Y 		= EnemyPhaseBox.pos.Y - 8;
 			begin.X 	= end.X - 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X + 14;
@@ -663,7 +664,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_TOP_RIGHT_:
 			blasterType = _SANS_BLASTER_VERT_0A_;
 			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width - 8;
-			end.Y 		= EnemyPhaseBox.pos.Y - 7;
+			end.Y 		= EnemyPhaseBox.pos.Y - 8;
 			begin.X 	= end.X - 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X + 14;
@@ -676,7 +677,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_BOT_LEFT_:
 			blasterType = _SANS_BLASTER_VERT_180A_;
 			end.X 		= EnemyPhaseBox.pos.X;
-			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height + 1;
+			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height;
 			begin.X 	= end.X + 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X - 14;
@@ -689,7 +690,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_BOT_RIGHT_:
 			blasterType = _SANS_BLASTER_VERT_180A_;
 			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width - 8;
-			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height + 1;
+			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height;
 			begin.X 	= end.X + 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X - 14;
@@ -704,7 +705,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_RIGHT_TOP_:
 			blasterType = _SANS_BLASTER_VERT_90A_;
 			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width + 10;
-			end.Y 		= EnemyPhaseBox.pos.Y - 1;
+			end.Y 		= EnemyPhaseBox.pos.Y;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y - 5;
 			exit.X 		= end.X;
@@ -717,7 +718,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_RIGHT_BOT_:
 			blasterType = _SANS_BLASTER_VERT_90A_;
 			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width + 10;
-			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 3;
+			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 4;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y - 5;
 			exit.X 		= end.X;
@@ -730,7 +731,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_LEFT_TOP_:
 			blasterType = _SANS_BLASTER_VERT_270A_;
 			end.X = EnemyPhaseBox.pos.X - 23;
-			end.Y = EnemyPhaseBox.pos.Y - 1;
+			end.Y = EnemyPhaseBox.pos.Y;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y + 5;
 			exit.X 		= end.X;
@@ -743,7 +744,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_LEFT_BOT_:
 			blasterType = _SANS_BLASTER_VERT_270A_;
 			end.X = EnemyPhaseBox.pos.X - 23;
-			end.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 3;
+			end.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 4;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y + 5;
 			exit.X 		= end.X;

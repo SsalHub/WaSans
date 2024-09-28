@@ -98,6 +98,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args);
 BATTLE_PATTERN explodeBlasterToPlayer(void *args);
 BATTLE_PATTERN swapGravity(void *args);
 BATTLE_PATTERN riseFloorBone(void *args);
+BATTLE_PATTERN makeBonePillars(void *args);
 
 /* Main onCollision Func */
 void Sans_onCollision(void *args);

@@ -942,7 +942,7 @@ BATTLE_PATTERN riseFloorBone(void *args)
 		// init bone string
 		for (i = 0; i < EnemyPhaseBox.width; i++)
 		{
-			boneHead[i] = 'Y';
+			boneHead[i] = 'v';
 			boneBody[i] = '|';
 		}
 		boneHead[i] = '\n';
@@ -1047,6 +1047,48 @@ BATTLE_PATTERN riseFloorBone(void *args)
 	}
 }
 
+BATTLE_PATTERN makeBonePillars(void *args)
+{
+	SANS_PATTERN_ARGS *data = (SANS_PATTERN_ARGS*)args;
+	unsigned int pId = data->patternId;
+	const char upPillar[16], downPillar[16];
+	const int layer1 = 0, layer2 = 1, wave[4] = { 2, 3, 4, 3 };		// 2, 10-2-2 	> 3, 10-2-3
+	COORD pos;
+	char *ptr;
+	float t;
+	int i, idx;
+	strcpy(upPillar, 	"|||\n|||\n|||\n^^^");
+	strcpy(downPillar, 	"vvv\n|||\n|||\n|||");
+	
+	// pillar wave begin
+	for (i = 0; i < 5; i++)
+	{
+		idx = i % 4;
+		// render upPillar
+		setRenderInfo(
+				&(sansPattern[pId].renderInfo[layer1][i]), 
+				pos,
+				EnemyPhaseBox.width,
+				1,
+				boneHead,
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+		//render downPillar
+		setRenderInfo(
+				&(sansPattern[pId].renderInfo[layer2][i]), 
+				pos,
+				EnemyPhaseBox.width,
+				1,
+				boneHead,
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+		sleep(0.2f);
+	}
+}
 
 
 

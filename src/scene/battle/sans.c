@@ -168,9 +168,13 @@ static void enemyPhase()
 			Sans_runPattern(1);
 			sleep(0.2f);
 			Sans_runPattern(2);
-			Sans_runPatternInRange(3, 6);
-			Sans_runPatternInRange(7, 10);
-			sleep(0.3f);
+			Sans_runPattern(3);
+			sleep(0.2f);
+			Sans_runPatternInRange(4, 7);
+			Sans_runPatternInRange(8, 11);
+			sleep(0.2f);
+			Sans_runPatternInRange(12, 13);
+			sleep(0.4f);
 	        
 			setSansFace(_ENEMY_ASSET_DEFAULT_);
 			setSansBody(_ENEMY_ASSET_DEFAULT_);
@@ -379,10 +383,11 @@ char* fixBlasterAngle(char *dst, size_t dstSize, BLASTER_POSITION blasterPos)
 
 void Sans_onDamaged(void *args)
 {
-	static int oldTime = -1000;
-	if (50 < clock() - oldTime)
+	static int oldTime = -1000, soundDelay = -1000;
+	int currTime = clock();
+	if (50 < currTime - oldTime)
 	{
-		oldTime = clock();
+		oldTime = currTime;
 		Player.HP--;
 		if (Player.HP <= 0)
 			Player.mode = _PLAYER_DIED_;
@@ -391,6 +396,12 @@ void Sans_onDamaged(void *args)
 	{
 		Player.width++;
 	}
+	// print sound
+	if (120 < currTime - soundDelay)
+	{
+		soundDelay = currTime;
+		playSFX(_SFX_HURT_);
+	} 
 }
 
 void Sans_onHit(void *args)
@@ -417,6 +428,11 @@ void setGravityMode(INPUT_TYPE gravity)
 		else if (gravity == _RIGHT_)
 			EnemyPhaseBox.mode = _ENEMYBOX_GRAVITY_RIGHT_;
 	}
+}
+
+char* getBonePillarString(char *src, int height)
+{
+	return src + ((4 - height) * 2);
 }
 
 
@@ -1051,43 +1067,130 @@ BATTLE_PATTERN makeBonePillars(void *args)
 {
 	SANS_PATTERN_ARGS *data = (SANS_PATTERN_ARGS*)args;
 	unsigned int pId = data->patternId;
-	const char upPillar[16], downPillar[16];
-	const int layer1 = 0, layer2 = 1, wave[4] = { 2, 3, 4, 3 };		// 2, 10-2-2 	> 3, 10-2-3
-	COORD pos;
-	char *ptr;
+	char upPillar[16], downPillar[16];
+	const int layer1 = 0, layer2 = 1, wave[4] = { 2, 3, 4, 3 }, waveLen = 15;	// 5wave * 3pillars = 15
+	COORD pos[15];	// pos[waveLen];
+	char *upPillar_p[15], *downPillar_p[15];
 	float t;
-	int i, idx;
-	strcpy(upPillar, 	"|||\n|||\n|||\n^^^");
-	strcpy(downPillar, 	"vvv\n|||\n|||\n|||");
+	int i, j, k, h, idx;
+	strcpy(upPillar, 	"|\n|\n|\n^");
+	strcpy(downPillar, 	"v\n|\n|\n|");
 	
+	for (i = 0; i < 3; i++)
+		sansPattern[pId].renderInfoLen[i] = 0;
 	// pillar wave begin
-	for (i = 0; i < 5; i++)
+	for (i = waveLen - 1; 0 <= i; i--)
 	{
-		idx = i % 4;
+		// move waves forward
+		for (j = waveLen - 1; i < j; j--)
+		{
+			idx = j / 3 % 4;
+			pos[j].X++;
+			// render upPillar
+			pos[j].Y = EnemyPhaseBox.pos.Y + 1;
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[j % 3][(waveLen - 1 - j) / 3 * 2]), 
+				pos[j],
+				1,
+				wave[idx],
+				upPillar_p[j],
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+			//render downPillar
+			h = 6 - wave[idx];
+			pos[j].Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - h;
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[j % 3][(waveLen - 1 - j) / 3 * 2 + 1]), 
+				pos[j],
+				1,
+				h,
+				downPillar_p[j],
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+		}
+		idx = i / 3 % 4;
+		pos[i].X = EnemyPhaseBox.pos.X + 2;
 		// render upPillar
+		pos[i].Y = EnemyPhaseBox.pos.Y + 1;
+		upPillar_p[i] = getBonePillarString(upPillar, wave[idx]);
 		setRenderInfo(
-				&(sansPattern[pId].renderInfo[layer1][i]), 
-				pos,
-				EnemyPhaseBox.width,
-				1,
-				boneHead,
-				_WHITE_,
-				_BLACK_,
-				1
-			);
+			&(sansPattern[pId].renderInfo[i % 3][(waveLen - 1 - i) / 3 * 2]), 
+			pos[i],
+			1,
+			wave[idx],
+			upPillar_p[i],
+			_WHITE_,
+			_BLACK_,
+			1
+		);
 		//render downPillar
+		h = 6 - wave[idx];
+		pos[i].Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - h;
+		downPillar_p[i] = getBonePillarString(downPillar, h);
 		setRenderInfo(
-				&(sansPattern[pId].renderInfo[layer2][i]), 
-				pos,
-				EnemyPhaseBox.width,
+			&(sansPattern[pId].renderInfo[i % 3][(waveLen - 1 - i) / 3 * 2 + 1]), 
+			pos[i],
+			1,
+			h,
+			downPillar_p[i],
+			_WHITE_,
+			_BLACK_,
+			1
+		);
+		sansPattern[pId].renderInfoLen[i % 3] += 2;
+		sleep(0.05f);
+	}
+	
+	// continue pillar wave
+	i = waveLen - 1;
+	j = i;
+	while (0 <= i)
+	{
+		// move waves forward
+		for (j = i; 0 <= j; j--)
+		{
+			idx = j / 3 % 4;
+			pos[j].X++;
+			// render upPillar
+			pos[j].Y = EnemyPhaseBox.pos.Y + 1;
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[(waveLen - 1 - j) % 3][j / 3 * 2]), 
+				pos[j],
 				1,
-				boneHead,
+				wave[idx],
+				upPillar_p[j],
 				_WHITE_,
 				_BLACK_,
 				1
 			);
-		sleep(0.2f);
+			//render downPillar
+			h = 6 - wave[idx];
+			pos[j].Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - h;
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[(waveLen - 1 - j) % 3][j / 3 * 2 + 1]), 
+				pos[j],
+				1,
+				h,
+				downPillar_p[j],
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+		}
+		if (EnemyPhaseBox.pos.X + EnemyPhaseBox.width < pos[i].X)
+		{
+			sansPattern[pId].renderInfoLen[(waveLen - 1 - i) % 3] -= 2;
+			i--;
+		}
+		sleep(0.05f);
 	}
+	for (i = 0; i < 3; i++)
+		sansPattern[pId].renderInfoLen[i] = 0;
+	sleep(0.5f);
 }
 
 

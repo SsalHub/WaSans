@@ -16,7 +16,7 @@
 #include "../../event/eventmanager.h"
 
 
-#define _SANS_PATTERN_LEN_ 	11	// num of patterns
+#define _SANS_PATTERN_LEN_ 	14	// num of patterns
 #define _SANS_SCRIPT_LEN_ 	5	// num of scripts
 
 #define _BLAST_ANGLE_LEN_ 	6
@@ -91,6 +91,7 @@ int explodeBlaster(BLASTER_POSITION angle, int pid, COORD begin, COORD end, CONS
 void Sans_onDamaged(void *args);
 void Sans_onHit(void *args);
 void setGravityMode(INPUT_TYPE gravity);
+char* getBonePillarString(char *src, int height);
 
 /* Pattern Func */
 BATTLE_PATTERN explodeBlasterToCenter(void *args);
@@ -121,8 +122,6 @@ void Sans_releasePatterns();
 
 
 
-
-
 /* 
 		  Scripts
 						 */
@@ -138,7 +137,6 @@ static const char scripts[_SANS_SCRIPT_LEN_][128] = {
 				
 				
 				
-				
 /* 
 	Pattern Details
 						 */
@@ -148,14 +146,19 @@ static SANS_PATTERN_ARGS sansPatternInfo[_SANS_PATTERN_LEN_] = {
 			{ 	1, 			riseFloorBone,				0,							0 				},
 			{ 	2, 			swapGravity,				0,							_INPUT_NONE_	},
 			
-			{ 	3, 			explodeBlasterToEdge,		_BLAST_TOP_LEFT_,			0 				},
-			{ 	4, 			explodeBlasterToEdge,		_BLAST_LEFT_TOP_,			0 				},
-			{ 	5, 			explodeBlasterToEdge,		_BLAST_BOT_RIGHT_,			0 				},
-			{ 	6, 			explodeBlasterToEdge,		_BLAST_RIGHT_BOT_,			0 				},
+			{ 	3,			makeBonePillars,			0,							0 				},
 			
-			{ 	7, 			explodeBlasterToCenter,		_BLAST_RIGHT_CENTER_, 		0 				},
-			{ 	8, 			explodeBlasterToCenter,		_BLAST_LEFT_CENTER_, 		0 				},
-			{ 	9, 			explodeBlasterToCenter,		_BLAST_TOP_CENTER_, 		0 				},
-			{ 	10,			explodeBlasterToCenter,		_BLAST_BOT_CENTER_,			0 				},
+			{ 	4, 			explodeBlasterToEdge,		_BLAST_TOP_LEFT_,			0 				},
+			{ 	5, 			explodeBlasterToEdge,		_BLAST_LEFT_TOP_,			0 				},
+			{ 	6, 			explodeBlasterToEdge,		_BLAST_BOT_RIGHT_,			0 				},
+			{ 	7, 			explodeBlasterToEdge,		_BLAST_RIGHT_BOT_,			0 				},
+			
+			{ 	8, 			explodeBlasterToCenter,		_BLAST_RIGHT_CENTER_, 		0 				},
+			{ 	9, 			explodeBlasterToCenter,		_BLAST_LEFT_CENTER_, 		0 				},
+			{ 	10, 		explodeBlasterToCenter,		_BLAST_TOP_CENTER_, 		0 				},
+			{ 	11,			explodeBlasterToCenter,		_BLAST_BOT_CENTER_,			0 				},
+
+			{ 	12,			explodeBlasterToCenter,		_BLAST_RIGHT_CENTER_,		0 				},
+			{ 	13, 		explodeBlasterToCenter,		_BLAST_LEFT_CENTER_, 		0 				},
 	};
 #endif

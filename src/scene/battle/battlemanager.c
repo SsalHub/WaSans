@@ -353,27 +353,7 @@ void renderPlayerPos()
 
 void renderPlayerPhaseBox()
 {
-	const int w = 103, h = 9;
-    static char buffer[1024];
-	char ch[3];
-	int i, j;
-
-	if (strlen(buffer) < 1)
-	{
-	    buffer[0] = '\0';
-	    for (i = 0; i < h; i++)
-	    {
-	        strcat(buffer, ":=");
-	        if (i == 0 || i == h - 1)
-	            strcpy(ch, "=");
-	        else
-	            strcpy(ch, " ");
-	        for (j = 0; j < w; j++)
-	            strcat(buffer, ch);
-	        strcat(buffer, "=: \n");
-	    }
-	}
-    printLines(6, 15, buffer, _WHITE_, _BLACK_);
+    printLines(PlayerPhaseBox.pos.X, PlayerPhaseBox.pos.Y, PlayerPhaseBox.data, _WHITE_, _BLACK_);
 }
 
 void renderPlayerInfo()

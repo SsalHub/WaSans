@@ -113,7 +113,7 @@ static void playerPhase()
 	{
 		case 1:
 			playBGM(_BGM_MEGALOVANIA_, _SOUND_BEGIN_);
-			sleep(0.8f);
+			sleep(0.5f);
 			
 			flushIstream();
 			while (1)
@@ -1070,7 +1070,7 @@ BATTLE_PATTERN makeBonePillars(void *args)
 	char upPillar[16], downPillar[16];
 	const int layer1 = 0, layer2 = 1, wave[4] = { 2, 3, 4, 3 }, waveLen = 15;	// 5wave * 3pillars = 15
 	COORD pos[15];	// pos[waveLen];
-	char *upPillar_p[15], *downPillar_p[15];
+	char upPillar_str[15][16], downPillar_str[15][16];
 	float t;
 	int i, j, k, h, idx;
 	strcpy(upPillar, 	"|\n|\n|\n^");
@@ -1093,7 +1093,7 @@ BATTLE_PATTERN makeBonePillars(void *args)
 				pos[j],
 				1,
 				wave[idx],
-				upPillar_p[j],
+				upPillar_str[j],
 				_WHITE_,
 				_BLACK_,
 				1
@@ -1106,7 +1106,7 @@ BATTLE_PATTERN makeBonePillars(void *args)
 				pos[j],
 				1,
 				h,
-				downPillar_p[j],
+				downPillar_str[j],
 				_WHITE_,
 				_BLACK_,
 				1
@@ -1116,13 +1116,13 @@ BATTLE_PATTERN makeBonePillars(void *args)
 		pos[i].X = EnemyPhaseBox.pos.X + 2;
 		// render upPillar
 		pos[i].Y = EnemyPhaseBox.pos.Y + 1;
-		upPillar_p[i] = getBonePillarString(upPillar, wave[idx]);
+		memmove(upPillar_str[i], upPillar + ((4 - wave[idx]) * 2), sizeof(char) * wave[idx] * 2);
 		setRenderInfo(
 			&(sansPattern[pId].renderInfo[i % 3][(waveLen - 1 - i) / 3 * 2]), 
 			pos[i],
 			1,
 			wave[idx],
-			upPillar_p[i],
+			upPillar_str[i],
 			_WHITE_,
 			_BLACK_,
 			1
@@ -1130,13 +1130,13 @@ BATTLE_PATTERN makeBonePillars(void *args)
 		//render downPillar
 		h = 6 - wave[idx];
 		pos[i].Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - h;
-		downPillar_p[i] = getBonePillarString(downPillar, h);
+		memmove(downPillar_str[i], downPillar, sizeof(char) * h * 2);
 		setRenderInfo(
 			&(sansPattern[pId].renderInfo[i % 3][(waveLen - 1 - i) / 3 * 2 + 1]), 
 			pos[i],
 			1,
 			h,
-			downPillar_p[i],
+			downPillar_str[i],
 			_WHITE_,
 			_BLACK_,
 			1
@@ -1162,7 +1162,7 @@ BATTLE_PATTERN makeBonePillars(void *args)
 				pos[j],
 				1,
 				wave[idx],
-				upPillar_p[j],
+				upPillar_str[j],
 				_WHITE_,
 				_BLACK_,
 				1
@@ -1175,7 +1175,7 @@ BATTLE_PATTERN makeBonePillars(void *args)
 				pos[j],
 				1,
 				h,
-				downPillar_p[j],
+				downPillar_str[j],
 				_WHITE_,
 				_BLACK_,
 				1

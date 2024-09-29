@@ -38,11 +38,16 @@ typedef enum PLAYER_STATUS
 
 typedef enum ENEMYBOX_STATUS
 {
+	// gravity direction
 	_ENEMYBOX_DEFAULT_			= 100,
 	_ENEMYBOX_GRAVITY_UP_,
 	_ENEMYBOX_GRAVITY_DOWN_,
 	_ENEMYBOX_GRAVITY_LEFT_,
 	_ENEMYBOX_GRAVITY_RIGHT_,
+	// enemybox size
+	_ENEMYBOX_SMALL_			= -100,
+	_ENEMYBOX_NORMAL,
+	_ENEMYBOX_LARGE,
 } ENEMYBOX_STATUS;
 
 typedef struct BATTLE_OBJECT
@@ -102,6 +107,7 @@ void initEnemyPhaseBox();
 void initPlayerPhaseBox();
 void initEnemyInfo(int len, BATTLE_OBJECT (*enemy)[_ENEMY_INFO_LEN_]);
 void initPatternInfo(int plen, PATTERN_INFO *pattern);
+void setEnemyBoxSize(ENEMYBOX_STATUS size);
 
 /* Util Func */
 void 		setBattlePhase(BATTLE_PHASE phase);

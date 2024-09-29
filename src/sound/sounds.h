@@ -10,7 +10,7 @@
 #define _SOUND_ASSET_LEN_ 	12
 #define _BGM_ASSET_LEN_		5
 #define _VOICE_ASSET_LEN_	1
-#define _SFX_ASSET_LEN_		12
+#define _SFX_ASSET_LEN_		13
 
 typedef enum BGM_TYPE
 {
@@ -33,6 +33,7 @@ typedef enum SFX_TYPE
     _SFX_BELL_,
     _SFX_DOORCLOSE_,
     _SFX_GASTERBLASTER_,
+    _SFX_HURT_,
     _SFX_IMPACT_,
     _SFX_INTRONOISE_,
     _SFX_MOMENT_,
@@ -104,6 +105,7 @@ static const char sfxAssetPath[_SFX_ASSET_LEN_][64]= {
     "data/sfx/bell.wav",
     "data/sfx/doorclose.wav",
     "data/sfx/gasterblaster.wav",
+    "data/sfx/hurt.wav",
     "data/sfx/impact.wav",
     "data/sfx/intronoise.wav",
     "data/sfx/moment.wav",

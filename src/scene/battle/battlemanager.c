@@ -59,10 +59,8 @@ void initEnemyPhaseBox()
 	char ch[8];
 	int i, j;
 	
-	setCOORD(&(EnemyPhaseBox.pos), 49, 15);
-	EnemyPhaseBox.width = 18;
-	EnemyPhaseBox.height = 8;
 	EnemyPhaseBox.mode = _ENEMYBOX_DEFAULT_;
+	setEnemyBoxSize(_ENEMYBOX_SMALL_);
 	
 	EnemyPhaseBox.data = (char*)malloc(sizeof(char) * ((ScreenWidth + 1) * (ScreenHeight / 2)));
 	// set enemy phase box string
@@ -85,9 +83,9 @@ void initPlayerPhaseBox()
 	char ch[3];
 	int i, j;
 
-	setCOORD(&(PlayerPhaseBox.pos), 6, 15);
+	setCOORD(&(PlayerPhaseBox.pos), 6, 14);
 	PlayerPhaseBox.width = 103;
-	PlayerPhaseBox.height = 8;
+	PlayerPhaseBox.height = 10;
 	PlayerPhaseBox.data = (char*)malloc(sizeof(char) * ((ScreenWidth + 1) * (ScreenHeight / 2)));
 
     PlayerPhaseBox.data[0] = '\0';
@@ -125,6 +123,28 @@ void initPatternInfo(int plen, PATTERN_INFO *pattern)
 {
 	patternLen = plen;
 	Patterns = pattern;
+}
+
+void setEnemyBoxSize(ENEMYBOX_STATUS size)
+{
+	switch (size)
+	{
+		case _ENEMYBOX_SMALL_:
+			setCOORD(&(EnemyPhaseBox.pos), 47, 14);
+			EnemyPhaseBox.width = 22;
+			EnemyPhaseBox.height = 10;
+			break;
+		case _ENEMYBOX_NORMAL:
+			setCOORD(&(EnemyPhaseBox.pos), 38, 14);
+			EnemyPhaseBox.width = 30;
+			EnemyPhaseBox.height = 10;
+			break;
+		case _ENEMYBOX_LARGE:
+			setCOORD(&(EnemyPhaseBox.pos), 24, 14);
+			EnemyPhaseBox.width = 68;
+			EnemyPhaseBox.height = 10;
+			break;
+	}
 }
 
 

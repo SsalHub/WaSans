@@ -157,6 +157,7 @@ static void enemyPhase()
 			blackScreenEffect(1.0f);
 			setSansFace(_SANS_FACE_IDLE_B_);
 	    	setBattlePhase(_ENEMY_PHASE_);
+			setEnemyBoxSize(_ENEMYBOX_SMALL_);
 	    	playSFX(_SFX_MOMENT_);
 	    	
 	    	// run script
@@ -167,9 +168,13 @@ static void enemyPhase()
 			Sans_runPattern(1);
 			sleep(0.2f);
 			Sans_runPattern(2);
-			Sans_runPatternInRange(3, 6);
-			Sans_runPatternInRange(7, 10);
-			sleep(0.3f);
+			Sans_runPattern(3);
+			sleep(0.2f);
+			Sans_runPatternInRange(4, 7);
+			Sans_runPatternInRange(8, 11);
+			sleep(0.2f);
+			Sans_runPatternInRange(12, 13);
+			sleep(0.4f);
 	        
 			setSansFace(_ENEMY_ASSET_DEFAULT_);
 			setSansBody(_ENEMY_ASSET_DEFAULT_);
@@ -378,10 +383,11 @@ char* fixBlasterAngle(char *dst, size_t dstSize, BLASTER_POSITION blasterPos)
 
 void Sans_onDamaged(void *args)
 {
-	static int oldTime = -1000;
-	if (50 < clock() - oldTime)
+	static int oldTime = -1000, soundDelay = -1000;
+	int currTime = clock();
+	if (50 < currTime - oldTime)
 	{
-		oldTime = clock();
+		oldTime = currTime;
 		Player.HP--;
 		if (Player.HP <= 0)
 			Player.mode = _PLAYER_DIED_;
@@ -390,6 +396,12 @@ void Sans_onDamaged(void *args)
 	{
 		Player.width++;
 	}
+	// print sound
+	if (120 < currTime - soundDelay)
+	{
+		soundDelay = currTime;
+		playSFX(_SFX_HURT_);
+	} 
 }
 
 void Sans_onHit(void *args)
@@ -418,6 +430,11 @@ void setGravityMode(INPUT_TYPE gravity)
 	}
 }
 
+char* getBonePillarString(char *src, int height)
+{
+	return src + ((4 - height) * 2);
+}
+
 
 
 /* Pattern Func */
@@ -440,7 +457,7 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 		case _BLAST_TOP_CENTER_:
 			blasterType = _SANS_BLASTER_VERT_0A_;
 			end.X 		= EnemyPhaseBox.pos.X + (EnemyPhaseBox.width * 0.5f) - 4;
-			end.Y 		= EnemyPhaseBox.pos.Y - 7;
+			end.Y 		= EnemyPhaseBox.pos.Y - 8;
 			begin.X 	= end.X - 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X + 14;
@@ -453,7 +470,7 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 		case _BLAST_BOT_CENTER_:
 			blasterType = _SANS_BLASTER_VERT_180A_;
 			end.X 		= EnemyPhaseBox.pos.X + (EnemyPhaseBox.width * 0.5f) - 4;
-			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height + 1;
+			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height;
 			begin.X 	= end.X + 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X - 14;
@@ -468,7 +485,7 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 		case _BLAST_RIGHT_CENTER_:
 			blasterType = _SANS_BLASTER_VERT_90A_;
 			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width + 10;
-			end.Y 		= EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 3;
+			end.Y 		= EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 2;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y - 5;
 			exit.X 		= end.X;
@@ -480,8 +497,8 @@ BATTLE_PATTERN explodeBlasterToCenter(void *args)
 			break;
 		case _BLAST_LEFT_CENTER_:
 			blasterType = _SANS_BLASTER_VERT_270A_;
-			end.X = EnemyPhaseBox.pos.X - 23;
-			end.Y = EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 3;
+			end.X 		= EnemyPhaseBox.pos.X - 23;
+			end.Y 		= EnemyPhaseBox.pos.Y + (EnemyPhaseBox.height / 2) - 2;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y + 5;
 			exit.X 		= end.X;
@@ -650,7 +667,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_TOP_LEFT_:
 			blasterType = _SANS_BLASTER_VERT_0A_;
 			end.X 		= EnemyPhaseBox.pos.X;
-			end.Y 		= EnemyPhaseBox.pos.Y - 7;
+			end.Y 		= EnemyPhaseBox.pos.Y - 8;
 			begin.X 	= end.X - 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X + 14;
@@ -663,7 +680,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_TOP_RIGHT_:
 			blasterType = _SANS_BLASTER_VERT_0A_;
 			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width - 8;
-			end.Y 		= EnemyPhaseBox.pos.Y - 7;
+			end.Y 		= EnemyPhaseBox.pos.Y - 8;
 			begin.X 	= end.X - 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X + 14;
@@ -676,7 +693,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_BOT_LEFT_:
 			blasterType = _SANS_BLASTER_VERT_180A_;
 			end.X 		= EnemyPhaseBox.pos.X;
-			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height + 1;
+			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height;
 			begin.X 	= end.X + 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X - 14;
@@ -689,7 +706,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_BOT_RIGHT_:
 			blasterType = _SANS_BLASTER_VERT_180A_;
 			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width - 8;
-			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height + 1;
+			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height;
 			begin.X 	= end.X + 14;
 			begin.Y 	= end.Y;
 			exit.X 		= end.X - 14;
@@ -704,7 +721,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_RIGHT_TOP_:
 			blasterType = _SANS_BLASTER_VERT_90A_;
 			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width + 10;
-			end.Y 		= EnemyPhaseBox.pos.Y - 1;
+			end.Y 		= EnemyPhaseBox.pos.Y;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y - 5;
 			exit.X 		= end.X;
@@ -717,7 +734,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_RIGHT_BOT_:
 			blasterType = _SANS_BLASTER_VERT_90A_;
 			end.X 		= EnemyPhaseBox.pos.X + EnemyPhaseBox.width + 10;
-			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 3;
+			end.Y 		= EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 4;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y - 5;
 			exit.X 		= end.X;
@@ -730,7 +747,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_LEFT_TOP_:
 			blasterType = _SANS_BLASTER_VERT_270A_;
 			end.X = EnemyPhaseBox.pos.X - 23;
-			end.Y = EnemyPhaseBox.pos.Y - 1;
+			end.Y = EnemyPhaseBox.pos.Y;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y + 5;
 			exit.X 		= end.X;
@@ -743,7 +760,7 @@ BATTLE_PATTERN explodeBlasterToEdge(void *args)
 		case _BLAST_LEFT_BOT_:
 			blasterType = _SANS_BLASTER_VERT_270A_;
 			end.X = EnemyPhaseBox.pos.X - 23;
-			end.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 3;
+			end.Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 4;
 			begin.X 	= end.X;
 			begin.Y 	= end.Y + 5;
 			exit.X 		= end.X;
@@ -941,7 +958,7 @@ BATTLE_PATTERN riseFloorBone(void *args)
 		// init bone string
 		for (i = 0; i < EnemyPhaseBox.width; i++)
 		{
-			boneHead[i] = 'Y';
+			boneHead[i] = 'v';
 			boneBody[i] = '|';
 		}
 		boneHead[i] = '\n';
@@ -1046,6 +1063,135 @@ BATTLE_PATTERN riseFloorBone(void *args)
 	}
 }
 
+BATTLE_PATTERN makeBonePillars(void *args)
+{
+	SANS_PATTERN_ARGS *data = (SANS_PATTERN_ARGS*)args;
+	unsigned int pId = data->patternId;
+	char upPillar[16], downPillar[16];
+	const int layer1 = 0, layer2 = 1, wave[4] = { 2, 3, 4, 3 }, waveLen = 15;	// 5wave * 3pillars = 15
+	COORD pos[15];	// pos[waveLen];
+	char *upPillar_p[15], *downPillar_p[15];
+	float t;
+	int i, j, k, h, idx;
+	strcpy(upPillar, 	"|\n|\n|\n^");
+	strcpy(downPillar, 	"v\n|\n|\n|");
+	
+	for (i = 0; i < 3; i++)
+		sansPattern[pId].renderInfoLen[i] = 0;
+	// pillar wave begin
+	for (i = waveLen - 1; 0 <= i; i--)
+	{
+		// move waves forward
+		for (j = waveLen - 1; i < j; j--)
+		{
+			idx = j / 3 % 4;
+			pos[j].X++;
+			// render upPillar
+			pos[j].Y = EnemyPhaseBox.pos.Y + 1;
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[j % 3][(waveLen - 1 - j) / 3 * 2]), 
+				pos[j],
+				1,
+				wave[idx],
+				upPillar_p[j],
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+			//render downPillar
+			h = 6 - wave[idx];
+			pos[j].Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - h;
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[j % 3][(waveLen - 1 - j) / 3 * 2 + 1]), 
+				pos[j],
+				1,
+				h,
+				downPillar_p[j],
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+		}
+		idx = i / 3 % 4;
+		pos[i].X = EnemyPhaseBox.pos.X + 2;
+		// render upPillar
+		pos[i].Y = EnemyPhaseBox.pos.Y + 1;
+		upPillar_p[i] = getBonePillarString(upPillar, wave[idx]);
+		setRenderInfo(
+			&(sansPattern[pId].renderInfo[i % 3][(waveLen - 1 - i) / 3 * 2]), 
+			pos[i],
+			1,
+			wave[idx],
+			upPillar_p[i],
+			_WHITE_,
+			_BLACK_,
+			1
+		);
+		//render downPillar
+		h = 6 - wave[idx];
+		pos[i].Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - h;
+		downPillar_p[i] = getBonePillarString(downPillar, h);
+		setRenderInfo(
+			&(sansPattern[pId].renderInfo[i % 3][(waveLen - 1 - i) / 3 * 2 + 1]), 
+			pos[i],
+			1,
+			h,
+			downPillar_p[i],
+			_WHITE_,
+			_BLACK_,
+			1
+		);
+		sansPattern[pId].renderInfoLen[i % 3] += 2;
+		sleep(0.05f);
+	}
+	
+	// continue pillar wave
+	i = waveLen - 1;
+	j = i;
+	while (0 <= i)
+	{
+		// move waves forward
+		for (j = i; 0 <= j; j--)
+		{
+			idx = j / 3 % 4;
+			pos[j].X++;
+			// render upPillar
+			pos[j].Y = EnemyPhaseBox.pos.Y + 1;
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[(waveLen - 1 - j) % 3][j / 3 * 2]), 
+				pos[j],
+				1,
+				wave[idx],
+				upPillar_p[j],
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+			//render downPillar
+			h = 6 - wave[idx];
+			pos[j].Y = EnemyPhaseBox.pos.Y + EnemyPhaseBox.height - 1 - h;
+			setRenderInfo(
+				&(sansPattern[pId].renderInfo[(waveLen - 1 - j) % 3][j / 3 * 2 + 1]), 
+				pos[j],
+				1,
+				h,
+				downPillar_p[j],
+				_WHITE_,
+				_BLACK_,
+				1
+			);
+		}
+		if (EnemyPhaseBox.pos.X + EnemyPhaseBox.width < pos[i].X)
+		{
+			sansPattern[pId].renderInfoLen[(waveLen - 1 - i) % 3] -= 2;
+			i--;
+		}
+		sleep(0.05f);
+	}
+	for (i = 0; i < 3; i++)
+		sansPattern[pId].renderInfoLen[i] = 0;
+	sleep(0.5f);
+}
 
 
 
